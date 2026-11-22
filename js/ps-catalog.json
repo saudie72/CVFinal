@@ -6,104 +6,866 @@
       "product": "HCM",
       "name": "Human Capital Management",
       "modules": [
-        { "module": "Human Resources", "label": "Human Resources", "pages": ["Workforce Administration", "Position Management", "Organizational Development", "Manage Positions", "Company", "Department", "Location", "Job Code"] },
-        { "module": "Workforce Administration", "label": "Workforce Administration", "pages": ["Job Data", "Personal Data", "Add a Person", "Modify a Person", "Hire", "Job Data – Work Location", "Job Data – Job Information", "Job Data – Payroll", "Job Data – Salary Plan", "Compensation", "Employment Data", "Job Summary"] },
-        { "module": "Position Management", "label": "Position Management", "pages": [] },
-        { "module": "Base Benefits", "label": "Base Benefits", "pages": ["Benefit Program Table", "Benefit Plan Table", "Eligibility Rules", "Enroll in Benefits", "Dependent/Beneficiary", "Benefits Enrollment Forms"] },
-        { "module": "Benefits Administration", "label": "Benefits Administration", "pages": ["Open Enrollment", "Event Maintenance", "Benefit Program Participation", "Enrollment Forms", "Benefit Billing"] },
-        { "module": "Payroll for North America", "label": "Payroll for North America", "pages": ["Create Paycheck", "Paysheets", "Payroll Calendar", "Pay Run ID", "Paycheck Inquiry", "Direct Deposit", "Earnings Table", "Deduction Table", "Tax Data – US"] },
-        { "module": "Global Payroll", "label": "Global Payroll", "pages": ["Calendar Group", "Pay Group", "Element Definition", "Payee Data", "Absence Take", "Payroll Process"] },
-        { "module": "Global Payroll & Absence Management", "label": "Global Payroll & Absence Management", "pages": ["Absence Event", "Absence Take", "Absence Entitlement", "Absence Balance Inquiry"] },
-        { "module": "Absence Management", "label": "Absence Management", "pages": ["Absence Event", "Absence Take", "Absence Balance Inquiry", "Absence Entitlement", "Absence Element"] },
-        { "module": "Time and Labor", "label": "Time & Labor", "pages": ["Timesheet", "Rules", "Time Reporting Codes", "Workgroups", "Approve Reported Time", "Report Time", "Reported Time", "Payable Time", "Task Reporting Codes", "Schedules", "Shifts", "Time Administration", "Task Profile", "Taskgroups", "Holiday Schedule", "Exceptions"] },
-        { "module": "Labor Administration", "label": "Labor Administration", "pages": ["Labor Distribution", "Labor Rules", "Labor Budgets"] },
-        { "module": "Talent Acquisition Manager", "label": "Talent Acquisition Manager", "pages": ["Job Opening", "Applicant", "Job Posting", "Hiring Manager Home", "Recruiter Home"] },
-        { "module": "Recruiting", "label": "Recruiting", "pages": ["Job Opening", "Applicant Search", "Applicant Review", "Job Posting"] },
-        { "module": "Onboarding", "label": "Onboarding", "pages": ["Onboarding Task", "Activity Template", "New Hire Dashboard", "Onboarding Process"] },
-        { "module": "Learning Management", "label": "Learning Management", "pages": ["Catalog Item", "Learning Catalog", "Learner Home", "Enrollment", "Training Request"] },
-        { "module": "Performance Management", "label": "Performance Management", "pages": ["Performance Document", "Performance Review", "Performance Template", "Evaluation"] },
-        { "module": "ePerformance", "label": "ePerformance", "pages": ["Performance Document", "My Performance Documents", "Performance Check-in", "Manager Performance Documents"] },
-        { "module": "Compensation", "label": "Compensation", "pages": ["Salary Plan", "Salary Grade", "Salary Step", "Compensation Rate Code"] },
-        { "module": "Manage Variable Compensation", "label": "Variable Compensation", "pages": ["Variable Compensation Plan", "Variable Compensation Award"] },
-        { "module": "Succession Planning", "label": "Succession Planning", "pages": ["Succession Plan", "Talent Summary", "Nine Box Grid"] },
-        { "module": "Workforce Planning", "label": "Workforce Planning", "pages": ["Workforce Plan", "Headcount Analysis", "Gap Analysis"] },
-        { "module": "Workforce Monitoring", "label": "Workforce Monitoring", "pages": ["Monitor Workforce"] },
-        { "module": "Health and Safety", "label": "Health and Safety", "pages": ["Incident Details", "Incident Report", "Health Safety Case"] },
-        { "module": "Pension Administration", "label": "Pension Administration", "pages": ["Pension Plan", "Pension Participant", "Pension Calculation"] },
-        { "module": "Stock Administration", "label": "Stock Administration", "pages": ["Stock Option Grant", "Stock Plan", "Exercise Stock Options"] },
-        { "module": "Salary Administration", "label": "Salary Administration", "pages": ["Salary Plan", "Salary Grade"] },
-        { "module": "Contract Administration", "label": "Contract Administration", "pages": ["Contract Data"] },
-        { "module": "Human Resources Self Service", "label": "Self Service", "pages": ["Personal Details", "Contact Information", "Manager Self Service"] },
-        { "module": "eProfile", "label": "eProfile", "pages": ["Personal Information", "Contact Details", "Name Change", "Marital Status"] },
-        { "module": "eProfile Manager Desktop", "label": "eProfile Manager Desktop", "pages": ["Employee Profile", "Manager Dashboard"] },
-        { "module": "eBenefits", "label": "eBenefits", "pages": ["Benefits Summary", "Benefits Enrollment", "Life Events"] },
-        { "module": "ePay", "label": "ePay", "pages": ["Paycheck", "Direct Deposit", "W-4 Tax Information", "W-2/W-2c Consent"] },
-        { "module": "eCompensation", "label": "eCompensation", "pages": ["Compensation Worksheet", "Manager Compensation"] },
-        { "module": "Fluid HCM Self Service", "label": "Fluid Self Service", "pages": ["Employee Self Service Home", "Manager Self Service Home", "Timesheet", "Absence Request", "Benefits Summary", "Pay"] },
-        { "module": "Fluid Approvals", "label": "Fluid Approvals", "pages": ["Approvals", "Approval Details"] },
-        { "module": "Workforce Communications", "label": "Workforce Communications", "pages": ["Notification Composer"] },
-        { "module": "Equity Management", "label": "Equity Management", "pages": [] },
-        { "module": "Services Procurement", "label": "Services Procurement", "pages": ["Work Order", "Work Order Entry"] },
-        { "module": "Resource Management", "label": "Resource Management", "pages": ["Resource Pool", "Resource Search"] },
-        { "module": "Candidate Gateway", "label": "Candidate Gateway", "pages": ["Search Jobs", "Job Details", "Application"] },
-        { "module": "Enterprise Learning Management", "label": "Enterprise Learning Management", "pages": ["Learning Catalog", "Learning Assignment"] },
-        { "module": "Human Resources for Education and Government", "label": "HR for Education and Government", "pages": ["Funding Distribution", "Appointment"] },
-        { "module": "Human Resources for Public Sector", "label": "HR for Public Sector", "pages": ["Job Data", "Position Data"] },
-        { "module": "Global Core", "label": "Global Core", "pages": ["Job Data – Global", "Personal Data – Global"] },
-        { "module": "Human Resources Administration Foundation", "label": "HR Foundation", "pages": ["Setup HCM", "Business Unit", "Establishment", "Set ID"] },
-        { "module": "Application Fundamentals", "label": "Application Fundamentals", "pages": ["Fluid Home Page", "Navigation Collection", "Page and Field Configurator"] }
+        {
+          "module": "Human Resources",
+          "label": "Human Resources",
+          "pages": [
+            "Workforce Administration",
+            "Organizational Development",
+            "Manage Positions",
+            "Company",
+            "Department",
+            "Location",
+            "Job Code"
+          ]
+        },
+        {
+          "module": "Workforce Administration",
+          "label": "Workforce Administration",
+          "pages": [
+            "Job Data",
+            "Personal Data",
+            "Add a Person",
+            "Modify a Person",
+            "Hire",
+            "Job Data – Work Location",
+            "Job Data – Job Information",
+            "Job Data – Payroll",
+            "Job Data – Salary Plan",
+            "Compensation",
+            "Employment Data",
+            "Job Summary"
+          ]
+        },
+        {
+          "module": "Position Management",
+          "label": "Position Management",
+          "pages": []
+        },
+        {
+          "module": "Base Benefits",
+          "label": "Base Benefits",
+          "pages": [
+            "Benefit Program Table",
+            "Benefit Plan Table",
+            "Eligibility Rules",
+            "Enroll in Benefits",
+            "Dependent/Beneficiary",
+            "Benefits Enrollment Forms"
+          ]
+        },
+        {
+          "module": "Benefits Administration",
+          "label": "Benefits Administration",
+          "pages": [
+            "Open Enrollment",
+            "Event Maintenance",
+            "Benefit Program Participation",
+            "Enrollment Forms",
+            "Benefit Billing"
+          ]
+        },
+        {
+          "module": "Payroll for North America",
+          "label": "Payroll for North America",
+          "pages": [
+            "Create Paycheck",
+            "Paysheets",
+            "Payroll Calendar",
+            "Pay Run ID",
+            "Paycheck Inquiry",
+            "Direct Deposit",
+            "Earnings Table",
+            "Deduction Table",
+            "Tax Data – US"
+          ]
+        },
+        {
+          "module": "Global Payroll",
+          "label": "Global Payroll",
+          "pages": [
+            "Calendar Group",
+            "Pay Group",
+            "Element Definition",
+            "Payee Data",
+            "Absence Take",
+            "Payroll Process"
+          ]
+        },
+        {
+          "module": "Global Payroll & Absence Management",
+          "label": "Global Payroll & Absence Management",
+          "pages": [
+            "Absence Event",
+            "Absence Take",
+            "Absence Entitlement",
+            "Absence Balance Inquiry"
+          ]
+        },
+        {
+          "module": "Absence Management",
+          "label": "Absence Management",
+          "pages": [
+            "Absence Event",
+            "Absence Take",
+            "Absence Balance Inquiry",
+            "Absence Entitlement",
+            "Absence Element"
+          ]
+        },
+        {
+          "module": "Time and Labor",
+          "label": "Time & Labor",
+          "pages": [
+            "Timesheet",
+            "Rules",
+            "Time Reporting Codes",
+            "Workgroups",
+            "Approve Reported Time",
+            "Report Time",
+            "Reported Time",
+            "Payable Time",
+            "Task Reporting Codes",
+            "Schedules",
+            "Shifts",
+            "Time Administration",
+            "Task Profile",
+            "Taskgroups",
+            "Holiday Schedule",
+            "Exceptions"
+          ]
+        },
+        {
+          "module": "Labor Administration",
+          "label": "Labor Administration",
+          "pages": [
+            "Labor Distribution",
+            "Labor Rules",
+            "Labor Budgets"
+          ]
+        },
+        {
+          "module": "Talent Acquisition Manager",
+          "label": "Talent Acquisition Manager",
+          "pages": [
+            "Job Opening",
+            "Applicant",
+            "Job Posting",
+            "Hiring Manager Home",
+            "Recruiter Home"
+          ]
+        },
+        {
+          "module": "Recruiting",
+          "label": "Recruiting",
+          "pages": [
+            "Job Opening",
+            "Applicant Search",
+            "Applicant Review",
+            "Job Posting"
+          ]
+        },
+        {
+          "module": "Onboarding",
+          "label": "Onboarding",
+          "pages": [
+            "Onboarding Task",
+            "Activity Template",
+            "New Hire Dashboard",
+            "Onboarding Process"
+          ]
+        },
+        {
+          "module": "Learning Management",
+          "label": "Learning Management",
+          "pages": [
+            "Catalog Item",
+            "Learning Catalog",
+            "Learner Home",
+            "Enrollment",
+            "Training Request"
+          ]
+        },
+        {
+          "module": "Performance Management",
+          "label": "Performance Management",
+          "pages": [
+            "Performance Document",
+            "Performance Review",
+            "Performance Template",
+            "Evaluation"
+          ]
+        },
+        {
+          "module": "ePerformance",
+          "label": "ePerformance",
+          "pages": [
+            "Performance Document",
+            "My Performance Documents",
+            "Performance Check-in",
+            "Manager Performance Documents"
+          ]
+        },
+        {
+          "module": "Compensation",
+          "label": "Compensation",
+          "pages": [
+            "Salary Plan",
+            "Salary Grade",
+            "Salary Step",
+            "Compensation Rate Code"
+          ]
+        },
+        {
+          "module": "Manage Variable Compensation",
+          "label": "Variable Compensation",
+          "pages": [
+            "Variable Compensation Plan",
+            "Variable Compensation Award"
+          ]
+        },
+        {
+          "module": "Succession Planning",
+          "label": "Succession Planning",
+          "pages": [
+            "Succession Plan",
+            "Talent Summary",
+            "Nine Box Grid"
+          ]
+        },
+        {
+          "module": "Workforce Planning",
+          "label": "Workforce Planning",
+          "pages": [
+            "Workforce Plan",
+            "Headcount Analysis",
+            "Gap Analysis"
+          ]
+        },
+        {
+          "module": "Workforce Monitoring",
+          "label": "Workforce Monitoring",
+          "pages": [
+            "Monitor Workforce"
+          ]
+        },
+        {
+          "module": "Health and Safety",
+          "label": "Health and Safety",
+          "pages": [
+            "Incident Details",
+            "Incident Report",
+            "Health Safety Case"
+          ]
+        },
+        {
+          "module": "Pension Administration",
+          "label": "Pension Administration",
+          "pages": [
+            "Pension Plan",
+            "Pension Participant",
+            "Pension Calculation"
+          ]
+        },
+        {
+          "module": "Stock Administration",
+          "label": "Stock Administration",
+          "pages": [
+            "Stock Option Grant",
+            "Stock Plan",
+            "Exercise Stock Options"
+          ]
+        },
+        {
+          "module": "Salary Administration",
+          "label": "Salary Administration",
+          "pages": [
+            "Salary Plan",
+            "Salary Grade"
+          ]
+        },
+        {
+          "module": "Contract Administration",
+          "label": "Contract Administration",
+          "pages": [
+            "Contract Data"
+          ]
+        },
+        {
+          "module": "Human Resources Self Service",
+          "label": "Self Service",
+          "pages": [
+            "Personal Details",
+            "Contact Information",
+            "Manager Self Service"
+          ]
+        },
+        {
+          "module": "eProfile",
+          "label": "eProfile",
+          "pages": [
+            "Personal Information",
+            "Contact Details",
+            "Name Change",
+            "Marital Status"
+          ]
+        },
+        {
+          "module": "eProfile Manager Desktop",
+          "label": "eProfile Manager Desktop",
+          "pages": [
+            "Employee Profile",
+            "Manager Dashboard"
+          ]
+        },
+        {
+          "module": "eBenefits",
+          "label": "eBenefits",
+          "pages": [
+            "Benefits Summary",
+            "Benefits Enrollment",
+            "Life Events"
+          ]
+        },
+        {
+          "module": "ePay",
+          "label": "ePay",
+          "pages": [
+            "Paycheck",
+            "Direct Deposit",
+            "W-4 Tax Information",
+            "W-2/W-2c Consent"
+          ]
+        },
+        {
+          "module": "eCompensation",
+          "label": "eCompensation",
+          "pages": [
+            "Compensation Worksheet",
+            "Manager Compensation"
+          ]
+        },
+        {
+          "module": "Fluid HCM Self Service",
+          "label": "Fluid Self Service",
+          "pages": [
+            "Employee Self Service Home",
+            "Manager Self Service Home",
+            "Timesheet",
+            "Absence Request",
+            "Benefits Summary",
+            "Pay"
+          ]
+        },
+        {
+          "module": "Fluid Approvals",
+          "label": "Fluid Approvals",
+          "pages": [
+            "Approvals",
+            "Approval Details"
+          ]
+        },
+        {
+          "module": "Workforce Communications",
+          "label": "Workforce Communications",
+          "pages": [
+            "Notification Composer"
+          ]
+        },
+        {
+          "module": "Equity Management",
+          "label": "Equity Management",
+          "pages": []
+        },
+        {
+          "module": "Services Procurement",
+          "label": "Services Procurement",
+          "pages": [
+            "Work Order",
+            "Work Order Entry"
+          ]
+        },
+        {
+          "module": "Resource Management",
+          "label": "Resource Management",
+          "pages": [
+            "Resource Pool",
+            "Resource Search"
+          ]
+        },
+        {
+          "module": "Candidate Gateway",
+          "label": "Candidate Gateway",
+          "pages": [
+            "Search Jobs",
+            "Job Details",
+            "Application"
+          ]
+        },
+        {
+          "module": "Enterprise Learning Management",
+          "label": "Enterprise Learning Management",
+          "pages": [
+            "Learning Catalog",
+            "Learning Assignment"
+          ]
+        },
+        {
+          "module": "Human Resources for Education and Government",
+          "label": "HR for Education and Government",
+          "pages": [
+            "Funding Distribution",
+            "Appointment"
+          ]
+        },
+        {
+          "module": "Human Resources for Public Sector",
+          "label": "HR for Public Sector",
+          "pages": [
+            "Job Data",
+            "Position Data"
+          ]
+        },
+        {
+          "module": "Global Core",
+          "label": "Global Core",
+          "pages": [
+            "Job Data – Global",
+            "Personal Data – Global"
+          ]
+        },
+        {
+          "module": "Human Resources Administration Foundation",
+          "label": "HR Foundation",
+          "pages": [
+            "Setup HCM",
+            "Business Unit",
+            "Establishment",
+            "Set ID"
+          ]
+        },
+        {
+          "module": "Application Fundamentals",
+          "label": "Application Fundamentals",
+          "pages": [
+            "Fluid Home Page",
+            "Navigation Collection",
+            "Page and Field Configurator"
+          ]
+        }
       ]
     },
     {
       "product": "FSCM",
       "name": "Financials and Supply Chain Management",
       "modules": [
-        { "module": "General Ledger", "label": "General Ledger", "pages": ["Journal Entry", "Journals", "Ledger", "Chart of Accounts", "Journal Entry Header", "Journal Lines", "Journal Post", "Trial Balance"] },
-        { "module": "Accounts Payable", "label": "Payables", "pages": ["Voucher", "Invoice Information", "Voucher Lines", "Payments", "Payment Request", "Vendor", "Voucher Inquiry", "Pay Cycle Manager"] },
-        { "module": "Accounts Receivable", "label": "Receivables", "pages": ["Item", "Payment", "Customer", "Item Inquiry", "Payment Worksheet", "Statements"] },
-        { "module": "Billing", "label": "Billing", "pages": ["Bill Entry", "Standard Billing", "Invoice", "Bill Inquiry"] },
-        { "module": "Purchasing", "label": "Purchasing", "pages": ["Purchase Order", "Maintain Purchase Order", "Requisition", "Purchase Order Inquiry", "Receipts", "PO Dispatch", "Buyer"] },
-        { "module": "eProcurement", "label": "eProcurement", "pages": ["Create Requisition", "Requisition Approval", "Shopping Cart", "Requisition Status"] },
-        { "module": "Inventory", "label": "Inventory", "pages": ["Putaway", "Stock Request", "Material Storage Location", "Stock Quantities", "Cycle Count"] },
-        { "module": "Order Management", "label": "Order Management", "pages": ["Sales Order", "Order Entry", "Pick Plan", "Shipping"] },
-        { "module": "Asset Management", "label": "Asset Management", "pages": ["Basic Add", "Asset Basic Information", "Cost", "Depreciation", "Transfer Asset", "Retire Asset"] },
-        { "module": "Project Costing", "label": "Project Costing", "pages": ["Project", "Project General Information", "Resource Transactions", "Activity", "Project Budget"] },
-        { "module": "Expenses", "label": "Expenses", "pages": ["Expense Report", "Create Expense Report", "Cash Advance", "Expense Report Approval", "Travel Authorization"] },
-        { "module": "Travel and Expenses", "label": "Travel and Expenses", "pages": ["Expense Report", "Travel Authorization", "Cash Advance", "Expense Type"] },
-        { "module": "Commitment Control", "label": "Commitment Control", "pages": ["Budget Journal", "Budget Check", "Control Budget", "Budget Overview"] },
-        { "module": "Cash Management", "label": "Cash Management", "pages": ["Bank Statement", "Reconciliation", "Cash Position", "Bank Account"] },
-        { "module": "Treasury", "label": "Treasury", "pages": ["Deal Management", "Cash Flow Forecast"] },
-        { "module": "Contracts", "label": "Contracts", "pages": ["Contract", "Contract Header", "Contract Lines", "Amendment"] },
-        { "module": "Grants", "label": "Grants", "pages": ["Award", "Proposal", "Award Profile"] },
-        { "module": "Strategic Sourcing", "label": "Strategic Sourcing", "pages": ["Sourcing Event", "Bid Response", "Event Template"] },
-        { "module": "Supplier Contract Management", "label": "Supplier Contract Management", "pages": ["Contract", "Contract Entry", "Contract Authoring"] },
-        { "module": "Supplier Relationship Management", "label": "Supplier Relationship Management", "pages": ["Supplier", "Supplier Scorecard"] },
-        { "module": "Supplier Portal", "label": "Supplier Portal", "pages": ["Purchase Order", "Invoice", "Payment Inquiry"] },
-        { "module": "Supplier Registration", "label": "Supplier Registration", "pages": ["Registration", "Supplier Profile"] },
-        { "module": "Supply Planning", "label": "Supply Planning", "pages": ["Planning Run", "Planning Results"] },
-        { "module": "Demand Planning", "label": "Demand Planning", "pages": [] },
-        { "module": "Production Control", "label": "Production Control", "pages": ["Production ID", "Production Schedule"] },
-        { "module": "Manufacturing", "label": "Manufacturing", "pages": ["Bill of Material", "Routing"] },
-        { "module": "Bills of Materials", "label": "Bills of Materials", "pages": ["Bill of Material"] },
-        { "module": "Cost Management", "label": "Cost Management", "pages": ["Item Cost", "Cost Rollup"] },
-        { "module": "Engineering", "label": "Engineering", "pages": ["Engineering Change Order", "Item Master"] },
-        { "module": "Maintenance Management", "label": "Maintenance Management", "pages": ["Work Order", "Maintenance Schedule"] },
-        { "module": "Configurator", "label": "Configurator", "pages": [] },
-        { "module": "Promotions Management", "label": "Promotions Management", "pages": ["Promotion"] },
-        { "module": "Services Procurement", "label": "Services Procurement", "pages": ["Work Order", "Work Order Entry"] },
-        { "module": "Staffing Front Office", "label": "Staffing Front Office", "pages": [] },
-        { "module": "Deduction Management", "label": "Deduction Management", "pages": ["Deduction", "Deduction Worksheet"] },
-        { "module": "Payment Interface", "label": "Payment Interface", "pages": ["Payment Request"] },
-        { "module": "Banking", "label": "Banking", "pages": ["Bank Account", "Electronic Payment"] },
-        { "module": "Receivables Collections", "label": "Collections", "pages": ["Customer Account", "Collection Worksheet"] },
-        { "module": "Lease Administration", "label": "Lease Administration", "pages": ["Lease", "Lease Payment"] },
-        { "module": "Real Estate Management", "label": "Real Estate Management", "pages": [] },
-        { "module": "Customer Contracts", "label": "Customer Contracts", "pages": ["Contract", "Contract Lines"] },
-        { "module": "Customer Relationship Management", "label": "Customer Relationship Management", "pages": ["Customer"] },
-        { "module": "Financial Gateway", "label": "Financial Gateway", "pages": ["Payment Request"] },
-        { "module": "Fluid Financials", "label": "Fluid Financials", "pages": ["Approvals", "Expense Report", "Requisition", "Voucher Approval"] },
-        { "module": "Application Fundamentals for FSCM", "label": "FSCM Application Fundamentals", "pages": ["Business Unit", "Set ID", "Fluid Home Page"] },
-        { "module": "Enterprise Components", "label": "Enterprise Components", "pages": ["Approval Framework", "Workflow", "Currency Exchange Rate"] }
+        {
+          "module": "General Ledger",
+          "label": "General Ledger",
+          "pages": [
+            "Journal Entry",
+            "Journals",
+            "Ledger",
+            "Chart of Accounts",
+            "Journal Entry Header",
+            "Journal Lines",
+            "Journal Post",
+            "Trial Balance"
+          ]
+        },
+        {
+          "module": "Accounts Payable",
+          "label": "Payables",
+          "pages": [
+            "Voucher",
+            "Invoice Information",
+            "Voucher Lines",
+            "Payments",
+            "Payment Request",
+            "Vendor",
+            "Voucher Inquiry",
+            "Pay Cycle Manager"
+          ]
+        },
+        {
+          "module": "Accounts Receivable",
+          "label": "Receivables",
+          "pages": [
+            "Item",
+            "Payment",
+            "Customer",
+            "Item Inquiry",
+            "Payment Worksheet",
+            "Statements"
+          ]
+        },
+        {
+          "module": "Billing",
+          "label": "Billing",
+          "pages": [
+            "Bill Entry",
+            "Standard Billing",
+            "Invoice",
+            "Bill Inquiry"
+          ]
+        },
+        {
+          "module": "Purchasing",
+          "label": "Purchasing",
+          "pages": [
+            "Purchase Order",
+            "Maintain Purchase Order",
+            "Requisition",
+            "Purchase Order Inquiry",
+            "Receipts",
+            "PO Dispatch",
+            "Buyer"
+          ]
+        },
+        {
+          "module": "eProcurement",
+          "label": "eProcurement",
+          "pages": [
+            "Create Requisition",
+            "Requisition Approval",
+            "Shopping Cart",
+            "Requisition Status"
+          ]
+        },
+        {
+          "module": "Inventory",
+          "label": "Inventory",
+          "pages": [
+            "Putaway",
+            "Stock Request",
+            "Material Storage Location",
+            "Stock Quantities",
+            "Cycle Count"
+          ]
+        },
+        {
+          "module": "Order Management",
+          "label": "Order Management",
+          "pages": [
+            "Sales Order",
+            "Order Entry",
+            "Pick Plan",
+            "Shipping"
+          ]
+        },
+        {
+          "module": "Asset Management",
+          "label": "Asset Management",
+          "pages": [
+            "Basic Add",
+            "Asset Basic Information",
+            "Cost",
+            "Depreciation",
+            "Transfer Asset",
+            "Retire Asset"
+          ]
+        },
+        {
+          "module": "Project Costing",
+          "label": "Project Costing",
+          "pages": [
+            "Project",
+            "Project General Information",
+            "Resource Transactions",
+            "Activity",
+            "Project Budget"
+          ]
+        },
+        {
+          "module": "Expenses",
+          "label": "Expenses",
+          "pages": [
+            "Expense Report",
+            "Create Expense Report",
+            "Cash Advance",
+            "Expense Report Approval",
+            "Travel Authorization"
+          ]
+        },
+        {
+          "module": "Travel and Expenses",
+          "label": "Travel and Expenses",
+          "pages": [
+            "Expense Report",
+            "Travel Authorization",
+            "Cash Advance",
+            "Expense Type"
+          ]
+        },
+        {
+          "module": "Commitment Control",
+          "label": "Commitment Control",
+          "pages": [
+            "Budget Journal",
+            "Budget Check",
+            "Control Budget",
+            "Budget Overview"
+          ]
+        },
+        {
+          "module": "Cash Management",
+          "label": "Cash Management",
+          "pages": [
+            "Bank Statement",
+            "Reconciliation",
+            "Cash Position",
+            "Bank Account"
+          ]
+        },
+        {
+          "module": "Treasury",
+          "label": "Treasury",
+          "pages": [
+            "Deal Management",
+            "Cash Flow Forecast"
+          ]
+        },
+        {
+          "module": "Contracts",
+          "label": "Contracts",
+          "pages": [
+            "Contract",
+            "Contract Header",
+            "Contract Lines",
+            "Amendment"
+          ]
+        },
+        {
+          "module": "Grants",
+          "label": "Grants",
+          "pages": [
+            "Award",
+            "Proposal",
+            "Award Profile"
+          ]
+        },
+        {
+          "module": "Strategic Sourcing",
+          "label": "Strategic Sourcing",
+          "pages": [
+            "Sourcing Event",
+            "Bid Response",
+            "Event Template"
+          ]
+        },
+        {
+          "module": "Supplier Contract Management",
+          "label": "Supplier Contract Management",
+          "pages": [
+            "Contract",
+            "Contract Entry",
+            "Contract Authoring"
+          ]
+        },
+        {
+          "module": "Supplier Relationship Management",
+          "label": "Supplier Relationship Management",
+          "pages": [
+            "Supplier",
+            "Supplier Scorecard"
+          ]
+        },
+        {
+          "module": "Supplier Portal",
+          "label": "Supplier Portal",
+          "pages": [
+            "Purchase Order",
+            "Invoice",
+            "Payment Inquiry"
+          ]
+        },
+        {
+          "module": "Supplier Registration",
+          "label": "Supplier Registration",
+          "pages": [
+            "Registration",
+            "Supplier Profile"
+          ]
+        },
+        {
+          "module": "Supply Planning",
+          "label": "Supply Planning",
+          "pages": [
+            "Planning Run",
+            "Planning Results"
+          ]
+        },
+        {
+          "module": "Demand Planning",
+          "label": "Demand Planning",
+          "pages": []
+        },
+        {
+          "module": "Production Control",
+          "label": "Production Control",
+          "pages": [
+            "Production ID",
+            "Production Schedule"
+          ]
+        },
+        {
+          "module": "Manufacturing",
+          "label": "Manufacturing",
+          "pages": [
+            "Bill of Material",
+            "Routing"
+          ]
+        },
+        {
+          "module": "Bills of Materials",
+          "label": "Bills of Materials",
+          "pages": [
+            "Bill of Material"
+          ]
+        },
+        {
+          "module": "Cost Management",
+          "label": "Cost Management",
+          "pages": [
+            "Item Cost",
+            "Cost Rollup"
+          ]
+        },
+        {
+          "module": "Engineering",
+          "label": "Engineering",
+          "pages": [
+            "Engineering Change Order",
+            "Item Master"
+          ]
+        },
+        {
+          "module": "Maintenance Management",
+          "label": "Maintenance Management",
+          "pages": [
+            "Work Order",
+            "Maintenance Schedule"
+          ]
+        },
+        {
+          "module": "Configurator",
+          "label": "Configurator",
+          "pages": []
+        },
+        {
+          "module": "Promotions Management",
+          "label": "Promotions Management",
+          "pages": [
+            "Promotion"
+          ]
+        },
+        {
+          "module": "Services Procurement",
+          "label": "Services Procurement",
+          "pages": [
+            "Work Order",
+            "Work Order Entry"
+          ]
+        },
+        {
+          "module": "Staffing Front Office",
+          "label": "Staffing Front Office",
+          "pages": []
+        },
+        {
+          "module": "Deduction Management",
+          "label": "Deduction Management",
+          "pages": [
+            "Deduction",
+            "Deduction Worksheet"
+          ]
+        },
+        {
+          "module": "Payment Interface",
+          "label": "Payment Interface",
+          "pages": [
+            "Payment Request"
+          ]
+        },
+        {
+          "module": "Banking",
+          "label": "Banking",
+          "pages": [
+            "Bank Account",
+            "Electronic Payment"
+          ]
+        },
+        {
+          "module": "Receivables Collections",
+          "label": "Collections",
+          "pages": [
+            "Customer Account",
+            "Collection Worksheet"
+          ]
+        },
+        {
+          "module": "Lease Administration",
+          "label": "Lease Administration",
+          "pages": [
+            "Lease",
+            "Lease Payment"
+          ]
+        },
+        {
+          "module": "Real Estate Management",
+          "label": "Real Estate Management",
+          "pages": []
+        },
+        {
+          "module": "Customer Contracts",
+          "label": "Customer Contracts",
+          "pages": [
+            "Contract",
+            "Contract Lines"
+          ]
+        },
+        {
+          "module": "Customer Relationship Management",
+          "label": "Customer Relationship Management",
+          "pages": [
+            "Customer"
+          ]
+        },
+        {
+          "module": "Financial Gateway",
+          "label": "Financial Gateway",
+          "pages": [
+            "Payment Request"
+          ]
+        },
+        {
+          "module": "Fluid Financials",
+          "label": "Fluid Financials",
+          "pages": [
+            "Approvals",
+            "Expense Report",
+            "Requisition",
+            "Voucher Approval"
+          ]
+        },
+        {
+          "module": "Application Fundamentals for FSCM",
+          "label": "FSCM Application Fundamentals",
+          "pages": [
+            "Business Unit",
+            "Set ID",
+            "Fluid Home Page"
+          ]
+        },
+        {
+          "module": "Enterprise Components",
+          "label": "Enterprise Components",
+          "pages": [
+            "Approval Framework",
+            "Workflow",
+            "Currency Exchange Rate"
+          ]
+        }
       ]
     }
   ],

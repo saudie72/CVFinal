@@ -1,12 +1,179 @@
-# QA report: ERP Visual Regression Inspector (wave D)
+# QA report: ERP Visual Regression Inspector
 
-Tester: **Quinn** (qa-tester). Date: 2026-11-22.
+Tester: **Quinn** (qa-tester). Round 1 (wave D) 2026-11-22; **Round 2 (first-use UI)** 2026-11-22, after Juno's commit "Make the inspector understandable for humans". Round 2 is first; Round 1 follows unchanged except that its automated checks were updated to the new wording.
 
-**Environment:** Chromium 157.0.8103.78 (Playwright 1.63, headless, bundled build; not branded Google Chrome), Node v22.23.5, Linux. App served by `python3 tools/serve_netlify.py --port 8107`, which applies the `netlify.toml` headers including the CSP (no inline script or style). Fresh browser context per section, so each starts with an empty IndexedDB. Viewport 1366x900 unless stated, deviceScaleFactor 1. The server was stopped after the run.
+**Environment (both rounds):** Chromium 157.0.8103.78 (Playwright 1.63, headless, bundled build; not branded Google Chrome), Node v22.23.5, Linux. App served by `python3 tools/serve_netlify.py --port 8107`, which applies the `netlify.toml` headers including the CSP. Fresh browser context per section, so each starts with an empty IndexedDB. Viewport 1366x900 unless stated.
 
-**Re-run everything:** `node tools/qa/run_qa.js` (about 70 s, starts and stops its own server on 8107; `QA_ONLY=3,5` runs selected sections) and `bash tools/qa/run_suites.sh` (the existing suites, one at a time; log in `tools/qa/suites.log`). Results of the last run are in `tools/qa/qa-results.json`.
+**Re-run everything:** `node tools/qa/run_qa.js` (about 150 s, starts and stops its own server on 8107; `QA_ONLY=11,12` runs selected sections), `node tools/qa/run_live.js` (the deployed site), `bash tools/qa/run_suites.sh` (the other suites). Results: `tools/qa/qa-results.json`, `tools/qa/live-results.json`.
 
-## VERDICT: READY for release
+---
+
+# Round 2 (first-use UI)
+
+## VERDICT (Round 2): NOT READY, two fixes away
+
+The redesign works: a first-time user can read why the tool exists, press one button, and reach a correct result on a desktop, in light and dark, with the keyboard, and on the live site. **But the guided tour loses the user at two places**, and the tour is the thing that was built so a newcomer knows what to do next:
+
+1. **QA2-001 (major):** at 375 px the tour panel is `position: static`, so when steps 3 and 4 scroll the page to the red boxes and to change card 1, the step heading, **Next** and **Skip tour** are roughly 1,500 to 2,700 px above the screen. The user sees a screenshot or a card and no instruction (screenshots `ux2-qa-tour-step3-375-light.png`, `ux2-qa-tour-step4-375-dark.png`).
+2. **QA2-002 (major):** at every width, step 5 says "Save it as evidence" and outlines the Save result button, but that button is at the bottom of the page and is never scrolled into view (visible height 0 px at 375 and 1366). The user is told to look at something that is not on screen.
+
+Nothing touches privacy, correctness, persistence, the pipeline, the network or the live deployment. Retest is one command (`node tools/qa/run_qa.js`; expect `12.5.*` and `12.7.*` to turn PASS). After QA2-001 and QA2-002 are fixed I would call it READY; QA2-003 to QA2-007 are minor and can follow.
+
+## R2.1 Summary
+
+| Result | Count |
+|---|---|
+| Automated checks run (`tools/qa/run_qa.js`, sections 1 to 14) | 202 (+ 19 info records) |
+| PASS | **192** |
+| FAIL | **10**, all real app defects (7 defect ids below, none is a test artefact) |
+| Juno's smoke test (`node tools/app-smoke/run.js`) | **61 of 61** pass (re-run by me) |
+| Live site (`node tools/qa/run_live.js`) | **8 of 8** pass (2 Netlify HUD console errors listed separately, see R2.5) |
+| `tools/privacy_audit.py` | CLEAN (0 findings, 25 warns of the known kind); `tools/contrast_check.py` 268 of 268 pairs |
+
+The 10 failures: `10.1`, `11.43a`, `12.4b.1366-dark`, `12.5.375-light`, `12.5.375-dark`, `12.5.1366-dark`, `12.7.375-light`, `12.7.375-dark`, `12.9.375-dark`, `14.7`.
+
+## R2.2 What I changed in the runner (nothing weakened)
+
+Every Round 1 check still exists and still asserts the same behaviour; only the text and selectors that Juno renamed were updated. Where a check could no longer read a number from the screen, I read it from where it is stored instead.
+
+| Was | Now (check) |
+|---|---|
+| `#sample-select` + "Load sample" | example cards: hero `#btn-load-sample` ("Try the demo (30 seconds)") or `.sample-open[data-sample-id]` in the collapsed groups; the helper skips the tour (1.x to 10.x) |
+| "Aligned: shift (0, 3)" | Alignment "Lined up automatically" **and** the note "3 pixels lower" (1.s, 2.11) |
+| zone list "120 by 30 pixels at 400, 500" | the list now says "Keyboard zone, middle of the page"; the exact x 400, y 500, 120 x 30 is read back from IndexedDB `ignoreZones` (2.5) |
+| "extends past the baseline" | "extends past the Before screenshot (1366 by 900 pixels). Reduce X or Width." (2.6) |
+| "Save run" / "Saved as run N" | "Save result" / "Saved as result N" (3, 9, 11.4) |
+| Sign off button after Save | the primary button becomes Sign off (the separate button is hidden by design), so the keyboard path presses the primary (9.11, 11.4c to e) |
+| pill "OpenCV / vision engine" | "Getting ready: loading the comparison engine…" (9.0) |
+| hint "Capture or rendering artifact" | change cards: "often a capture difference, not a real change" (1.z) |
+| print heading "Changed regions" | "Changes" + "Boxes view" (5.8) |
+| Regression hint text | "Sign off isn't available while a change is marked Regression. Log a defect, attach the report, and compare again after the fix." (11.4a) |
+| 10.x screenshots | moved to section 12 as `ux2-qa-*.png`; 10.1 now also covers the expanded landing and open `<details>` |
+
+New sections: **11** (new UI), **12** (375 px, dark, screenshots), **13** (keyboard-only tour and review), **14** (screen reader basics). New helpers: `goRoute` (retrying route change), `skipTour` (waits for the panel), `zonesInDb`, `settingGet`.
+
+## R2.3 New-UI checks (all brief items)
+
+| Brief item | Check | Result |
+|---|---|---|
+| Landing on first run, purpose h1, one primary button | 11.1 to 11.5 | **PASS**: h1 is the owner's sentence; exactly one visible primary ("Try the demo (30 seconds)"), secondary "Compare my own screenshots", nav = My pages, Settings, How it works, Resources, no dropdown, tour/banner/intro/groups all closed, demo button above the fold at 1366x900 and 375x812 |
+| Tour completes; Skip works | 11.30 to 11.44, 13.x | **PASS**: 5 steps with the exact sentences, Before image painted, Flip works, step 3 "found N changes" with N = 2 = the cards and announced once, step 4 outlines card 1 and decides nothing, step 5 shows Finish, Finish focuses card 1 and announces "Tour finished…", `onboardingSeen` persists across reload; **Skip on each of the 5 steps** (fresh profile each), Esc skips, reload mid-tour gives the "Take the 30-second tour" banner (restart works, Dismiss sets the flag); Reset app data clears the flag (4.6a); step 3 really waits (engine delayed 4 s: Next `aria-disabled`, "Still comparing, a moment.", click does not advance, steps 1 and 2 work without the engine) |
+| Cards grouped, plain titles, no FSCM/HCM/T&L | 11.6 to 11.9 | **PASS**: hero "Timesheet", "More examples (3)", "How the inspector handles tricky cases (4)", each in manifest `order`; titles contain no module code and no digits; the module shows only as "People and HR (HCM)", "Money and purchasing (FSCM)" or "Time and labor"; every card has story, "What to expect:" and its button |
+| Every change card title has words, no pixel numbers | 11.12 | **PASS** for all 7 FAIL pairs (25 cards on the zoom pair): "Change i of n · where on the page · shape", no digit except i and n |
+| Zero radios checked on arrival | 11.11 | **PASS** for all 7 FAIL pairs; progress "0 of N changes decided" |
+| Card click highlights its box; box click selects its card | 11.15 to 11.17a | **PASS**: card 1 vs card 2 draw different canvases, back to card 1 repeats the first; hovering a box links its card; clicking box 2 then box 1 selects and focuses the right card; "Show on screenshot" gives "Back to change 2", which returns focus to the card |
+| Before/After crops non-blank | 11.13 | **PASS** for every card of all 7 FAIL pairs (painted, real page pixels, Before differs from After, locator drawn). Narrowest crop at 1366: 234 px on most pairs, 142 px on the voucher pair, 71 px on the 25-card zoom pair |
+| `#team`, `#try-real`, `#pipeline` | 11.50 to 11.57 | **PASS**: 17-row team table labelled as AI assistants; `#try-real` has **0 `<img>`**, no Oracle image or logo anywhere on the page; the `#pipeline` rule reads "FAIL when any change is found or the changed share of the page is above the page's limit (0.1% by default)… similarity does not decide PASS or FAIL"; footer line and link on all 3 pages; `#team` link lands in view; every `how-it-works.html#anchor` linked from the result exists |
+| Wording | 11.18 to 11.24a | **PASS**: no "region(s)", "Save run", "candidate", "OpenCV", "IndexedDB" on any screen or dialog (SSIM only inside the stats help); Past results columns Date, Status, Changes, Test case, Sign-off, Actions; Save dialog titled "Save result" with the "why" line and optional fields collapsed |
+| Round 1 items through the new UI | sections 1 to 9 | **PASS** except the layout defect below: all 8 manifest pairs give the expected status, fscm-po FAIL then PASS after the suggested zone, shifted pair lined up (3 pixels lower), zoom pair FAIL with the capture-difference cause, persistence, reset (with a second tab, and truly blocked), network quiet, offline compare, print, 0 long tasks, 20-run heap flat at 134,217,728 bytes, 20 pages console-clean |
+
+Timesheet expectation (ux-flows 12.17.1 item 4): the card says "2 changes found", the real result is 2 (11.32). Consistent.
+
+## R2.4 Tests Juno did not run: 375 px, dark, keyboard, screen reader
+
+| Area | Check | Result |
+|---|---|---|
+| **375 px landing** (light and dark) | 12.1 | **PASS**: no horizontal scroll, "Try the demo" above the fold (bottom at 652 of 812 px) and 44 px or taller |
+| **375 px tour** | 12.2, 12.3, 12.4, 12.6 | step 1 **PASS** (panel fits, Next 44 px tall); step 3 red boxes not covered; step 4 card and title not covered; result cards stay inside the screen, choices 44 px tall, crops 120 px or wider |
+| **Tour panel stays reachable** | 12.7 | **FAIL at 375 px** (QA2-001). At 1366 px it is a sticky bubble and passes |
+| **Panel does not cover what it points at** | 12.3, 12.4, 12.4b | step 3 **PASS**; step 4: card and title **PASS**, but at 1366 px the bubble covers **94%** of the card's Before/After crops (QA2-003) |
+| **Step 5 target on screen** | 12.5 | **FAIL at 375 and 1366** (QA2-002) |
+| **Dark mode** | 12.1 to 12.12 | **PASS** at 375 and 1366: no overflow, no console errors, text contrast at least 4.5:1 on every sampled text (lowest ratio sampled on the result screen: 5.4 light, 6.3 dark, against a 4.5 or 3 need; computed colours, glass approximated) |
+| **Keyboard only, tour and review** | 13.1 to 13.15 | **PASS**: Tab reaches the demo button, Enter starts the tour with focus on the step heading, one Tab reaches Next, Flip and Back work, the tour completes, focus lands on change card 1, Tab + Space decides every card, Save result (Enter, 4 fields, Enter) gives "Saved as result N" and is announced, focus returns to the primary button, Sign off by keyboard works; every tour stop has a focus ring. **82 key presses** for the whole journey |
+| **Screen reader basics** | 14.1 to 14.12 | landmarks (banner, navigation "Main", main, contentinfo) **PASS**; heading outline h1 > h2 > h3 > h4 with no skipped level on the landing and the result **PASS**; tour is a labelled region, heading focusable, **not** an `aria-live` region, Skip is a real button **PASS**; every visible canvas is `role=img` with a label ("Before: change 1 of 2, …") **PASS**; each card has a spoken summary and a fieldset legend over three radios **PASS**; announcements once each: "Comparison finished. 2 changes found.", "Tour finished…", "Change 2 of 2 selected…", "Change 1 marked Expected. 1 of 2 decided." **PASS**; Save dialog labelled, modal, focus inside, 4 required fields, `role=alert` error, Esc returns focus to the opener **PASS**; distinct document title and one h1 per screen **PASS**; reduced motion: no running animation **PASS**. **FAIL:** 14.7 (QA2-006) and the "disabled Next has no reason" check 11.43a (QA2-005) |
+
+Not run, unverified: **Lighthouse accessibility score** (not installed, no CDN allowed), **real NVDA, JAWS or VoiceOver** (I read the accessibility tree through Playwright `ariaSnapshot` and the live-region text, which is not the same as listening), 200% zoom, quota exceeded.
+
+## R2.5 Live site (`https://cvfinal-erp-inspector.netlify.app/`, `node tools/qa/run_live.js`)
+
+First verified it serves the new build: after the app starts, `#h-library` reads "Compare a page before and after a PeopleSoft update, and see exactly what changed on screen." (the raw HTML says "My pages" until the app fills it in, which is by design).
+
+| Check | Result |
+|---|---|
+| HTTP 200; new landing; one primary button; plain nav; no dropdown | **PASS** |
+| Try the demo, tour step 1, Skip, result "FAIL — 2 changes found (8.3% of the page)", 2 cards ("Change 1 of 2 · middle left of the page · large block", "Change 2 of 2 · middle left of the page · thin strip"), primary "Review changes" | **PASS** |
+| **0 cross-origin requests** during the whole visit | **PASS** (the only extra same-origin request is Netlify's `/.netlify/scripts/hud?variant=public`) |
+| After "ready" only `/samples/tl-timesheet_before.png`, `_after.png` and one `blob:` | **PASS** |
+| Security headers: CSP (`default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; … style-src 'self'`), `nosniff`, `no-referrer`, `X-Frame-Options: DENY` | **PASS** |
+| Console errors from the app, page errors, CSP violations in the app document | **0** |
+| **Known hosting issue, not an app defect (listed separately):** 2 console errors, both with location `about:srcdoc`, from the iframe that Netlify's injected `/.netlify/scripts/hud` badge builds: "Applying inline style violates … style-src 'self'" and "Executing inline script violates … script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'" | listed, expected |
+
+## R2.6 Defects
+
+Format: ID | severity | steps | expected | actual | owner.
+
+### QA2-001 | major | the tour panel scrolls out of sight at 375 px, so steps 3 and 4 show no instruction | owner: **Juno** (behaviour), with **Sable** (visual)
+| Field | Value |
+|---|---|
+| Steps | `python3 tools/serve_netlify.py --port 8107`; `QA_ONLY=12 node tools/qa/run_qa.js` (check 12.7), or open the app at 375x812, press Try the demo, press Next three times |
+| Expected | The step heading, Next and Skip tour stay on screen while the page scrolls to the thing the step points at (as the sticky bubble does at 1366 px) |
+| Actual | `.tour-panel { position: static }` below the phone breakpoint (`css/app.css` line 753). After step 3, `scrollY` is about 1,850 to 1,970 and Next is about 1,500 to 1,650 px above the top; after step 4, `scrollY` about 3,000 to 3,100 and Next about 2,600 to 2,700 px above (two runs). The screen shows a screenshot (step 3) or the middle of a card (step 4) with no words about what to do. The only way back is to scroll up a long way |
+| Evidence | `ux2-qa-tour-step3-375-light.png`, `ux2-qa-tour-step4-375-dark.png`, `qa-results.json` 12.7.375-light and 12.7.375-dark |
+| Suggested fix | Keep the panel visible on phones: a compact sticky bar at the bottom (heading, Next, Skip) or `position: sticky; top: <header height>` with a smaller body. Retest: `QA_ONLY=12`, expect 12.7 PASS |
+
+### QA2-002 | major | tour step 5 points at the Save result button, which is never on screen | owner: **Juno**
+| Field | Value |
+|---|---|
+| Steps | Try the demo, Next four times to step 5 (any width); or `QA_ONLY=12` (check 12.5) |
+| Expected | "Step 5 of 5. Save it as evidence." with the Save result button outlined **and visible** next to the panel |
+| Actual | The outline (`.tour-focus`) is put on `#btn-result-primary`, which sits at the bottom of the page after every change card. Nothing scrolls it into view: its visible height is 0 px at 375x812 and at 1366x900 (the screen still shows step 4's card). The user is asked to look at something they cannot see |
+| Evidence | `qa-results.json` 12.5.375-light, 12.5.375-dark, 12.5.1366-dark; my ad-hoc 1366 capture of step 5 (card 1 and the decision radios, no Save button) |
+| Suggested fix | On step 5, scroll `#btn-result-primary` into view (and on a phone keep the panel on screen, see QA2-001), or show a copy of the primary action inside the panel |
+
+### QA2-003 | minor | at 1366 px the sticky tour bubble hides the Before/After crops of the card it introduces | owner: **Sable** (layout), **Juno** (scroll offset)
+| Field | Value |
+|---|---|
+| Steps | Try the demo, Next three times to step 4 at 1366x900 |
+| Expected | The highlighted card's title and its Before/After crops are visible below the bubble |
+| Actual | `scrollIntoView({block:'center'})` puts the card's top edge under the sticky bubble. Card title: visible. **Crops: 94% covered** (174 of 184 px), so the pictures that show what changed are hidden while the text explains them. The same happens on step 5 |
+| Evidence | `qa-results.json` 12.4b.1366-dark; Juno's own `ux2-tour-step4-1366-light.png` shows the same |
+| Suggested fix | Scroll so the card's top sits below the bubble (use `scroll-margin-top` equal to the bubble height plus the header) |
+
+### QA2-004 | minor | `how-it-works.html` scrolls sideways by 4 px at 375 px | owner: **Juno**
+| Field | Value |
+|---|---|
+| Steps | `QA_ONLY=10 node tools/qa/run_qa.js` (check 10.1), or open `how-it-works.html` at 375 px and read `scrollWidth` |
+| Expected | No horizontal page scroll (same rule as QA-001 in Round 1) |
+| Actual | `scrollWidth` 379 vs 375, light and dark. The only element past the edge is the `<code>` file-name pattern `<module>_<page>_before_<YYYYMMDD>.png` in the "Try it with real PeopleSoft screenshots" step 3 (`#try-real`), 340 px wide and unbreakable |
+| Suggested fix | `overflow-wrap: anywhere` on `code`, or `<wbr>` in the pattern (the fix used for QA-001) |
+
+### QA2-005 | minor (accessibility) | the disabled tour Next gives no reason to a screen reader | owner: **Juno**
+Steps: slow the engine (or use check 11.43a). Expected: while step 3 waits, `#tour-next` is `aria-disabled` and `aria-describedby="tour-wait"` (Wren D5: every `aria-disabled` button points to its reason). Actual: `aria-describedby` is absent; the reason "Still comparing, a moment." is only visible text.
+
+### QA2-006 | minor (accessibility) | "Add ignore zone" has the same accessible name on every change card | owner: **Juno**
+Steps: result screen, list the buttons (check 14.7). Expected: unique names, as "Show on screenshot, change 1" already is. Actual: "Add ignore zone" is repeated once per card (25 times on the zoom pair), so a screen reader's button list cannot say which change it belongs to. Fix: `aria-label="Add ignore zone for change N"`.
+
+### QA2-007 | minor | "Show on screenshot" is 40 px tall | owner: **Sable**
+Below the 44 px HIG target (it passes WCAG 2.5.8's 24 px). Info records 9.16 and 12.6a. Everything else on the result screen is 44 px or taller (the radio choices measure 44 px).
+
+## R2.7 First-time-user read of the screens (confusing spots)
+
+I opened every screenshot and asked "what do I do next?". Each of these is a judgement, not a failing check.
+
+| # | Screen | Confusing spot | Owner |
+|---|---|---|---|
+| U1 | Landing, 375 and 1366 (`ux2-qa-landing-375-light.png`, `…-1366-dark.png`) | **Obvious.** One sentence, one big button, "What to expect" says what the demo will show, the privacy line is under the button. Nothing to fix | none |
+| U2 | Landing at 1366 | The headline is left-aligned and wide, the hero card is centred and narrower, and "Compare my own screenshots" is left-aligned under it. The three edges do not line up | Sable (cosmetic) |
+| U3 | Tour step 1 at 375 (`ux2-qa-tour-step1-375-dark.png`) | Two progress messages compete: the tour says "Step 1 of 5" while the pill above says "Comparing: Lining up the pages (1/4)" with a progress bar, and the nav highlights **Compare**, a screen the user never chose. A newcomer may wonder if they must wait. Consider a calmer pill while the tour is up | Wren (wording and flow) |
+| U4 | Tour steps 1 and 2 at 375 | The page thumbnail is 272 px wide for a 1366 px page, so its text cannot be read. It shows "this is a page", not "this is the Timesheet". Consider tap-to-enlarge, or a taller crop of the top half | Sable / Wren |
+| U5 | Tour steps 3 and 4 at 375 | **Lost.** There is no instruction on screen (QA2-001) | Juno |
+| U6 | Tour step 5 | "Save it as evidence" but no Save button on screen (QA2-002) | Juno |
+| U7 | After Finish (`ux2-qa-result-cards-1366-dark.png`) | The user lands in the middle of card 1. "What's happening", the 4-step strip and "Next: …" are scrolled away, and Save result is at the bottom. Where do I go next? A line next to the card, or scrolling so the strip is visible, would help. The Regression and Expected choices themselves are clear | Wren (flow) / Juno |
+| U8 | Result cards | The card text is good: "What this probably is / What to check", "This is a guess from the shape. You decide.", one-line explanation under each of Expected, Regression and Noise, and "Not sure? Choose Regression and add a note." No change needed | none |
+
+## R2.8 Files and screenshots (Round 2)
+
+- `tools/qa/run_qa.js` (updated; sections 11 to 14 new), `tools/qa/run_live.js` (new), `tools/qa/qa-results.json`, `tools/qa/live-results.json`.
+- `docs/qa/screenshots/ux2-qa-*.png`, **8 files**, regenerated by section 12: `landing-375-light` (full page), `landing-375-dark`, `landing-1366-dark`, `tour-step1-375-dark`, `tour-step3-375-light`, `tour-step4-375-dark`, `result-cards-375-dark`, `result-cards-1366-dark`. The older files in that folder (`library-empty-1366-light.png`, `result-*.png`, `compare-1366-dark.png`, `how-it-works-1366-light.png`, `resources-375-dark.png`) show the **pre-redesign** UI (Round 1) and are stale; Juno's `ux2-*.png` files without `qa` are his.
+- Flakiness note: one full run failed once in section 7 with "OpenCV worker failed to start: Worker script error" (the 20-run leak harness); the same section passed twice on immediate re-run and in the final run. I could not reproduce it. Unverified cause (possibly the single local server under load); worth a look if it recurs.
+
+Sources: `knowledge/qa-tester/` (devtools checks, accessibility testing, ex1 to ex3), `docs/design/ux-flows.md` sections 12.16 and 12.17, `docs/erp/plain-language-results.md`, `CLAUDE.md`, `samples/manifest.json`, Playwright `ariaSnapshot`.
+
+---
+
+# Round 1 (wave D, before the first-use redesign)
+
+## Round 1 verdict: READY for release (superseded by the Round 2 verdict above)
 
 Every definition-of-done item in `CLAUDE.md` passed in a real browser. The one failing automated check is a cosmetic layout defect (QA-001, a table that overflows on `how-it-works.html` at 375 px). I do not consider it a release blocker; Juno should fix it, and I will retest in one command. No defect touches privacy, correctness, persistence or the pipeline.
 
