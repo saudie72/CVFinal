@@ -137,3 +137,4 @@ Kept by **Atlas (orchestrator)**. One row per handoff or review. Experts never c
 | 111 | 0 | User | Atlas | Sample names like "FSCM - Purchase Order (timestamp only)" are meaningless: "build something a human can understand and use" | — | accepted |
 | 112 | A | Atlas | Mason | UX-4: plain title + story + whatToExpect + group/order for every sample (machine fields unchanged) | samples/manifest.json, samples/README.md | launched |
 | 113 | A | Atlas | Wren | Sample picker as grouped plain-language cards; plain labels app-wide (no module codes, no unexplained baseline/candidate, pixels only in Details) | docs/design/ux-flows.md | routed |
+| 114 | A | Mason | Atlas | UX-4 done: plain titles, stories, what-to-expect, groups for all 8 samples; cv-test 22/22 | samples/manifest.json, samples/README.md | done (picker work queued for Juno) |

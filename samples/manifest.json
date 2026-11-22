@@ -1,7 +1,7 @@
 [
   {
     "page": "tl-timesheet",
-    "title": "Time & Labor – Timesheet",
+    "title": "Timesheet",
     "module": "Time & Labor",
     "before": "samples/tl-timesheet_before.png",
     "after": "samples/tl-timesheet_after.png",
@@ -9,11 +9,15 @@
       "status": "FAIL",
       "minRegions": 2
     },
-    "ignoreZones": []
+    "ignoreZones": [],
+    "story": "After the update, the Submit button moved below the hours table and the Reported Hours column got cut off.",
+    "whatToExpect": "Expect: 2 changes found (FAIL): the big block where the table moved, and the cut-off column.",
+    "order": 1,
+    "group": "Start here"
   },
   {
     "page": "hcm-job-data",
-    "title": "HCM – Job Data",
+    "title": "Employee job record",
     "module": "HCM",
     "before": "samples/hcm-job-data_before.png",
     "after": "samples/hcm-job-data_after.png",
@@ -21,11 +25,15 @@
       "status": "FAIL",
       "minRegions": 2
     },
-    "ignoreZones": []
+    "ignoreZones": [],
+    "story": "After the update, the Pay Grade field disappeared and the Save button moved.",
+    "whatToExpect": "Expect: about 3 changes found (FAIL): the missing field, the moved button and the shifted area.",
+    "order": 2,
+    "group": "More examples"
   },
   {
     "page": "hcm-personal-data",
-    "title": "HCM – Personal Data",
+    "title": "Personal details",
     "module": "HCM",
     "before": "samples/hcm-personal-data_before.png",
     "after": "samples/hcm-personal-data_after.png",
@@ -33,11 +41,15 @@
       "status": "FAIL",
       "minRegions": 2
     },
-    "ignoreZones": []
+    "ignoreZones": [],
+    "story": "The label 'Dept ID' now reads 'Department' and a link changed colour.",
+    "whatToExpect": "Expect: about 4 small changes found (FAIL): the label wording and the link colour.",
+    "order": 3,
+    "group": "More examples"
   },
   {
     "page": "fscm-voucher",
-    "title": "FSCM – Voucher Entry",
+    "title": "Supplier invoice (voucher)",
     "module": "FSCM",
     "before": "samples/fscm-voucher_before.png",
     "after": "samples/fscm-voucher_after.png",
@@ -45,11 +57,15 @@
       "status": "FAIL",
       "minRegions": 1
     },
-    "ignoreZones": []
+    "ignoreZones": [],
+    "story": "After the update, one column of the invoice lines moved over a little and the Amount values got cut off.",
+    "whatToExpect": "Expect: at least 1 change found (FAIL).",
+    "order": 4,
+    "group": "More examples"
   },
   {
     "page": "fscm-po",
-    "title": "FSCM – Purchase Order (timestamp only)",
+    "title": "Purchase order (with a changing clock)",
     "module": "FSCM",
     "before": "samples/fscm-po_before.png",
     "after": "samples/fscm-po_after.png",
@@ -70,11 +86,15 @@
       "status": "PASS",
       "maxRegions": 0
     },
-    "note": "expected = result with NO zone applied (FAIL on the timestamp). ignoreZones = the zone to draw or load, in baseline px; with it the same pair must PASS with 0 regions."
+    "note": "expected = result with NO zone applied (FAIL on the timestamp). ignoreZones = the zone to draw or load, in baseline px; with it the same pair must PASS with 0 regions.",
+    "story": "Nothing real changed; only the 'Last updated' clock is different. Shows how to tell the inspector to ignore a clock.",
+    "whatToExpect": "Expect: 1 small change (FAIL), then PASS after you ignore the clock.",
+    "order": 5,
+    "group": "How the inspector handles tricky cases"
   },
   {
     "page": "hcm-job-data-shifted",
-    "title": "HCM – Job Data, shifted +3 px",
+    "title": "Employee job record (scrolled 3 pixels)",
     "module": "HCM",
     "before": "samples/hcm-job-data-shifted_before.png",
     "after": "samples/hcm-job-data-shifted_after.png",
@@ -84,11 +104,15 @@
       "maxRegions": 0
     },
     "ignoreZones": [],
-    "note": "After = before with the whole page offset 3 px down. Expect alignment (0,+3) then PASS."
+    "note": "After = before with the whole page offset 3 px down. Expect alignment (0,+3) then PASS.",
+    "story": "The same page, just scrolled 3 pixels down. The inspector lines them up and finds no real change.",
+    "whatToExpect": "Expect: no changes (PASS).",
+    "order": 6,
+    "group": "How the inspector handles tricky cases"
   },
   {
     "page": "hcm-job-data-zoom110",
-    "title": "HCM Job Data (1.1× device scale)",
+    "title": "Employee job record (different screen scale)",
     "module": "HCM",
     "before": "samples/hcm-job-data-zoom110_before.png",
     "after": "samples/hcm-job-data-zoom110_after.png",
@@ -97,11 +121,15 @@
       "minRegions": 1
     },
     "ignoreZones": [],
-    "note": "Capture-standard violation demo: the after image was captured at 1.1× device scale. The inspector detects the scale (resize ≈ 0.91) but resampled text still differs; the app hints 'Likely capture artifact'. Fix: recapture both at the same device scale (docs/erp/capture-standards.md)."
+    "note": "Capture-standard violation demo: the after image was captured at 1.1× device scale. The inspector detects the scale (resize ≈ 0.91) but resampled text still differs; the app hints 'Likely capture artifact'. Fix: recapture both at the same device scale (docs/erp/capture-standards.md).",
+    "story": "The after screenshot was taken at a different screen scale, which breaks the capture rules, so expect lots of tiny false changes.",
+    "whatToExpect": "Expect: many tiny changes (FAIL). This is a bad capture, not a real problem; retake both at the same scale.",
+    "order": 8,
+    "group": "How the inspector handles tricky cases"
   },
   {
     "page": "fscm-po-identical",
-    "title": "FSCM – Purchase Order (identical)",
+    "title": "Purchase order (same page twice)",
     "module": "FSCM",
     "before": "samples/fscm-po-identical_before.png",
     "after": "samples/fscm-po-identical_after.png",
@@ -110,6 +138,10 @@
       "minRegions": 0,
       "maxRegions": 0
     },
-    "ignoreZones": []
+    "ignoreZones": [],
+    "story": "The exact same page twice. Nothing should be flagged.",
+    "whatToExpect": "Expect: no changes (PASS).",
+    "order": 7,
+    "group": "How the inspector handles tricky cases"
   }
 ]
