@@ -73,6 +73,11 @@ function syncMain() {
 function updateSampleButton() {
   setDisabled($('btn-load-sample'), !heroSample());
 }
+// Compare progress in the status pill. Calm while the guided tour is open (it has its own step counter); endTour() shows it.
+function workPill(idx) {
+  S.workIdx = idx;
+  if (!S.tour) setPill('working', copy.pill.comparing(copy.pill.steps[idx - 1], idx), idx);
+}
 function pillReady() { setPill('ready', copy.pill.ready); }
 function pillLoading() { setPill('loading', S.engineSeen ? copy.pill.loadingSeen : copy.pill.loading); }
 
@@ -134,10 +139,7 @@ async function route() {
   S.screen = r;
   if (S.tour && r !== 'compare' && r !== 'result') endTour('skip');
   document.querySelectorAll('.screen').forEach((s) => { s.hidden = tourHides() || s.dataset.screen !== r; });
-  document.querySelectorAll('.app-nav a[data-route]').forEach((a) => {
-    const on = a.dataset.route === (r === 'result' ? 'compare' : r);
-    if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
-  });
+  updateNavCurrent();
   document.title = `${copy.screens[r]} - ${copy.title}`;
   updateNav();
   syncMain();
@@ -150,6 +152,13 @@ async function route() {
     if (target) target.focus();
   }
   firstRoute = false;
+}
+function updateNavCurrent() {
+  const r = S.screen, calm = !!S.tour && S.tour.step < 3;       // no "Compare" highlight while the tour is on steps 1-2
+  document.querySelectorAll('.app-nav a[data-route]').forEach((a) => {
+    const on = !calm && a.dataset.route === (r === 'result' ? 'compare' : r);
+    if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+  });
 }
 function updateNav() {
   const set = (k, show) => { const li = document.querySelector(`.app-nav li[data-nav="${k}"]`); if (li) li.hidden = !show; };
@@ -509,16 +518,16 @@ async function doCompare() {
   if (S.screen !== 'compare') go('compare');
   syncMain();
   let idx = 1;
-  if (S.engineReady) setPill('working', copy.pill.comparing(copy.pill.steps[0], 1), 1);
+  if (S.engineReady) workPill(1);
   else { pillLoading(); $('btn-load-sample').setAttribute('aria-busy', 'true'); }
   try {
     await insp.ready;
-    setPill('working', copy.pill.comparing(copy.pill.steps[0], 1), 1);
+    workPill(1);
     const zs = zonesUI.zones.map(({ x, y, w, h, label }) => ({ x, y, w, h, label }));
     const res = await insp.compare(imageData(S.base.bitmap), imageData(S.cand.bitmap), zs, compareSettingsForRun(), {
       onProgress: (step) => {
         const i = STEP_IDX[step]; if (i && i > idx) idx = i;
-        setPill('working', copy.pill.comparing(copy.pill.steps[idx - 1], idx), idx);
+        workPill(idx);
       },
     });
     S.working = false;
@@ -658,7 +667,7 @@ function renderRegionList() {
     });
     note.value = r.note || ''; setPh();
     note.addEventListener('change', () => { if (S.signOff.baselinePromoted) { note.value = r.note || ''; return; } r.note = note.value; persistRegions(false); });
-    const zbtn = li.querySelector('.region-zone'); zbtn.textContent = copy.card.zoneBtn;
+    const zbtn = li.querySelector('.region-zone'); zbtn.textContent = copy.card.zoneBtn; zbtn.setAttribute('aria-label', `${copy.card.zoneBtn} for change ${i + 1}`);
     zbtn.addEventListener('click', (e) => zonesUI.fromRegion(r, e.currentTarget));
     li.querySelector('.region-zone-hint').textContent = copy.decision.zoneHelp;
     li.querySelector('summary').textContent = copy.detailsSummary;
@@ -1137,6 +1146,13 @@ function bindEvents() {
   $('tour-next').addEventListener('click', () => { if (S.tour && !isDisabled($('tour-next'))) { if (S.tour.step >= 5) endTour('finish'); else goStep(S.tour.step + 1); } });
   $('tour-back').addEventListener('click', () => { if (S.tour && S.tour.step > 1) goStep(S.tour.step - 1); });
   $('tour-skip').addEventListener('click', () => endTour('skip'));
+  for (const id of ['tour-before', 'tour-after']) {      // tap to enlarge the page thumbnail (U4)
+    const c = $(id);
+    c.classList.add('tour-zoomable'); c.tabIndex = 0; c.setAttribute('role', 'button'); c.setAttribute('aria-label', 'Enlarge image');
+    const flip = () => { const on = !c.classList.contains('is-zoomed'); c.classList.toggle('is-zoomed', on); c.parentElement.classList.toggle('is-zoomed', on); c.setAttribute('aria-expanded', String(on)); c.setAttribute('aria-label', on ? 'Shrink image' : 'Enlarge image'); };
+    c.addEventListener('click', flip);
+    c.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } else if (e.key === 'Escape' && c.classList.contains('is-zoomed')) { e.preventDefault(); e.stopPropagation(); flip(); c.focus(); } });
+  }
   $('tour-flip').addEventListener('click', () => { if (S.tour) { S.tour.flip = !S.tour.flip; renderTour(); } });
   $('tour-retry').addEventListener('click', () => { if (S.tour) { S.tour.error = false; renderTour(); doCompare(); } });
   $('tour').addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); endTour('skip'); } });
@@ -1271,7 +1287,7 @@ function drawTourImages() {
 }
 function startTour() {
   S.tour = { step: 1, flip: false, error: false, announced: false };
-  document.body.dataset.tour = 'on';
+  document.body.dataset.tour = 'on'; document.body.classList.add('tour-open');
   $('tour').hidden = false; $('tour-again').hidden = true;
   drawTourImages();
   renderTour(); focusTour();
@@ -1302,33 +1318,56 @@ function renderTour() {
   $('tour-next').textContent = step === 5 ? T.finish : T.next;
   $('tour-next').hidden = !!(t.error && step === 3);
   setDisabled($('tour-next'), waiting);
+  if (waiting) $('tour-next').setAttribute('aria-describedby', 'tour-wait'); else $('tour-next').removeAttribute('aria-describedby');
   $('tour-retry').hidden = !(t.error && step === 3); $('tour-retry').textContent = T.retry;
   $('tour-back').textContent = T.back; $('tour-skip').textContent = T.skip; $('tour-flip').textContent = T.flip;
   applyScreens();
+  updateNavCurrent();
   document.querySelectorAll('.tour-focus').forEach((e) => e.classList.remove('tour-focus'));
+  if (step < 3) window.scrollTo({ top: 0, behavior: 'auto' });
   if (m && step === 3 && !t.announced) { t.announced = true; announce(T.foundAnnounce(m.regions.length)); }
-  if (m && step === 3) $('canvas-boxes').parentElement.scrollIntoView({ block: 'center', behavior: 'auto' });   // the panel is sticky, so the red boxes sit right below it
+  if (m && step === 3) tourScrollTo($('canvas-boxes').parentElement);
   if (m && step === 4 && m.regions.length) {
     const li = $('region-list').children[0];
-    if (li) { li.classList.add('tour-focus'); selectRegion(0); li.scrollIntoView({ block: 'center', behavior: 'auto' }); }
+    if (li) { li.classList.add('tour-focus'); selectRegion(0); tourScrollTo(li); }
   }
-  if (m && step === 5) $('btn-result-primary').classList.add('tour-focus');
+  if (m && step === 5) { const b = $('btn-result-primary'); b.classList.add('tour-focus'); tourScrollTo(b); }
+}
+// Scroll a tour target into the free part of the screen: below the sticky header and the sticky bubble (desktop),
+// or above the fixed bottom bar (phones). Reads the real heights, so it follows whatever the CSS does (QA2-001/002/003).
+function tourScrollTo(el) {
+  if (!el || !S.tour) return;
+  const vh = window.innerHeight, edge = (e) => { const cs = e && getComputedStyle(e); return cs && (cs.position === 'fixed' || cs.position === 'sticky') ? e.getBoundingClientRect() : null; };
+  let top = 0, bottom = 0;
+  const hdr = edge(document.querySelector('.app-header')); if (hdr) top = Math.max(top, hdr.bottom);
+  const bub = edge($('tour'));
+  if (bub && bub.top > vh / 2) document.documentElement.style.setProperty('--tour-bar-h', Math.ceil(bub.height) + 'px');   // phones: real bar height for main's bottom padding
+  if (bub && !$('tour').hidden) { if (bub.top > vh / 2) bottom = vh - bub.top; else top = Math.max(top, bub.bottom); }
+  top += 8; bottom += 8;
+  const r = el.getBoundingClientRect(), free = vh - top - bottom;
+  const want = r.height < free ? top + (free - r.height) / 2 : top;        // centre small targets, top-align tall ones
+  window.scrollBy({ top: r.top - want, left: 0, behavior: 'auto' });
 }
 function tourResultReady() {
   go('result');
   renderTour();
-  setTimeout(() => { if (S.tour && S.tour.step === 3 && S.result) $('canvas-boxes').parentElement.scrollIntoView({ block: 'center', behavior: 'auto' }); }, 150);
+  setTimeout(() => { if (S.tour && S.tour.step === 3 && S.result) tourScrollTo($('canvas-boxes').parentElement); }, 150);
 }
 function endTour(kind) {
   if (!S.tour) return;
-  S.tour = null; delete document.body.dataset.tour; document.body.dataset.tour = 'off';
+  S.tour = null; delete document.body.dataset.tour; document.body.dataset.tour = 'off'; document.body.classList.remove('tour-open');
   $('tour').hidden = true;
+  updateNavCurrent();
+  if (S.working && S.workIdx) workPill(S.workIdx);
   document.querySelectorAll('.tour-focus').forEach((e) => e.classList.remove('tour-focus'));
   markOnboarded();
   applyScreens();
   if (kind === 'finish') {
     announce(copy.tour.doneAnnounce);
-    const li = S.result && $('region-list').children[0];
-    (li || $('btn-result-primary')).focus();
+    // land on the "What's happening" strip: top of the result, focus on its current step (not mid-card)
+    const cur = S.result && ($('result-steps').querySelector('[aria-current="step"]') || $('result-steps').querySelector('li'));
+    if (cur) { cur.setAttribute('tabindex', '-1'); window.scrollTo({ top: 0, behavior: 'auto' }); cur.focus({ preventScroll: true }); }
+    else $('btn-result-primary').focus();
+    window.scrollTo({ top: 0, behavior: 'auto' });
   } else if (S.result && S.screen !== 'result') go('result');
 }

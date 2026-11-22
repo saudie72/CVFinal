@@ -1,10 +1,10 @@
 {
- "date": "2026-11-22T17:36:40.904Z",
+ "date": "2026-11-22T17:44:41.266Z",
  "chromium": "157.0.8103.78",
  "node": "v22.23.5",
- "seconds": 151,
- "passed": 192,
- "failed": 10,
+ "seconds": 150,
+ "passed": 196,
+ "failed": 6,
  "results": [
   {
    "id": "1.0",
@@ -240,7 +240,7 @@
      "runs": 0,
      "settings": 3
     },
-    "library": "Timesheet Time & Labor – Timesheet Time and labor · Before screenshot added 22 Nov 2026, 17:34 Compare Past results More"
+    "library": "Timesheet Time & Labor – Timesheet Time and labor · Before screenshot added 22 Nov 2026, 17:42 Compare Past results More"
    }
   },
   {
@@ -308,7 +308,7 @@
    "id": "3.3",
    "name": "library lists the page after reload",
    "ok": true,
-   "evidence": "Timesheet Time & Labor – Timesheet Time and labor · Before screenshot added 22 Nov 2026, 17:34 Compa"
+   "evidence": "Timesheet Time & Labor – Timesheet Time and labor · Before screenshot added 22 Nov 2026, 17:42 Compa"
   },
   {
    "id": "3.4",
@@ -316,7 +316,7 @@
    "ok": true,
    "evidence": {
     "rows": 1,
-    "text": "22 Nov 2026, 17:34 FAIL 2 VR-TL-01Not signed off View Delete"
+    "text": "22 Nov 2026, 17:42 FAIL 2 VR-TL-01Not signed off View Delete"
    }
   },
   {
@@ -466,7 +466,7 @@
     "afterReady": [
      "/samples/tl-timesheet_before.png",
      "/samples/tl-timesheet_after.png",
-     "blob:/aaf55eaa-614d-4f74-899b-b7933290592e"
+     "blob:/a90bc8bf-4852-4382-b80b-f041b5b9d95d"
     ]
    }
   },
@@ -533,7 +533,7 @@
    "name": "offline compare made no new network request (a blob: URL for the thumbnail is in-memory, not network)",
    "ok": true,
    "evidence": [
-    "blob:http://localhost:8107/48890fac-c591-4f78-aee9-1200c894db7b"
+    "blob:http://localhost:8107/d8a14a23-da84-4d78-82cc-979671323730"
    ]
   },
   {
@@ -563,9 +563,9 @@
      "headerDisplay": "none",
      "mainDisplay": "none"
     },
-    "pdfBytes": 139565,
+    "pdfBytes": 139222,
     "pdfPages": 2,
-    "pdfTextHead": "Timesheet (Time & Labor) FAIL · 22 Nov 2026, 17:34 Test case ID Ticket / change ID PeopleSoft version or update image Business unit Role Environment Tester Reviewer Sign-off Not signed off Boxes view "
+    "pdfTextHead": "Timesheet (Time & Labor) FAIL · 22 Nov 2026, 17:42 Test case ID Ticket / change ID PeopleSoft version or update image Business unit Role Environment Tester Reviewer Sign-off Not signed off Boxes view "
    }
   },
   {
@@ -593,7 +593,7 @@
    "name": "page.pdf() produces a non-empty PDF whose text contains the report headings",
    "ok": true,
    "evidence": {
-    "bytes": 139565,
+    "bytes": 139222,
     "hasChangesHeading": true,
     "hasDisclaimer": true
    }
@@ -611,33 +611,33 @@
    "evidence": {
     "runs": [
      {
-      "ms": 554,
-      "maxGap": 50,
-      "gaps": 29,
-      "longtasks": []
-     },
-     {
-      "ms": 842,
-      "maxGap": 33,
-      "gaps": 48,
-      "longtasks": []
-     },
-     {
-      "ms": 572,
+      "ms": 594,
       "maxGap": 33,
       "gaps": 31,
       "longtasks": []
      },
      {
-      "ms": 467,
-      "maxGap": 17,
-      "gaps": 28,
+      "ms": 555,
+      "maxGap": 33,
+      "gaps": 30,
       "longtasks": []
      },
      {
-      "ms": 778,
+      "ms": 886,
       "maxGap": 33,
-      "gaps": 45,
+      "gaps": 48,
+      "longtasks": []
+     },
+     {
+      "ms": 948,
+      "maxGap": 33,
+      "gaps": 57,
+      "longtasks": []
+     },
+     {
+      "ms": 1019,
+      "maxGap": 33,
+      "gaps": 57,
       "longtasks": []
      }
     ],
@@ -652,7 +652,7 @@
    "name": "main thread stays responsive during Compare: max requestAnimationFrame gap < 100 ms over 5 compares",
    "ok": true,
    "evidence": {
-    "maxGapMs": 50
+    "maxGapMs": 33
    }
   },
   {
@@ -878,7 +878,7 @@
    "id": "9.11",
    "name": "keyboard-only sign-off completes (\"Signed off by QA\"; primary action was \"signoff\")",
    "ok": true,
-   "evidence": "Signed off by QAQA on 22 Nov 2026, 17:35."
+   "evidence": "Signed off by QAQA on 22 Nov 2026, 17:43."
   },
   {
    "id": "9.12",
@@ -960,11 +960,6 @@
      "h": 40
     },
     {
-     "id": "Show on screenshot",
-     "w": 172,
-     "h": 40
-    },
-    {
      "id": "Expected",
      "w": 505,
      "h": 24
@@ -978,11 +973,6 @@
      "id": "Noise",
      "w": 505,
      "h": 24
-    },
-    {
-     "id": "Show on screenshot",
-     "w": 172,
-     "h": 40
     },
     {
      "id": "Expected",
@@ -1056,7 +1046,7 @@
    "id": "11.4e",
    "name": "after sign off, Promote is enabled (and is now the primary button) and the signed-off line shows",
    "ok": true,
-   "evidence": "Signed off by QA on 22 Nov 2026, 17:35."
+   "evidence": "Signed off by QA on 22 Nov 2026, 17:43."
   },
   {
    "id": "11.6a",
@@ -1107,23 +1097,8 @@
   {
    "id": "10.1",
    "name": "no horizontal page scroll on the landing (collapsed and expanded), Compare, Result, Past results, Settings (details open), How it works, Resources at 1366 or 375 px, light or dark",
-   "ok": false,
-   "evidence": [
-    {
-     "vw": 375,
-     "scheme": "light",
-     "route": "how-it-works.html",
-     "sw": 379,
-     "cw": 375
-    },
-    {
-     "vw": 375,
-     "scheme": "dark",
-     "route": "how-it-works.html",
-     "sw": 379,
-     "cw": 375
-    }
-   ]
+   "ok": true,
+   "evidence": []
   },
   {
    "id": "10.3.1366",
@@ -1597,7 +1572,7 @@
      "Sign-off",
      "Actions"
     ],
-    "row": "22 Nov 2026, 17:35 FAIL 2 VR-TL-01 Not signed off View Delete",
+    "row": "22 Nov 2026, 17:43 FAIL 2 VR-TL-01 Not signed off View Delete",
     "nav": [
      "My pages",
      "Compare",
@@ -1747,11 +1722,11 @@
   {
    "id": "11.35",
    "name": "Finish closes the tour, focus goes to change card 1, the announcer says \"Tour finished. Decide each change, then save the result.\", the Result screen stays",
-   "ok": true,
+   "ok": false,
    "evidence": {
     "hidden": true,
     "body": "off",
-    "focus": "card 1",
+    "focus": "",
     "ann": [
      "Comparison finished. 2 changes found.",
      "Tour finished. Decide each change, then save the result."
@@ -1871,7 +1846,7 @@
      "title": "Step 3 of 5. The inspector is comparing the two pages…",
      "disabled": "true",
      "hint": "Still comparing, a moment.",
-     "described": null,
+     "described": "tour-wait",
      "stageHidden": true,
      "resultShown": false
     },
@@ -1885,8 +1860,8 @@
   {
    "id": "11.43a",
    "name": "while waiting, Next points at the reason through aria-describedby (tour-wait)",
-   "ok": false,
-   "evidence": null
+   "ok": true,
+   "evidence": "tour-wait"
   },
   {
    "id": "11.44",
@@ -2005,13 +1980,13 @@
    "name": "tour step 1 at 375-light: panel fits (shorter than the viewport), the Before image fits the width (>= 240 px wide at 375; it is a thumbnail of a 1366 px page, so its text is not legible: see the report), Next is visible and 44 px tall, no horizontal scroll",
    "ok": true,
    "evidence": {
-    "panelH": 503,
+    "panelH": 365,
     "vh": 812,
-    "canvasW": 272,
-    "canvasH": 180,
-    "canvasRight": 323,
+    "canvasW": 328,
+    "canvasH": 217,
+    "canvasRight": 352,
     "vw": 375,
-    "nextBottom": 644,
+    "nextBottom": 803,
     "nextH": 44
    }
   },
@@ -2025,8 +2000,8 @@
     "visibleH": 225,
     "coveredH": 0,
     "coveredFrac": 0,
-    "panelH": 225,
-    "panelTop": -1740,
+    "panelH": 127,
+    "panelTop": 685,
     "vh": 812,
     "pointInsidePanel": false,
     "hscroll": 0
@@ -2035,16 +2010,16 @@
   {
    "id": "12.4.375-light",
    "name": "tour step 4 at 375-light: card 1 (what the step points at) and its title are not covered by the tour panel",
-   "ok": true,
+   "ok": false,
    "evidence": {
     "card": {
      "found": true,
-     "targetH": 1479,
-     "visibleH": 812,
-     "coveredH": 0,
-     "coveredFrac": 0,
-     "panelH": 305,
-     "panelTop": -2884,
+     "targetH": 1483,
+     "visibleH": 606,
+     "coveredH": 178,
+     "coveredFrac": 0.29,
+     "panelH": 178,
+     "panelTop": 634,
      "vh": 812,
      "pointInsidePanel": false,
      "hscroll": 0
@@ -2052,11 +2027,11 @@
     "title": {
      "found": true,
      "targetH": 44,
-     "visibleH": 0,
+     "visibleH": 44,
      "coveredH": 0,
-     "coveredFrac": 1,
-     "panelH": 305,
-     "panelTop": -2884,
+     "coveredFrac": 0,
+     "panelH": 178,
+     "panelTop": 634,
      "vh": 812,
      "pointInsidePanel": false,
      "hscroll": 0
@@ -2070,11 +2045,11 @@
    "evidence": {
     "found": true,
     "targetH": 243,
-    "visibleH": 109,
+    "visibleH": 243,
     "coveredH": 0,
     "coveredFrac": 0,
-    "panelH": 305,
-    "panelTop": -2884,
+    "panelH": 178,
+    "panelTop": 634,
     "vh": 812,
     "pointInsidePanel": false,
     "hscroll": 0
@@ -2083,54 +2058,54 @@
   {
    "id": "12.7.375-light",
    "name": "tour instruction stays on screen at 375-light: on steps 1, 3, 4 and 5 the step heading, Next and Skip are visible without scrolling (the page scrolls to the thing the step points at, so the panel must stay with it)",
-   "ok": false,
+   "ok": true,
    "evidence": {
     "s1": {
      "title": true,
      "next": true,
      "skip": true,
-     "nextTop": 600,
-     "position": "static",
+     "nextTop": 759,
+     "position": "fixed",
      "scrollY": 0
     },
     "s3": {
-     "title": false,
-     "next": false,
-     "skip": false,
-     "nextTop": -1653,
-     "position": "static",
-     "scrollY": 1966
+     "title": true,
+     "next": true,
+     "skip": true,
+     "nextTop": 759,
+     "position": "fixed",
+     "scrollY": 1730
     },
     "s4": {
-     "title": false,
-     "next": false,
-     "skip": false,
-     "nextTop": -2717,
-     "position": "static",
-     "scrollY": 3110
+     "title": true,
+     "next": true,
+     "skip": true,
+     "nextTop": 759,
+     "position": "fixed",
+     "scrollY": 2289
     },
     "s5": {
      "title": true,
      "next": true,
      "skip": true,
-     "nextTop": 369,
-     "position": "static",
-     "scrollY": 0
+     "nextTop": 759,
+     "position": "fixed",
+     "scrollY": 4987
     }
    }
   },
   {
    "id": "12.5.375-light",
    "name": "tour step 5 at 375-light: the primary action button it points at is visible and not covered by the panel",
-   "ok": false,
+   "ok": true,
    "evidence": {
     "found": true,
     "targetH": 44,
-    "visibleH": 0,
+    "visibleH": 44,
     "coveredH": 0,
-    "coveredFrac": 1,
-    "panelH": 281,
-    "panelTop": 226,
+    "coveredFrac": 0,
+    "panelH": 155,
+    "panelTop": 657,
     "vh": 812,
     "pointInsidePanel": false,
     "hscroll": 0
@@ -2154,17 +2129,17 @@
      },
      {
       "w": 149,
-      "h": 75,
+      "h": 126,
       "right": 182
      },
      {
       "w": 149,
-      "h": 75,
+      "h": 126,
       "right": 342
      }
     ],
     "minCropW": 149,
-    "minCropH": 75,
+    "minCropH": 126,
     "cardW": 343,
     "vw": 375,
     "overflowCrops": 0,
@@ -2182,36 +2157,14 @@
       "h": 85
      }
     ],
-    "smallTargets": [
-     {
-      "id": "Show on screenshot",
-      "h": 40,
-      "w": 172
-     },
-     {
-      "id": "Show on screenshot",
-      "h": 40,
-      "w": 172
-     }
-    ]
+    "smallTargets": []
    }
   },
   {
    "id": "12.6a.375-light",
    "name": "controls under 44 px tall on the result screen at 375-light",
    "ok": null,
-   "evidence": [
-    {
-     "id": "Show on screenshot",
-     "h": 40,
-     "w": 172
-    },
-    {
-     "id": "Show on screenshot",
-     "h": 40,
-     "w": 172
-    }
-   ]
+   "evidence": []
   },
   {
    "id": "12.12a.375-light",
@@ -2264,13 +2217,13 @@
    "name": "tour step 1 at 375-dark: panel fits (shorter than the viewport), the Before image fits the width (>= 240 px wide at 375; it is a thumbnail of a 1366 px page, so its text is not legible: see the report), Next is visible and 44 px tall, no horizontal scroll",
    "ok": true,
    "evidence": {
-    "panelH": 503,
+    "panelH": 365,
     "vh": 812,
-    "canvasW": 272,
-    "canvasH": 180,
-    "canvasRight": 323,
+    "canvasW": 328,
+    "canvasH": 217,
+    "canvasRight": 352,
     "vw": 375,
-    "nextBottom": 644,
+    "nextBottom": 803,
     "nextH": 44
    }
   },
@@ -2284,8 +2237,8 @@
     "visibleH": 225,
     "coveredH": 0,
     "coveredFrac": 0,
-    "panelH": 225,
-    "panelTop": -1740,
+    "panelH": 127,
+    "panelTop": 685,
     "vh": 812,
     "pointInsidePanel": false,
     "hscroll": 0
@@ -2294,16 +2247,16 @@
   {
    "id": "12.4.375-dark",
    "name": "tour step 4 at 375-dark: card 1 (what the step points at) and its title are not covered by the tour panel",
-   "ok": true,
+   "ok": false,
    "evidence": {
     "card": {
      "found": true,
-     "targetH": 1479,
-     "visibleH": 812,
-     "coveredH": 0,
-     "coveredFrac": 0,
-     "panelH": 305,
-     "panelTop": -2884,
+     "targetH": 1483,
+     "visibleH": 606,
+     "coveredH": 178,
+     "coveredFrac": 0.29,
+     "panelH": 178,
+     "panelTop": 634,
      "vh": 812,
      "pointInsidePanel": false,
      "hscroll": 0
@@ -2311,11 +2264,11 @@
     "title": {
      "found": true,
      "targetH": 44,
-     "visibleH": 0,
+     "visibleH": 44,
      "coveredH": 0,
-     "coveredFrac": 1,
-     "panelH": 305,
-     "panelTop": -2884,
+     "coveredFrac": 0,
+     "panelH": 178,
+     "panelTop": 634,
      "vh": 812,
      "pointInsidePanel": false,
      "hscroll": 0
@@ -2329,11 +2282,11 @@
    "evidence": {
     "found": true,
     "targetH": 243,
-    "visibleH": 109,
+    "visibleH": 243,
     "coveredH": 0,
     "coveredFrac": 0,
-    "panelH": 305,
-    "panelTop": -2884,
+    "panelH": 178,
+    "panelTop": 634,
     "vh": 812,
     "pointInsidePanel": false,
     "hscroll": 0
@@ -2342,54 +2295,54 @@
   {
    "id": "12.7.375-dark",
    "name": "tour instruction stays on screen at 375-dark: on steps 1, 3, 4 and 5 the step heading, Next and Skip are visible without scrolling (the page scrolls to the thing the step points at, so the panel must stay with it)",
-   "ok": false,
+   "ok": true,
    "evidence": {
     "s1": {
      "title": true,
      "next": true,
      "skip": true,
-     "nextTop": 600,
-     "position": "static",
+     "nextTop": 759,
+     "position": "fixed",
      "scrollY": 0
     },
     "s3": {
-     "title": false,
-     "next": false,
-     "skip": false,
-     "nextTop": -1653,
-     "position": "static",
-     "scrollY": 1966
+     "title": true,
+     "next": true,
+     "skip": true,
+     "nextTop": 759,
+     "position": "fixed",
+     "scrollY": 1736
     },
     "s4": {
-     "title": false,
-     "next": false,
-     "skip": false,
-     "nextTop": -2717,
-     "position": "static",
-     "scrollY": 3110
+     "title": true,
+     "next": true,
+     "skip": true,
+     "nextTop": 759,
+     "position": "fixed",
+     "scrollY": 2289
     },
     "s5": {
      "title": true,
      "next": true,
      "skip": true,
-     "nextTop": 369,
-     "position": "static",
-     "scrollY": 0
+     "nextTop": 759,
+     "position": "fixed",
+     "scrollY": 4987
     }
    }
   },
   {
    "id": "12.5.375-dark",
    "name": "tour step 5 at 375-dark: the primary action button it points at is visible and not covered by the panel",
-   "ok": false,
+   "ok": true,
    "evidence": {
     "found": true,
     "targetH": 44,
-    "visibleH": 0,
+    "visibleH": 44,
     "coveredH": 0,
-    "coveredFrac": 1,
-    "panelH": 281,
-    "panelTop": 226,
+    "coveredFrac": 0,
+    "panelH": 155,
+    "panelTop": 657,
     "vh": 812,
     "pointInsidePanel": false,
     "hscroll": 0
@@ -2413,17 +2366,17 @@
      },
      {
       "w": 149,
-      "h": 75,
+      "h": 126,
       "right": 182
      },
      {
       "w": 149,
-      "h": 75,
+      "h": 126,
       "right": 342
      }
     ],
     "minCropW": 149,
-    "minCropH": 75,
+    "minCropH": 126,
     "cardW": 343,
     "vw": 375,
     "overflowCrops": 0,
@@ -2441,36 +2394,14 @@
       "h": 85
      }
     ],
-    "smallTargets": [
-     {
-      "id": "Show on screenshot",
-      "h": 40,
-      "w": 172
-     },
-     {
-      "id": "Show on screenshot",
-      "h": 40,
-      "w": 172
-     }
-    ]
+    "smallTargets": []
    }
   },
   {
    "id": "12.6a.375-dark",
    "name": "controls under 44 px tall on the result screen at 375-dark",
    "ok": null,
-   "evidence": [
-    {
-     "id": "Show on screenshot",
-     "h": 40,
-     "w": 172
-    },
-    {
-     "id": "Show on screenshot",
-     "h": 40,
-     "w": 172
-    }
-   ]
+   "evidence": []
   },
   {
    "id": "12.12a.375-dark",
@@ -2506,8 +2437,8 @@
   {
    "id": "12.9.375-dark",
    "name": "How it works #team at 375 px dark: no horizontal page scroll",
-   "ok": false,
-   "evidence": 4
+   "ok": true,
+   "evidence": 0
   },
   {
    "id": "12.1.1366-dark",
@@ -2529,13 +2460,13 @@
    "name": "tour step 1 at 1366-dark: panel fits (shorter than the viewport), the Before image fits the width (>= 240 px wide at 375; it is a thumbnail of a 1366 px page, so its text is not legible: see the report), Next is visible and 44 px tall, no horizontal scroll",
    "ok": true,
    "evidence": {
-    "panelH": 736,
+    "panelH": 442,
     "vh": 900,
-    "canvasW": 750,
-    "canvasH": 495,
-    "canvasRight": 1058,
+    "canvasW": 354,
+    "canvasH": 234,
+    "canvasRight": 860,
     "vw": 1366,
-    "nextBottom": 788,
+    "nextBottom": 496,
     "nextH": 44
    }
   },
@@ -2549,7 +2480,7 @@
     "visibleH": 460,
     "coveredH": 0,
     "coveredFrac": 0,
-    "panelH": 165,
+    "panelH": 150,
     "panelTop": 94,
     "vh": 900,
     "pointInsidePanel": false,
@@ -2564,10 +2495,10 @@
     "card": {
      "found": true,
      "targetH": 1061,
-     "visibleH": 900,
-     "coveredH": 221,
-     "coveredFrac": 0.25,
-     "panelH": 221,
+     "visibleH": 592,
+     "coveredH": 0,
+     "coveredFrac": 0,
+     "panelH": 206,
      "panelTop": 94,
      "vh": 900,
      "pointInsidePanel": false,
@@ -2576,10 +2507,10 @@
     "title": {
      "found": true,
      "targetH": 44,
-     "visibleH": 32,
+     "visibleH": 44,
      "coveredH": 0,
      "coveredFrac": 0,
-     "panelH": 221,
+     "panelH": 206,
      "panelTop": 94,
      "vh": 900,
      "pointInsidePanel": false,
@@ -2590,17 +2521,17 @@
   {
    "id": "12.4b.1366-dark",
    "name": "tour step 4 at 1366-dark: the Before/After crops of the highlighted card (the evidence the step is about) are not hidden under the tour panel (<= 25% covered)",
-   "ok": false,
+   "ok": true,
    "evidence": {
     "found": true,
     "targetH": 183,
     "visibleH": 183,
-    "coveredH": 162,
-    "coveredFrac": 0.89,
-    "panelH": 221,
+    "coveredH": 0,
+    "coveredFrac": 0,
+    "panelH": 206,
     "panelTop": 94,
     "vh": 900,
-    "pointInsidePanel": true,
+    "pointInsidePanel": false,
     "hscroll": 0
    }
   },
@@ -2613,7 +2544,7 @@
      "title": true,
      "next": true,
      "skip": true,
-     "nextTop": 744,
+     "nextTop": 452,
      "position": "sticky",
      "scrollY": 0
     },
@@ -2621,39 +2552,39 @@
      "title": true,
      "next": true,
      "skip": true,
-     "nextTop": 170,
+     "nextTop": 159,
      "position": "sticky",
-     "scrollY": 896
+     "scrollY": 806
     },
     "s4": {
      "title": true,
      "next": true,
      "skip": true,
-     "nextTop": 226,
+     "nextTop": 215,
      "position": "sticky",
-     "scrollY": 1283
+     "scrollY": 927
     },
     "s5": {
      "title": true,
      "next": true,
      "skip": true,
-     "nextTop": 202,
+     "nextTop": 191,
      "position": "sticky",
-     "scrollY": 1283
+     "scrollY": 2759
     }
    }
   },
   {
    "id": "12.5.1366-dark",
    "name": "tour step 5 at 1366-dark: the primary action button it points at is visible and not covered by the panel",
-   "ok": false,
+   "ok": true,
    "evidence": {
     "found": true,
     "targetH": 44,
-    "visibleH": 0,
+    "visibleH": 44,
     "coveredH": 0,
-    "coveredFrac": 1,
-    "panelH": 197,
+    "coveredFrac": 0,
+    "panelH": 182,
     "panelTop": 94,
     "vh": 900,
     "pointInsidePanel": false,
@@ -2706,36 +2637,14 @@
       "h": 66
      }
     ],
-    "smallTargets": [
-     {
-      "id": "Show on screenshot",
-      "h": 40,
-      "w": 172
-     },
-     {
-      "id": "Show on screenshot",
-      "h": 40,
-      "w": 172
-     }
-    ]
+    "smallTargets": []
    }
   },
   {
    "id": "12.6a.1366-dark",
    "name": "controls under 44 px tall on the result screen at 1366-dark",
    "ok": null,
-   "evidence": [
-    {
-     "id": "Show on screenshot",
-     "h": 40,
-     "w": 172
-    },
-    {
-     "id": "Show on screenshot",
-     "h": 40,
-     "w": 172
-    }
-   ]
+   "evidence": []
   },
   {
    "id": "12.12a.1366-dark",
@@ -2812,8 +2721,9 @@
   {
    "id": "13.3",
    "name": "step 1: one Tab from the heading reaches Next (the panel is first in the tab order); Next has a focus ring",
-   "ok": true,
+   "ok": false,
    "evidence": [
+    "tour-before",
     "tour-next"
    ]
   },
@@ -2828,6 +2738,7 @@
    "name": "step 2: Space on \"Flip between before and after\" swaps the image",
    "ok": true,
    "evidence": [
+    "tour-after",
     "tour-flip"
    ]
   },
@@ -2840,7 +2751,7 @@
   {
    "id": "13.7",
    "name": "tour completed with the keyboard only: step 3 \"found N changes\", step 4 outlines card 1, step 5 \"Finish\" ends it and focus lands on change card 1",
-   "ok": true,
+   "ok": false,
    "evidence": {
     "s3": "Step 3 of 5. The inspector found 2 changes, highlighted in red.",
     "hl": {
@@ -2849,8 +2760,8 @@
     },
     "s5": "Step 5 of 5. Save it as evidence.",
     "nextLabel": "Finish",
-    "focusAfterFinish": "card1",
-    "keys": 29
+    "focusAfterFinish": "LI:1. Review changes1 o",
+    "keys": 33
    }
   },
   {
@@ -2921,7 +2832,7 @@
    "name": "Sign off by keyboard completes (\"Signed off by QA on ...\") and the primary becomes the next step",
    "ok": true,
    "evidence": {
-    "signed": "Signed off by QAQA on 22 Nov 2026, 17:36.",
+    "signed": "Signed off by QAQA on 22 Nov 2026, 17:44.",
     "primary": "Use as new Before screenshot (promote)",
     "reached": true
    }
@@ -2936,7 +2847,7 @@
    "id": "13.14",
    "name": "total key presses for: landing -> tour -> review 2 changes -> Save result -> Sign off",
    "ok": null,
-   "evidence": 82
+   "evidence": 89
   },
   {
    "id": "13.15",
@@ -2975,19 +2886,19 @@
   {
    "id": "14.3",
    "name": "tour: a labelled region (aria-labelledby the step heading), heading focusable (tabindex -1), NOT an aria-live region, Skip is a real button, both stage canvases are role=img with labels",
-   "ok": true,
+   "ok": false,
    "evidence": {
     "tag": "SECTION",
     "labelledby": "tour-title",
     "name": "Step 1 of 5. This is the page before the update.",
     "canvases": [
      {
-      "role": "img",
-      "label": "Before: Timesheet, fictional demo page"
+      "role": "button",
+      "label": "Enlarge image"
      },
      {
-      "role": "img",
-      "label": "After: Timesheet, fictional demo page"
+      "role": "button",
+      "label": "Enlarge image"
      }
     ],
     "live": null,
@@ -3003,7 +2914,7 @@
     "- region \"Step 1 of 5. This is the page before the update.\":",
     "  - heading \"Step 1 of 5. This is the page before the update.\" [level=2]",
     "  - 'figure \"Before: Time & Labor – Timesheet (a fictional demo page)\"':",
-    "    - 'img \"Before: Timesheet, fictional demo page\"'",
+    "    - button \"Enlarge image\"",
     "    - text: \"Before: Time & Labor – Timesheet (a fictional demo page)\"",
     "  - button \"Next\"",
     "  - button \"Skip tour\"",
@@ -3067,20 +2978,18 @@
   {
    "id": "14.7",
    "name": "buttons on the result screen have distinct accessible names (a screen reader list of buttons is not 2 x \"Add ignore zone\")",
-   "ok": false,
+   "ok": true,
    "evidence": {
-    "duplicates": [
-     "Add ignore zone"
-    ],
+    "duplicates": [],
     "all": [
      "Outlined changes",
      "Side by side",
      "Slide to compare",
      "Heat map",
      "Show on screenshot, change 1",
-     "Add ignore zone",
+     "Add ignore zone for change 1",
      "Show on screenshot, change 2",
-     "Add ignore zone",
+     "Add ignore zone for change 2",
      "Review changes",
      "Download evidence PNG",
      "Print report",

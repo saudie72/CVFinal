@@ -45,9 +45,9 @@ const check = (n, ok, d) => { out.push(ok); console.log((ok ? 'PASS ' : 'FAIL ')
   await page.click('#tour-next');
   check('tour step 4: decide help + card 1 highlighted', (await page.textContent('#tour-help')).includes('Expected means') && await page.getAttribute('#region-list > li:nth-child(1)', 'data-selected') === 'true');
   await page.click('#tour-next');
-  check('tour step 5: Finish button, primary outlined', (await page.textContent('#tour-next')) === 'Finish' && await page.$eval('#btn-result-primary', e => e.classList.contains('tour-focus')));
+  check('tour step 5: Finish button, primary outlined and on screen', (await page.textContent('#tour-next')) === 'Finish' && await page.$eval('#btn-result-primary', e => { const r = e.getBoundingClientRect(); return e.classList.contains('tour-focus') && r.top >= 0 && r.bottom <= innerHeight; }));
   await page.click('#tour-next');
-  check('tour completes (panel closed, focus on first change card)', await page.isHidden('#tour') && await page.evaluate(() => document.activeElement.matches('li.region')));
+  check('tour completes (panel closed, page at top, focus on the current step of the strip)', await page.isHidden('#tour') && await page.evaluate(() => scrollY < 5 && document.activeElement.matches('#result-steps li[aria-current="step"]')));
   await page.waitForFunction(() => document.getElementById('main').dataset.state === 'result-fail', null, { timeout: 60000 });
   const regions = await page.locator('#region-list > li').count();
   check('Timesheet sample: FAIL with >= 2 regions', regions >= 2, { regions, text: await page.textContent('#result-text') });
