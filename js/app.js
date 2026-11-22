@@ -25,6 +25,7 @@ const S = {
 let insp = null, zonesUI = null, tabs = null;
 
 // ============================== helpers ==============================
+const subtitleOf = (p) => (p && p.psPage && normName(p.psPage) !== normName(p.name) ? p.psPage : '');
 const pageThreshold = () => (S.page && S.page.thresholdPct != null ? S.page.thresholdPct : S.settings.thresholdPct);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 class UserError extends Error {}
@@ -187,6 +188,7 @@ async function renderLibrary() {
     const url = URL.createObjectURL(p.baseline); S.thumbUrls.push(url);
     img.src = url; img.alt = `Before screenshot of ${p.name}`;
     li.querySelector('.card-title').textContent = p.name;
+    const sub = li.querySelector('.card-sub'); sub.hidden = !subtitleOf(p); sub.textContent = subtitleOf(p);
     li.querySelector('.card-meta').textContent = `${areaName(p.module)} · Before screenshot added ${fmtDate(p.createdAt)}`;
     const open = li.querySelector('.page-open');
     if (idx > 0) open.classList.remove('btn-primary');
@@ -226,10 +228,15 @@ async function openPage(page, cand = null) {
 
 // New page form
 let newPageFile = null;
+function fillNameFromFile(f) {
+  if (!f || $('page-name').value) return;
+  if (!$('ps-page').value) { $('ps-page').value = '__other'; onPsChange(false); }   // a typed name goes with "Other"
+  $('page-name').value = f.name.replace(/\.png$/i, '').replace(/[_-]+/g, ' ');
+}
 function showNewPageForm(show) {
   $('new-page-form').hidden = !show;
-  if (show) { $('new-page-form').dataset.state = 'idle'; $('page-name-error').hidden = true; $('btn-open-existing').hidden = true; $('page-name').focus(); }
-  else { newPageFile = null; $('new-page-form').reset(); }
+  if (show) { $('new-page-form').dataset.state = 'idle'; $('page-name-error').hidden = true; $('btn-open-existing').hidden = true; onPsChange(false); $('ps-page').focus(); }
+  else { newPageFile = null; $('new-page-form').reset(); onPsChange(false); }
 }
 function pageNameError(text, duplicate) {
   const e = $('page-name-error');
@@ -237,11 +244,13 @@ function pageNameError(text, duplicate) {
   $('page-name').setAttribute('aria-invalid', text ? 'true' : 'false');
   $('new-page-form').dataset.state = duplicate ? 'duplicate-page-name' : 'idle';
   $('btn-open-existing').hidden = !duplicate;
-  if (text) $('page-name').focus();
+  if (text && !$('page-name-field').hidden) $('page-name').focus();
 }
 async function createPage(e) {
   e.preventDefault();
+  const ps = $('ps-page').value;
   const name = $('page-name').value.trim();
+  if (!ps) { pageNameError('Choose which PeopleSoft page this is, or pick Other to type a name.', false); $('ps-page').focus(); return; }
   if (!name) return pageNameError('Enter a page name.', false);
   const dupe = S.pages.find((p) => p.name.toLowerCase() === name.toLowerCase());
   if (dupe) { S.dupePage = dupe; return pageNameError(copy.duplicate(name), true); }
@@ -250,6 +259,7 @@ async function createPage(e) {
     checkPng(newPageFile);
     const base = await decode(newPageFile);
     const rec = { name, module: $('page-module').value, notes: '', baseline: newPageFile, width: base.width, height: base.height, thresholdPct: S.settings.thresholdPct };
+    if (ps && ps !== '__other') rec.psPage = ps;
     rec.id = await pagesDb.put(rec);
     showNewPageForm(false);
     S.tip = true;
@@ -266,8 +276,69 @@ async function createPage(e) {
 
 // ============================== samples ==============================
 const sampleName = (s) => s.title || `${s.module} – ${s.page}`;
+// Pages saved by the pre-redesign app carry old names ("Time & Labor – Timesheet", "FSCM – Purchase Order (timestamp only)").
+// A saved page is "this example" when it has the same sampleId, the same name, or an old-style name for the same example.
+const LEGACY_NAMES = { 'fscm-po': ['FSCM – Purchase Order (timestamp only)'], 'fscm-po-identical': ['FSCM – Purchase Order (identical)'] };
+const normName = (x) => String(x || '').replace(/[\u2013\u2014-]/g, '-').replace(/\s+/g, ' ').trim().toLowerCase();
+function sampleAliases(s) {
+  const base = [sampleName(s), `${s.module} – ${sampleName(s)}`, `${s.module} – ${s.page}`, ...(LEGACY_NAMES[s.page] || [])];
+  const ps = catalog && catalog.sampleMap && catalog.sampleMap[s.page]; if (ps) base.push(ps);
+  return base.map(normName);
+}
+function savedFor(s) {
+  const byId = S.pages.find((p) => p.sampleId === s.page);
+  if (byId) return byId;
+  const own = normName(sampleName(s)), aliases = sampleAliases(s);
+  return S.pages.find((p) => normName(p.name) === own) || S.pages.find((p) => aliases.includes(normName(p.name))) || null;
+}
+const samplePsPage = (s) => (catalog && catalog.sampleMap && catalog.sampleMap[s.page]) || '';
+const waitUntil = async (fn, ms) => { const t0 = Date.now(); while (!fn() && Date.now() - t0 < ms) await sleep(50); return fn(); };
 const sortedSamples = () => S.samples.map((x, i) => ({ x, i })).sort((a, b) => (a.x.order ?? a.i) - (b.x.order ?? b.i)).map((o) => o.x);
 const heroSample = () => { const l = sortedSamples(); return l.find((x) => x.group === copy.samples.groupOrder[0]) || l[0] || null; };
+// PeopleSoft 9.2 page catalog (js/ps-catalog.json, module and page names only). Tiny fallback if it can't be loaded.
+let catalog = null;
+const CATALOG_FALLBACK = { source: 'built-in fallback', products: [
+  { product: 'HCM', name: 'Human Capital Management', modules: [{ module: 'Time & Labor', label: 'Time & Labor', pages: ['Timesheet', 'Rules'] }, { module: 'Human Resources', label: 'Human Resources', pages: ['Position Management'] }, { module: 'Workforce Administration', label: 'Workforce Administration', pages: ['Job Data', 'Personal Data'] }] },
+  { product: 'FSCM', name: 'Financials and Supply Chain Management', modules: [{ module: 'Purchasing', label: 'Purchasing', pages: ['Purchase Order'] }, { module: 'Payables', label: 'Payables', pages: ['Voucher'] }] }],
+  sampleMap: { 'tl-timesheet': 'Time & Labor – Timesheet', 'hcm-job-data': 'Workforce Administration – Job Data', 'hcm-personal-data': 'Workforce Administration – Personal Data', 'fscm-voucher': 'Payables – Voucher', 'fscm-po': 'Purchasing – Purchase Order' } };
+async function loadCatalog() {
+  try {
+    const r = await fetch('js/ps-catalog.json');
+    if (!r.ok) throw new Error('catalog ' + r.status);
+    const c = await r.json();
+    if (!c || !Array.isArray(c.products)) throw new Error('catalog shape');
+    catalog = c;
+  } catch (e) { console.error(e); catalog = CATALOG_FALLBACK; }
+  buildPsSelect();
+}
+const catalogLabels = () => (catalog ? catalog.products : []).flatMap((pr) => pr.modules.flatMap((m) => (m.pages && m.pages.length ? m.pages.map((pg) => `${m.label} – ${pg}`) : [m.label])));
+function buildPsSelect() {
+  const sel = $('ps-page'); if (!sel || !catalog) return;
+  const keep = sel.value;
+  sel.replaceChildren(new Option('Choose a page…', ''));
+  const frag = document.createDocumentFragment();
+  for (const pr of catalog.products) {
+    for (const m of pr.modules) {
+      const g = document.createElement('optgroup'); g.label = `${pr.product} · ${m.label}`;
+      const labels = m.pages && m.pages.length ? m.pages.map((pg) => `${m.label} – ${pg}`) : [m.label];
+      for (const l of labels) { const o = new Option(l, l); o.dataset.product = pr.product; o.dataset.module = m.module || m.label; g.append(o); }
+      frag.append(g);
+    }
+  }
+  sel.append(frag, new Option('Other (type a name)', '__other'));
+  sel.value = keep && [...sel.options].some((o) => o.value === keep) ? keep : '';
+  onPsChange(false);
+}
+function onPsChange(fill = true) {
+  const sel = $('ps-page'), v = sel.value, o = sel.selectedOptions[0];
+  $('page-name-field').hidden = v === '';
+  if (v && v !== '__other' && fill) {
+    $('page-name').value = v;
+    const mod = o && o.dataset.module, prod = o && o.dataset.product;
+    const target = mod === 'Time & Labor' ? 'Time & Labor' : prod;
+    const ms = $('page-module'); if ([...ms.options].some((x) => x.value === target)) ms.value = target;
+  } else if (v === '__other' && fill) { $('page-name').focus(); }
+}
 async function loadManifest() {
   try {
     const r = await fetch('samples/manifest.json');
@@ -300,7 +371,7 @@ function renderExamples() {
     fillSampleCard(el, s);
     const btn = el.querySelector('.sample-open'); btn.dataset.sampleId = s.page;
     btn.addEventListener('click', () => loadSample(s, { btn }));
-    if (S.pages.some((p) => p.name.toLowerCase() === sampleName(s).toLowerCase())) {
+    if (savedFor(s)) {
       const tag = document.createElement('span'); tag.className = 'sample-tag'; tag.textContent = copy.samples.inLibrary;
       el.querySelector('.sample-area').after(tag);
     }
@@ -336,18 +407,31 @@ async function loadSample(s, { tour = false, btn = null } = {}) {
   announce(copy.samples.opening(sampleName(s)));
   try {
     clearError();
+    if (S.tour && !tour) endTour('skip');                  // opening another example leaves the tour
+    if (S.working) {                                       // a compare is still running: stop it, then switch
+      cancelCompare();
+      if (!(await waitUntil(() => !S.working, 20000))) throw new Error('The previous comparison is still running. Try again in a moment.');
+    }
     const [before, after] = await Promise.all([fetchBlob(s.before), fetchBlob(s.after)]);
-    const name = sampleName(s);
+    const name = sampleName(s), ps = samplePsPage(s);
     await refreshPages();
-    let page = S.pages.find((p) => p.name.toLowerCase() === name.toLowerCase());
+    let page = savedFor(s);                                // already saved (new or old name): open it, don't error
+    if (page && S.dbOK && page.id != null && (!page.sampleId || (ps && !page.psPage))) {
+      try { const upd = { ...page, sampleId: s.page }; if (ps && !page.psPage) upd.psPage = ps; await pagesDb.put(upd); page = upd; }
+      catch (e) { console.error(e); }                      // tagging is a convenience; never block the example on it
+    }
     if (!page) {
       const base = await decode(before);
-      page = { name, module: s.module, notes: 'Sample (fictional)', baseline: before, width: base.width, height: base.height, thresholdPct: S.settings.thresholdPct };
+      page = { name, module: s.module, notes: 'Sample (fictional)', baseline: before, width: base.width, height: base.height, thresholdPct: S.settings.thresholdPct, sampleId: s.page };
+      if (ps) page.psPage = ps;
       if (S.dbOK) {
         try { page.id = await pagesDb.put(page); }
         catch (e) {
-          if (!e || e.name !== 'QuotaExceededError') throw e;           // surfaces as error-compare, never swallowed
-          page.id = null; showNotice('storage-quota', copy.notice.quota);   // compare in memory; saving is refused
+          if (e && e.name === 'ConstraintError') {           // saved by another tab or a double click: use that one
+            await refreshPages(); const again = S.pages.find((p) => normName(p.name) === normName(name));
+            if (!again) throw e; page = again;
+          } else if (!e || e.name !== 'QuotaExceededError') throw e;     // surfaces as error-compare, never swallowed
+          else { page.id = null; showNotice('storage-quota', copy.notice.quota); }   // compare in memory; saving is refused
         }
       } else page.id = null;
       S.tip = !tour;
@@ -364,7 +448,7 @@ async function loadSample(s, { tour = false, btn = null } = {}) {
 }
 function suggestedZones() {
   if (!S.page) return [];
-  const s = S.samples.find((x) => sampleName(x).toLowerCase() === S.page.name.toLowerCase());
+  const s = S.samples.find((x) => (S.page.sampleId ? x.page === S.page.sampleId : savedFor(x) === S.page));
   if (!s || !s.ignoreZones) return [];
   return s.ignoreZones.filter((z) => !zonesUI.zones.some((q) => q.x === z.x && q.y === z.y && q.w === z.w && q.h === z.h));
 }
@@ -391,7 +475,7 @@ async function setCandidateFromFile(file) {
   catch (e) { if (e instanceof UserError) showError('error-compare', e.message, 'raw'); else console.error(e); }
 }
 function renderCompare() {
-  $('compare-page-name').textContent = S.page ? `${S.page.name} · ${areaName(S.page.module)}` : '';
+  $('compare-page-name').textContent = S.page ? `${S.page.name}${subtitleOf(S.page) ? ' · ' + subtitleOf(S.page) : ''} · ${areaName(S.page.module)}` : '';
   $('zones-details').open = zonesUI.zones.length > 0 || $('zones-details').open;
   $('capture-tip').hidden = !S.tip;
   zonesUI.redraw();
@@ -478,12 +562,13 @@ async function showResult(res, zs) {
   S.reviewStart = Date.now();
   renderResultAll();
   pillReady();
-  if (S.tour) tourResultReady(); else go('result');
+  if (S.tour) tourResultReady(); else if (S.screen === 'compare' || S.screen === 'result') go('result');   // not if the user already went to My pages
   if (!S.tour) announce(m.status === 'PASS' ? copy.result.announcePass : copy.result.announceFail(m.regions.length, Math.round(m.changedPct * 10) / 10));
 }
 
 function renderResultAll() {
   const m = S.result;
+  const rp = $('result-page-name'); rp.textContent = S.page ? `${S.page.name}${subtitleOf(S.page) ? ' · ' + subtitleOf(S.page) : ''}` : ''; rp.hidden = !S.page;
   m.regions.forEach((r) => { r.pos = position(r, m.width, m.height, m.changedPct); r.shp = shape(r); });
   S.selected = -1; S.hover = -1; S.lastStep = null;
   S.looked = new Set(m.regions.map((r, i) => (r.decision ? i : -1)).filter((i) => i >= 0));
@@ -1061,10 +1146,11 @@ function bindEvents() {
   $('btn-new-page').addEventListener('click', () => { if (isDisabled($('btn-new-page'))) return; showNewPageForm(true); });
   $('btn-new-page-cancel').addEventListener('click', () => { showNewPageForm(false); $('btn-new-page').focus(); });
   $('new-page-form').addEventListener('submit', createPage);
+  $('ps-page').addEventListener('change', () => onPsChange(true));
   $('btn-open-existing').addEventListener('click', async () => { const p = S.dupePage; if (p) { showNewPageForm(false); await openPage(p); go('compare'); } });
-  $('baseline-file').addEventListener('change', (e) => { newPageFile = e.target.files[0] || null; if (newPageFile && !$('page-name').value) $('page-name').value = newPageFile.name.replace(/\.png$/i, '').replace(/[_-]+/g, ' '); });
+  $('baseline-file').addEventListener('change', (e) => { newPageFile = e.target.files[0] || null; fillNameFromFile(newPageFile); });
   bindDrop($('candidate-drop'), (f) => setCandidateFromFile(f));
-  bindDrop(document.querySelector('#new-page-form .drop'), (f) => { newPageFile = f; document.querySelector('#new-page-form .drop .hint').textContent = `Chosen: ${f.name}`; if (!$('page-name').value) $('page-name').value = f.name.replace(/\.png$/i, '').replace(/[_-]+/g, ' '); });
+  bindDrop(document.querySelector('#new-page-form .drop'), (f) => { newPageFile = f; document.querySelector('#new-page-form .drop .hint').textContent = `Chosen: ${f.name}`; fillNameFromFile(f); });
   $('candidate-file').addEventListener('change', (e) => { if (e.target.files[0]) setCandidateFromFile(e.target.files[0]); e.target.value = ''; });
   document.addEventListener('paste', (e) => {
     if (S.screen !== 'compare' || S.working || !S.page) return;
@@ -1160,7 +1246,7 @@ async function boot() {
     showNotice('storage-blocked', copy.notice.blocked, [{ label: copy.notice.blockedAction, run: () => { location.href = 'how-it-works.html#storage'; } }]);
   }
   updateStorageGates();
-  await loadManifest();
+  await Promise.all([loadManifest(), loadCatalog()]);
   if (!location.hash) history.replaceState(null, '', '#/library');
   await route();
   if (S.dbOK && S.pages.length && S.notice === 'none') { /* nothing else to announce */ }

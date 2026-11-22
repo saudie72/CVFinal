@@ -1,154 +1,69 @@
 {
- "date": "2026-11-22T17:23:53.919Z",
+ "date": "2026-11-22T17:31:11.063Z",
  "chromium": "157.0.8103.78",
  "node": "v22.23.5",
  "seconds": 9,
- "passed": 9,
+ "passed": 4,
  "failed": 0,
  "results": [
   {
-   "id": "5.1",
-   "name": "after \"ready\": only the sample PNG fetches the user triggered (Try the demo + 3 x Compare); nothing else",
+   "id": "7.0",
+   "name": "heap series (bytes, probe) before and after each of 20 compares",
+   "ok": null,
+   "evidence": {
+    "opencv": "4.13.0",
+    "before": [
+     134217728,
+     7098160
+    ],
+    "run1": [
+     134217728,
+     7098176
+    ],
+    "run2": [
+     134217728,
+     7098176
+    ],
+    "run20": [
+     134217728,
+     7098176
+    ],
+    "regionsPerRun": "2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2"
+   }
+  },
+  {
+   "id": "7.1",
+   "name": "Wasm heap bytes constant from run 2 to run 20 (no growth)",
    "ok": true,
    "evidence": {
-    "initialLoadRequests": 19,
-    "afterReady": [
-     "/samples/tl-timesheet_before.png",
-     "/samples/tl-timesheet_after.png",
-     "blob:/91ae56e8-7565-4ffe-9d63-9615c2ed7525"
+    "bytes": [
+     134217728
     ]
    }
   },
   {
-   "id": "5.2",
-   "name": "0 cross-origin requests during the whole session",
-   "ok": true,
-   "evidence": []
-  },
-  {
-   "id": "5.2a",
-   "name": "initial load request list (same-origin app files)",
-   "ok": null,
-   "evidence": [
-    "/index.html",
-    "/css/app.css",
-    "/js/app.js",
-    "/js/db.js",
-    "/js/worker-client.js",
-    "/js/copy.js",
-    "/js/ui.js",
-    "/js/views.js",
-    "/js/zones-ui.js",
-    "/js/report.js",
-    "/js/hints.js",
-    "/js/plain.js",
-    "/inspector.worker.js",
-    "/vendor/opencv/4.13.0/opencv.js",
-    "/samples/manifest.json",
-    "/js/cv/align.js",
-    "/js/cv/ssim.js",
-    "/js/cv/heatmap.js",
-    "/js/cv/pipeline.js"
-   ]
-  },
-  {
-   "id": "5.3",
-   "name": "3 s idle after compare: 0 requests",
-   "ok": true,
-   "evidence": 0
-  },
-  {
-   "id": "5.4",
-   "name": "context OFFLINE after load: Compare with a user-chosen file (setInputFiles) still gives FAIL + regions",
+   "id": "7.2",
+   "name": "malloc probe address constant from run 3 to 20 (freed memory is reused => no Mat leak)",
    "ok": true,
    "evidence": {
-    "state": "result-fail",
-    "status": "FAIL — 2 changes found (8.3% of the page)",
-    "regions": 2,
-    "alignment": "None needed",
-    "alignNote": "The screenshots lined up, so nothing was moved before comparing.",
-    "changed": "8.3% of the page",
-    "ignored": "None",
-    "hints": [
-     "Something above this area changed and pushed the content below it. This block is the knock-on effect, not the cause.",
-     "A small piece of text changed: a label, a message, or a value such as a date or time."
-    ],
-    "offlineNote": "Offline — everything still works on this device."
+    "distinctProbes": [
+     7098176
+    ]
    }
   },
   {
-   "id": "5.5",
-   "name": "offline compare made no new network request (a blob: URL for the thumbnail is in-memory, not network)",
-   "ok": true,
-   "evidence": [
-    "blob:http://localhost:8107/3a9a919d-b5d7-4d38-951c-58059e0016b4"
-   ]
-  },
-  {
-   "id": "5.6",
-   "name": "a non-PNG file shows the friendly \"isn't a PNG\" error, not a crash",
+   "id": "7.3",
+   "name": "before vs after: heap at run 20 equals heap after the first run (growth only once, for the working set)",
    "ok": true,
    "evidence": {
-    "errState": "error-compare",
-    "errT": "That file isn't a PNG image. Capture a full-page PNG (Chrome DevTools, Capture full size screenshot) and try again."
+    "before": 134217728,
+    "run1": 134217728,
+    "run20": 134217728
    }
   },
   {
-   "id": "5.7a",
-   "name": "print layout details",
-   "ok": null,
-   "evidence": {
-    "pr": {
-     "calls": 1,
-     "h1": "Timesheet (Time & Labor)",
-     "tables": 3,
-     "canvases": 3,
-     "text": 573
-    },
-    "vis": {
-     "reportDisplay": "block",
-     "reportW": 1366,
-     "headerDisplay": "none",
-     "mainDisplay": "none"
-    },
-    "pdfBytes": 139692,
-    "pdfPages": 2,
-    "pdfTextHead": "Timesheet (Time & Labor) FAIL · 22 Nov 2026, 17:23 Test case ID Ticket / change ID PeopleSoft version or update image Business unit Role Environment Tester Reviewer Sign-off Not signed off Boxes view "
-   }
-  },
-  {
-   "id": "5.7",
-   "name": "Print report: #print-report is filled (h1, regions table, canvases), window.print called, and in print media it is displayed while the app chrome is hidden",
-   "ok": true,
-   "evidence": {
-    "pr": {
-     "calls": 1,
-     "h1": "Timesheet (Time & Labor)",
-     "tables": 3,
-     "canvases": 3,
-     "text": 573
-    },
-    "vis": {
-     "reportDisplay": "block",
-     "reportW": 1366,
-     "headerDisplay": "none",
-     "mainDisplay": "none"
-    }
-   }
-  },
-  {
-   "id": "5.8",
-   "name": "page.pdf() produces a non-empty PDF whose text contains the report headings",
-   "ok": true,
-   "evidence": {
-    "bytes": 139692,
-    "hasChangesHeading": true,
-    "hasDisclaimer": true
-   }
-  },
-  {
-   "id": "5.c",
-   "name": "no console errors in section 5",
+   "id": "7.c",
+   "name": "no console errors in section 7",
    "ok": true,
    "evidence": []
   }

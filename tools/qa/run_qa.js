@@ -619,8 +619,8 @@ const run = (n) => !only || only.includes(n);
         const promoteEnabled = await page.getAttribute('#btn-promote', 'aria-disabled') !== 'true' && await page.getAttribute('#btn-result-primary', 'data-action') === 'promote';
         rec('11.4e', 'after sign off, Promote is enabled (and is now the primary button) and the signed-off line shows', promoteEnabled, clean(await page.textContent('#signoff-hint')));
         // duplicate name
-        await page.evaluate(() => { location.hash = '#/library'; });
-        await page.click('#btn-new-page'); await page.fill('#page-name', 'Timesheet'); await page.setInputFiles('#baseline-file', path.join(ROOT, 'samples', 'tl-timesheet_before.png'));
+        await goRoute(page, 'library');
+        await page.click('#btn-new-page'); await page.waitForSelector('#new-page-form:not([hidden])'); await page.setInputFiles('#baseline-file', path.join(ROOT, 'samples', 'tl-timesheet_before.png')); await page.waitForSelector('#page-name-field:not([hidden])'); await page.fill('#page-name', 'Timesheet');   // the name field appears once a file is chosen
         await page.keyboard.press('Enter').catch(() => {});
         await page.locator('#new-page-form button[type=submit], #new-page-form [type=submit]').first().click().catch(() => {});
         await page.waitForTimeout(500);
@@ -879,6 +879,17 @@ const run = (n) => !only || only.includes(n);
         await page.evaluate(() => { location.hash = '#/settings'; });
         const set = await page.evaluate(() => ({ h1: document.querySelector('#screen-settings h1').textContent.trim(), purpose: (document.querySelector('#screen-settings .screen-purpose') || {}).textContent }));
         rec('11.24', 'Settings has its purpose line', /Where your data is kept, and how to erase it\. Everything stays on this device\./.test(set.purpose || ''), set);
+        // plain-words scan of every screen and dialog (details opened): banned words from the old UI
+        const scanTexts = {};
+        for (const r of ['library', 'compare', 'history', 'settings', 'result']) {
+          await goRoute(page, r);
+          await openAll(page, `#screen-${r} details`);
+          scanTexts[r] = await page.evaluate((x) => document.getElementById('screen-' + x).innerText, r);
+        }
+        scanTexts.dialogs = await page.evaluate(() => ['save-dialog', 'signoff-dialog', 'confirm-dialog', 'reset-dialog', 'zone-dialog'].map((id) => document.getElementById(id).textContent).join(' '));
+        const banned = {};
+        for (const [k, t] of Object.entries(scanTexts)) { const hit = [...new Set((t.match(/\bregions?\b|\bSave run\b|\bcandidates?\b|\bOpenCV\b|\bSSIM\b|\bhomography\b|\bIndexedDB\b/gi) || []))]; if (hit.length) banned[k] = hit; }
+        rec('11.24a', 'plain-words scan of My pages, Compare, Past results, Settings, Result and every dialog: none of region(s), Save run, candidate, OpenCV, homography, IndexedDB; SSIM only inside the "What do these numbers mean?" help', Object.entries(banned).every(([k, v]) => k === 'result' && v.every((w) => /^SSIM$/i.test(w))), banned);
         rec('11.25', 'no console errors in this pass', log.console.length + log.page.length + (await cspOf(page)).length === 0, log.console);
         await page.context().close();
       }

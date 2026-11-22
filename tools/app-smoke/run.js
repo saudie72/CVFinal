@@ -190,6 +190,102 @@ const check = (n, ok, d) => { out.push(ok); console.log((ok ? 'PASS ' : 'FAIL ')
   await page.reload(); await page.waitForSelector('#page-list > li');
   check('onboardingSeen persists (no tour banner after reload)', await page.isHidden('#tour-again'));
 
+
+  // ===== UX-6: "Try an example" must open ANY example from My pages, every time =====
+  const ready = () => page.waitForFunction(() => document.getElementById('status-pill').dataset.state === 'ready', null, { timeout: 60000 });
+  const resultOf = async (to = 30000) => { try { await page.waitForFunction(() => /^result-|^error/.test(document.getElementById('main').dataset.state) && location.hash === '#/result', null, { timeout: to }); } catch { /* reported by the check */ } return page.getAttribute('#main', 'data-state'); };
+  const openExampleFromPages = async (id, how = {}) => {
+    await page.evaluate(() => { location.hash = '#/library'; });
+    await page.waitForFunction(() => location.hash === '#/library' && !document.getElementById('screen-library').hidden && !!document.querySelector('#page-list > li, #sample-hero:not([hidden])'), null, { timeout: 15000 });
+    await page.waitForTimeout(250);
+    await page.evaluate(() => { const d = document.getElementById('examples'); if (!d.hidden) d.open = true; else document.getElementById('examples-more').open = document.getElementById('examples-tricky').open = true; });
+    const btn = page.locator(`[data-sample-id="${id}"]:visible`).first();
+    if (how.key) { await btn.focus(); await page.keyboard.press(how.key); } else await btn.click({ clickCount: how.dbl ? 2 : 1, delay: how.dbl ? 20 : 0 });
+    return resultOf();
+  };
+  const pageCount = () => page.evaluate(async () => (await (await import('/js/db.js')).pages.list()).length);
+  await page.goto(URL + '#/library'); await ready();
+  const before = await pageCount();
+  check('UX-6a: example already in My pages opens and runs (no error)', await openExampleFromPages('tl-timesheet') === 'result-fail' && await pageCount() === before);
+  check('UX-6a: "In My pages" tag shown on the saved example', await page.locator('#examples .sample-card:has([data-sample-id="tl-timesheet"]) .sample-tag').count() === 1);
+  check('UX-6e: Enter on an example button', await openExampleFromPages('hcm-job-data', { key: 'Enter' }) === 'result-fail');
+  check('UX-6e: Space on an example button', await openExampleFromPages('hcm-personal-data', { key: 'Space' }) === 'result-fail');
+  const n0 = await pageCount();
+  check('UX-6f: double click opens once, no duplicate page', await openExampleFromPages('fscm-voucher', { dbl: true }) === 'result-fail' && await pageCount() === n0 + 1, await pageCount());
+  check('UX-6e: the "Try an example" details toggles by keyboard', await (async () => { await page.evaluate(() => { location.hash = '#/library'; }); await page.waitForTimeout(400); await page.evaluate(() => { document.getElementById('examples').open = false; }); await page.focus('#examples > summary'); await page.keyboard.press('Enter'); const a = await page.$eval('#examples', d => d.open); await page.keyboard.press('Space'); const b = await page.$eval('#examples', d => d.open); return a === true && b === false; })());
+  // (b) pages saved by the OLD app (old titles, records without the new fields)
+  await page.evaluate(async () => {
+    const { pages } = await import('/js/db.js');
+    for (const x of await pages.list()) await pages.remove(x.id);
+    const tl = await (await fetch('samples/tl-timesheet_before.png')).blob(), po = await (await fetch('samples/fscm-po_before.png')).blob();
+    await pages.put({ name: 'Time & Labor – Timesheet', module: 'Time & Labor', notes: '', baseline: tl });
+    await pages.put({ name: 'FSCM – Purchase Order (timestamp only)', module: 'FSCM', baseline: po, width: 1, height: 1 });
+  });
+  await page.reload(); await ready();
+  check('UX-6b: old-titled saved Timesheet opens and runs, no duplicate', await openExampleFromPages('tl-timesheet') === 'result-fail' && await pageCount() === 2, await pageCount());
+  check('UX-6b: old-titled PO opens and runs, no duplicate', await openExampleFromPages('fscm-po') === 'result-fail' && await pageCount() === 2, await pageCount());
+  check('UX-6b: a different example still adds a new page', await openExampleFromPages('hcm-job-data') === 'result-fail' && await pageCount() === 3);
+  check('UX-6b: old records get the PeopleSoft page subtitle', await page.evaluate(async () => (await (await import('/js/db.js')).pages.list()).find(p => p.name === 'Time & Labor – Timesheet').psPage) === 'Time & Labor – Timesheet');
+  // race: start one example, open another while it is still working
+  await page.evaluate(() => { location.hash = '#/library'; }); await page.waitForTimeout(400);
+  await page.evaluate(() => { document.getElementById('examples').open = true; });
+  await page.click('#examples [data-sample-id="fscm-voucher"]');
+  await page.waitForFunction(() => document.getElementById('main').dataset.state === 'working', null, { timeout: 10000 }).catch(() => {});
+  await page.evaluate(async () => {            // go back to My pages and click the 2nd example while the 1st is still comparing
+    location.hash = '#/library';
+    const b = () => document.querySelector('#examples [data-sample-id="hcm-personal-data"]');
+    for (let k = 0; k < 200 && !(b() && b().offsetParent && document.getElementById('main').dataset.state === 'working'); k++) { document.getElementById('examples').open = true; await new Promise(r => setTimeout(r, 10)); }
+    if (document.getElementById('main').dataset.state !== 'working') console.log('note: first compare finished before the second click');
+    b().click();
+  });
+  const raced = await resultOf(60000);
+  await page.waitForTimeout(400);
+  check('UX-6: opening an example while another is comparing shows the second one', raced === 'result-fail' && /Personal details/.test(await page.textContent('#result-page-name')), await page.textContent('#result-page-name'));
+  // (d) tour open / after Skip
+  await page.goto(URL + '#/library'); await ready();
+  await page.evaluate(() => document.getElementById('btn-tour-again').click());
+  await page.waitForSelector('#tour:not([hidden])');
+  await page.evaluate(() => { location.hash = '#/library'; }); await page.waitForTimeout(500);
+  check('UX-6d: leaving the tour shows My pages with examples', await page.isHidden('#tour') && await page.isVisible('#screen-library'));
+  check('UX-6d: example opens after leaving the tour', await openExampleFromPages('hcm-job-data') === 'result-fail' && await page.isHidden('#tour'));
+  await page.evaluate(() => { location.hash = '#/library'; }); await page.waitForTimeout(400);
+  check('UX-6d: example opens after Skip', await openExampleFromPages('hcm-personal-data') === 'result-fail');
+  // (c) after Reset app data
+  await page.goto(URL + '#/settings'); await ready();
+  await page.click('#btn-reset'); await page.click('#reset-confirm');
+  await page.waitForFunction(() => document.getElementById('reset-dialog').dataset.state === 'reset-done'); await page.click('#reset-back');
+  await page.waitForFunction(() => document.getElementById('main').dataset.state === 'ready-empty');
+  await page.evaluate(() => { document.getElementById('examples-more').open = true; });
+  await page.click('#examples-more [data-sample-id="hcm-job-data"]');
+  check('UX-6c: example opens right after Reset app data', await resultOf() === 'result-fail');
+
+  // ===== UX-6: PeopleSoft page catalog select =====
+  await page.goto(URL + '#/library'); await ready();
+  await page.click('#btn-new-page');
+  check('PS select: labelled "Which PeopleSoft page is this?"', (await page.textContent('label[for="ps-page"]')).trim() === 'Which PeopleSoft page is this?' && await page.$eval('#ps-page', e => e.tagName === 'SELECT' && e.classList.contains('ps-select')));
+  const ps = await page.evaluate(() => { const s = document.getElementById('ps-page'), o = [...s.options]; return { first: o[0].text, last: o[o.length - 1].text, groups: [...s.querySelectorAll('optgroup')].map(g => g.label), n: o.length }; });
+  check('PS select: first "Choose a page…", last "Other (type a name)"', ps.first === 'Choose a page…' && ps.last === 'Other (type a name)', [ps.first, ps.last]);
+  check('PS select: optgroups per product and module, with HCM and FSCM', ps.groups.includes('HCM · Time & Labor') && ps.groups.some(g => g.startsWith('FSCM · ')) && ps.n > 100, [ps.groups.length, ps.n]);
+  check('PS select: Time & Labor – Timesheet and Position Management are listed', await page.evaluate(() => { const t = [...document.getElementById('ps-page').options].map(o => o.text); return t.includes('Time & Labor – Timesheet') && t.some(x => /Position Management/.test(x)); }));
+  check('PS select: name field hidden until a choice is made', await page.isHidden('#page-name'));
+  await page.selectOption('#ps-page', { label: 'Time & Labor – Rules' }).catch(async () => { await page.selectOption('#ps-page', { index: 1 }); });
+  const chosen = await page.$eval('#ps-page', s => s.value);
+  check('PS select: choosing fills the editable page name', await page.inputValue('#page-name') === chosen && await page.isVisible('#page-name'), chosen);
+  await page.selectOption('#ps-page', '__other'); await page.fill('#page-name', 'My custom page');
+  check('PS select: Other keeps the free-text name', await page.inputValue('#page-name') === 'My custom page');
+  await page.selectOption('#ps-page', { label: 'Time & Labor – Timesheet' });
+  await page.setInputFiles('#baseline-file', path.join(__dirname, '..', '..', 'samples', 'tl-timesheet_before.png'));
+  await page.fill('#page-name', 'Timesheet (mine)');
+  await page.click('#new-page-form button[type=submit]');
+  await page.waitForFunction(() => location.hash === '#/compare', null, { timeout: 15000 });
+  check('PS select: psPage stored on the record and shown on Compare', await page.evaluate(async () => (await (await import('/js/db.js')).pages.list()).find(p => p.name === 'Timesheet (mine)').psPage) === 'Time & Labor – Timesheet' && /Time & Labor – Timesheet/.test(await page.textContent('#compare-page-name')));
+  await page.evaluate(() => { location.hash = '#/library'; }); await page.waitForTimeout(500);
+  check('PS select: subtitle shown on the My pages card', (await page.textContent('#page-list > li:has-text("Timesheet (mine)") .card-sub')).includes('Time & Labor – Timesheet'));
+  check('Demo sample gets psPage from sampleMap', await page.evaluate(async () => (await (await import('/js/db.js')).pages.list()).filter(p => p.sampleId).every(p => p.psPage)));
+  await page.click('#page-list > li:has-text("Employee job record") .page-open');
+  await page.waitForFunction(() => location.hash === '#/compare');
+  check('PS subtitle on compare for a demo page', /Workforce Administration – Job Data/.test(await page.textContent('#compare-page-name')), await page.textContent('#compare-page-name'));
+
   const external = requests.filter(u => !u.startsWith('http://localhost:8106/') && !u.startsWith('data:') && !u.startsWith('blob:'));
   check('no external requests', external.length === 0, external);
   check('zero console errors / CSP violations', problems.length === 0, problems);
