@@ -162,6 +162,14 @@ function updateNavCurrent() {
     const on = !calm && a.dataset.route === (r === 'result' ? 'compare' : r);
     if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
+  // Phones: the nav is one scrollable strip, so keep the current item in view.
+  const cur = document.querySelector('.app-nav a[aria-current="page"]');
+  const nav = cur && cur.closest('ul');
+  if (nav && nav.scrollWidth > nav.clientWidth) {
+    const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const left = cur.offsetLeft - (nav.clientWidth - cur.offsetWidth) / 2;
+    nav.scrollTo({ left: Math.max(0, left), behavior: smooth ? 'smooth' : 'auto' });
+  }
 }
 function updateNav() {
   const set = (k, show) => { const li = document.querySelector(`.app-nav li[data-nav="${k}"]`); if (li) li.hidden = !show; };

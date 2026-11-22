@@ -1161,6 +1161,97 @@ dialog::backdrop { -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px
 /* legacy hero card: no longer in the markup; keep it quiet if it ever returns */
 .home-section ~ .sample-hero, .sample-hero:not(:first-child) { box-shadow: var(--shadow-sm); }
 
+/* ============================== 13e. UX-9-STYLE-2 (phone header, page cards, empty states) ==============================
+   No new colour tokens. Pairs (all in tools/contrast_check.py): --text-2 on --panel-2 (Example chip, empty states),
+   --pass / --fail / --text-2 on --panel (card status), --accent on --panel-2 (empty-state link). */
+
+/* 1. Phone header: max 2 rows. Row 1 = brand + status pill. Row 2 = nav as ONE horizontally scrollable strip
+   (scroll-snap, no scrollbar, edge fades appear only on the side that has more items). Nothing is hidden. */
+@property --nav-fade-l { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --nav-fade-r { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@keyframes nav-fade {
+  0%   { --nav-fade-l: 0px;  --nav-fade-r: 24px; }
+  6%   { --nav-fade-l: 24px; }
+  94%  { --nav-fade-r: 24px; }
+  100% { --nav-fade-l: 24px; --nav-fade-r: 0px; }
+}
+@media (max-width: 720px) {
+  .app-header { grid-template-columns: minmax(0, 1fr) auto; }
+  .status { grid-column: 2; order: 2; max-width: 9.5rem; min-width: 0; }
+  .brand { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; line-height: var(--target); padding-top: 0; padding-bottom: 0; }
+  #status-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .app-nav {
+    grid-column: 1 / -1; order: 3; min-width: 0; margin: 0 -.5rem;
+    overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity; scroll-padding-inline: 1.5rem; scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--nav-fade-l), #000 calc(100% - var(--nav-fade-r)), transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 var(--nav-fade-l), #000 calc(100% - var(--nav-fade-r)), transparent 100%);
+  }
+  .app-nav::-webkit-scrollbar { display: none; }
+  .app-nav ul { flex-wrap: nowrap; width: max-content; min-width: 100%; padding: .15rem .5rem; }
+  .app-nav li { flex: 0 0 auto; scroll-snap-align: center; }
+  .app-nav a { white-space: nowrap; }
+  .app-nav a:focus-visible { outline-offset: -3px; }   /* inside the scroller so the ring is not clipped */
+}
+@supports (animation-timeline: scroll()) {
+  @media (max-width: 720px) {
+    /* !important + higher specificity beats the global reduced-motion "animation: none": this is scroll-linked, not motion */
+    .app-nav { animation: nav-fade linear both !important; animation-timeline: scroll(self inline) !important; }
+  }
+}
+@supports not (animation-timeline: scroll()) {
+  @media (max-width: 720px) {
+    .app-nav { --nav-fade-r: 20px; }   /* static hint that there is more to the right */
+  }
+}
+
+/* 2. "Example" chip, latest-result line, empty states */
+.sample-tag {
+  display: inline-flex; align-items: center; align-self: flex-start; margin: 0 0 .4rem; padding: .1rem .6rem;
+  background: var(--panel-2); color: var(--text-2); border: 1px solid var(--border); border-radius: 999px;
+  font-size: .75rem; font-weight: 600; letter-spacing: .02em; line-height: 1.5; white-space: nowrap;
+}
+.sample-tag[hidden] { display: none; }
+.card-status {
+  display: flex; align-items: flex-start; gap: .45rem; margin: .1rem 0 .6rem;
+  font-size: .9rem; font-weight: 600; line-height: 1.4; color: var(--text-2);
+}
+.card-status::before {   /* icon + the words in the text: status is never colour alone */
+  content: ""; flex: 0 0 1.05rem; width: 1.05rem; height: 1.05rem; margin-top: .12rem; background-color: currentColor;
+  -webkit-mask: var(--ic-dot) center / contain no-repeat; mask: var(--ic-dot) center / contain no-repeat;
+}
+.card-status[data-status="PASS"] { color: var(--pass); }
+.card-status[data-status="PASS"]::before { -webkit-mask-image: var(--ic-check); mask-image: var(--ic-check); }
+.card-status[data-status="FAIL"] { color: var(--fail); }
+.card-status[data-status="FAIL"]::before { -webkit-mask-image: var(--ic-cross); mask-image: var(--ic-cross); }
+.card-status[data-status="none"] { color: var(--text-2); font-weight: 500; }
+.card-status[data-status="none"]::before { -webkit-mask-image: var(--ic-ring); mask-image: var(--ic-ring); }
+
+#pages-empty, #pages-filter-empty {
+  margin: 0; padding: 1.5rem 1.25rem; text-align: center; font-size: 1rem; line-height: 1.5; color: var(--text-2);
+  background: var(--panel-2); border: 1px dashed var(--border-strong); border-radius: 16px;
+}
+#pages-empty[hidden], #pages-filter-empty[hidden] { display: none; }
+#pages-empty a { display: flex; align-items: center; justify-content: center; min-height: var(--target); margin-top: .25rem; color: var(--accent); font-weight: 600; }
+
+/* 3. My pages cards: compact list rows from 720 px (thumbnail left, text right); phones keep the grid */
+@media (min-width: 720px) {
+  #page-list.cards { grid-template-columns: minmax(0, 1fr); gap: .75rem; }
+  #page-list .card {
+    display: grid; grid-template-columns: 8.5rem minmax(0, 1fr) auto; column-gap: 1.1rem; row-gap: 0;
+    align-items: center; padding: .9rem 1.1rem;
+  }
+  #page-list .card:hover { transform: none; }
+  #page-list .card-thumb { grid-column: 1; grid-row: 1 / span 5; align-self: start; margin: 0; border-radius: 10px; }
+  #page-list .card-title { grid-column: 2; grid-row: 1; margin: 0; font-size: 1.05rem; }
+  #page-list .sample-tag { grid-column: 3; grid-row: 1; align-self: center; margin: 0; }
+  #page-list .card-sub { grid-column: 2 / -1; grid-row: 2; margin: .1rem 0 0; }
+  #page-list .card-meta { grid-column: 2 / -1; grid-row: 3; margin: .15rem 0 0; font-size: .86rem; }
+  #page-list .card-status { grid-column: 2 / -1; grid-row: 4; margin: .35rem 0 .5rem; }
+  #page-list .card .actions { grid-column: 2; grid-row: 5; margin: 0; padding: 0; justify-self: start; }
+  #page-list .card-more { grid-column: 3; grid-row: 5; justify-self: end; align-self: center; }
+}
+
 /* ============================== 14. MOTION, PRINT, FORCED COLORS ============================== */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }

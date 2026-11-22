@@ -155,7 +155,7 @@ def main():
             ("nav active ring accent on accent-soft (non-text)", "--accent", "accent-soft", 3.0),
             ("hero gradient: accent link on accent-soft", "--accent", "accent-soft", 4.5),
             ("sample-area pill: secondary text on accent-soft", "--text-2", "accent-soft", 4.5),
-            ("sample-hero expectation tray: secondary text on panel", "--text-2", "panel", 4.5),
+            ("expectation tray / hint: secondary text on panel", "--text-2", "panel", 4.5),
             # UX-9 (section 13d): My pages sections, picker description tray, zoom chrome
             ("home-section heading/text on panel", "--text", "panel", 4.5),
             ("picker description (.picker-desc) text on accent-soft tray", "--text", "accent-soft", 4.5),
@@ -163,6 +163,20 @@ def main():
             ("picker select border on field (non-text)", "--border-strong", "field", 3.0),
             ("picker tray border on accent-soft (decorative, non-text)", "--accent", "accent-soft", 3.0),
             ("zoom Close pill: secondary-free, hover panel text", "--text", "panel", 4.5),
+            # UX-9-STYLE-2 (section 13e): Getting started trays, page-card chip/status, empty states, scrolling nav
+            ("#example-desc / #start-intro text on accent-soft tray", "--text", "accent-soft", 4.5),
+            ("#example-desc / #start-intro <small>/.hint on accent-soft tray", "--text-2", "accent-soft", 4.5),
+            (".sample-tag 'Example' chip text on panel-2", "--text-2", "panel-2", 4.5),
+            (".sample-tag chip text on panel (card background)", "--text-2", "panel", 4.5),
+            (".card-status PASS text on panel", "--pass", "panel", 4.5),
+            (".card-status FAIL text on panel", "--fail", "panel", 4.5),
+            (".card-status none text on panel", "--text-2", "panel", 4.5),
+            (".card-status PASS icon on panel (non-text)", "--pass", "panel", 3.0),
+            (".card-status FAIL icon on panel (non-text)", "--fail", "panel", 3.0),
+            ("#pages-empty / #pages-filter-empty text on panel-2", "--text-2", "panel-2", 4.5),
+            ("#pages-empty link on panel-2", "--accent", "panel-2", 4.5),
+            ("#pages-empty dashed border on panel-2 (non-text)", "--border-strong", "panel-2", 3.0),
+            ("nav item focus ring inside scroller on glass (non-text)", "--focus", "glass", 3.0),
         ]
         # brand mark: check glyph (--on-accent) on both ends of the logo gradient
         for end in ("--accent-bg", "--accent"):
