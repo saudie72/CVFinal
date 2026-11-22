@@ -1339,3 +1339,87 @@ Ids: `tour`, `tour-title`, `tour-stage`, `tour-before`, `tour-after`, `tour-next
 (Section 12.17 below replaces the sample dropdown and `#more-samples` with example cards, and adds the app-wide plain-words rules.)
 
 Handoffs: **Juno** builds 12.16 Musts first (then the earlier UX-2 Musts); **Sable** styles `landing`, `tour-panel`, `link-btn`, `tour-focus`, the collapsed `<details>` blocks; **Quinn** adds to 12.13: (a) fresh profile shows the landing with exactly one primary button and the owner's sentence, no nav items other than My pages, How it works, Resources; (b) tour: Next/Skip/Finish by keyboard only, Skip on each step, Esc skips, `onboardingSeen` persists, Reset app data brings the tour back, step 3 waits for the compare, N matches the result; (c) tests that click `#btn-load-sample` still work and the old "Load sample" text assertion changes; (d) 375 px layout of the landing and the tour; **Atlas:** decide whether to hold `introDismissed` (brief) or `onboardingSeen` (Morgan); I used `onboardingSeen`; **Morgan:** confirm the tour sentences and the purpose lines.
+
+### 12.17 Example cards and the plain-words test (owner: "what the hell does 'fscm - purchase order (timestamp only)' even mean ... this is not for a machine to use")
+
+**Source of truth:** `samples/manifest.json` (Mason). It now has, per sample: `title` (plain), `story` (one sentence), `whatToExpect`, `group` ("Start here", "More examples", "How the inspector handles tricky cases") and `order`. I read the current file; the eight entries are: Timesheet (Start here, order 1); Employee job record, Personal details, Supplier invoice (voucher) (More examples, 2 to 4); Purchase order (with a changing clock), Employee job record (scrolled 3 pixels), Employee job record (different screen scale), Purchase order (same page twice) (tricky cases, 5, 6, 8, 7). **This replaces the `<select id="sample-select">`, its label "Sample pair", and `#more-samples` from 12.16.2 (all Must).**
+
+#### 12.17.1 Example cards
+
+Show **cards, not a dropdown**, grouped in the manifest's group order ("Start here", then "More examples", then "How the inspector handles tricky cases"); inside a group sort by `order` (note `order` 8 comes before 7 in the file; sort numerically, do not rely on file order).
+
+**Start here card** (`article.sample-hero`, Timesheet) is the big card on the landing, directly under the h1 sentence of 12.16.2, and it **is** the primary action: it contains `#btn-load-sample` "Try the demo (30 seconds)" (starts the tour). Its parts: `h2` = `title` ("Timesheet"), a small tag with the plain area name (see below), `p.sample-story` = `story`, `p.sample-expect` = `whatToExpect`, the button. Nothing else competes with it above the fold except the secondary "Compare my own screenshots".
+
+**Other examples** are in two collapsed `<details>` blocks under the hero, closed by default (so the landing still answers "what do I do" in 10 seconds): `<details id="examples-more">` summary "More examples (3)" and `<details id="examples-tricky">` summary "How the inspector handles tricky cases (4)". Each group heading inside is an `h3`; each card is an `article.sample-card` with `h4`/title, area tag, `p.sample-story`, `p.sample-expect`, and a button **"Open this example"** (`button.btn.sample-open`, `data-sample-id`). **Open this example** loads that sample, compares it and goes straight to the Result screen (no tour). Counts in the summaries come from the manifest.
+
+**The expectation line.** Render `whatToExpect` with the leading word replaced: if it starts with "Expect:", show **"What to expect:"** in bold and then the rest. This **supersedes** section 2 point 2 ("option text must not reveal PASS/FAIL"): for learning, the expected outcome is shown on purpose. Mason's strings contain "(FAIL)"/"(PASS)": keep them, and add after the card button a visible outcome text, no colour-only badge.
+
+**Area tag** (`span.sample-area`): the manifest `module` value is a code. Show it in plain words (display mapping only, stored values don't change): "HCM" is "People and HR (HCM)", "FSCM" is "Money and purchasing (FSCM)", "Time & Labor" is "Time and labor". These three names are my proposal (Morgan/Riley to confirm, **unverified**). Never show the code alone and never show it in the card title.
+
+**My pages with pages** (not the landing): the user's own pages come first under an `h2` "Your pages" as page cards (`li.card`: title, a plain line "Before screenshot added {date}", **Compare** primary, **Past results** secondary, **Delete page** under a "More" `<details>` (Should)); examples sit in one collapsed `<details id="examples">` "Try an example" below them, with the same groups and cards inside. A card whose sample has already been opened shows the tag "In My pages" and its button stays "Open this example" (existing rule: reopens that page, does not touch its baseline).
+
+**Behaviour and a11y.** `<section aria-labelledby>` per group; only the button inside a card is interactive (no whole-card click, no hover-only content). Opening: the button gets `aria-busy="true"`, announcer "Opening {title}…"; if OpenCV is still loading the compare queues (existing behaviour). If `manifest.json` can't be read: panel (error rules, section 6) "The examples couldn't be loaded. Reload the page, or compare your own screenshots." with **Reload page** and **Compare my own screenshots**. `title`, `story` and `whatToExpect` are set with `textContent` (no HTML). Cards stack in one column below 720 px; the hero is full width; the others two columns from about 960 px (Sable).
+
+**Manifest content requests (Mason, via Atlas).** (1) "Employee job record (scrolled 3 pixels)": a pixel number sits in a title, which breaks the rule below; retitle to "Employee job record (page scrolled a little)" and keep "3 pixels" only in the story if wanted. (2) "Supplier invoice (voucher)": "voucher" is PeopleSoft-correct and fine. (3) `whatToExpect` for the voucher says "at least 1 change found (FAIL)"; make it a number or "a few changes", so the user isn't left guessing. (4) Timesheet's text says "2 changes", while the tour step 3 takes N from the real result; if the real result differs the tour is right and the card text is a Quinn finding.
+
+#### 12.17.2 Card copy for `js/copy.js`
+
+```js
+samples: {
+  startHere: 'Start here',
+  moreSummary: n => `More examples (${n})`,
+  trickySummary: n => `How the inspector handles tricky cases (${n})`,
+  yourPages: 'Your pages',
+  tryExample: 'Try an example',
+  open: 'Open this example',
+  inLibrary: 'In My pages',
+  expectLead: 'What to expect:',          // replaces a leading "Expect:" in whatToExpect
+  area: { 'HCM': 'People and HR (HCM)', 'FSCM': 'Money and purchasing (FSCM)', 'Time & Labor': 'Time and labor' },   // proposal, unverified
+  opening: t => `Opening ${t}…`,
+  loadError: "The examples couldn't be loaded. Reload the page, or compare your own screenshots.",
+  groupOrder: ['Start here', 'More examples', 'How the inspector handles tricky cases'],
+},
+```
+
+Template: `<template id="tpl-sample"><article class="sample-card"><h4 class="sample-title"></h4><span class="sample-area"></span><p class="sample-story"></p><p class="sample-expect"></p><button class="btn sample-open" type="button">Open this example</button></article></template>`. Hero uses the same fields with `h2` and `btn-primary`. New ids/classes: `examples`, `examples-more`, `examples-tricky`, `tpl-sample`, `sample-hero`, `sample-card`, `sample-title`, `sample-area`, `sample-story`, `sample-expect`, `sample-open`.
+
+#### 12.17.3 The plain-words test, applied to every label in the app
+
+**Rule.** Before a label ships, ask: would a PeopleSoft tester who has never used a visual-comparison tool know what it means and what happens if they use it? If not, rewrite it or explain it in place. No module codes alone, no "baseline"/"candidate" without a plain companion, and **no pixel numbers outside Details** (exceptions: the Advanced fields, the manual zone form, the fixed capture-standard sentence and error messages that quote sizes, because there the number is the user's own input or the point of the message).
+
+| Today | Replace with | Priority |
+|---|---|---|
+| "Baseline" (first mention on a screen) | "Before screenshot (baseline)"; afterwards "Before screenshot". Compare panel headings are in 12.16.3 | **Must** |
+| "After-change screenshot", "candidate" | "After screenshot" (user-visible); "candidate" never appears except inside a tooltip-free help sentence | **Must** |
+| "Replace baseline" button / "Replace the baseline?" dialog | "Replace Before screenshot" / "Replace the Before screenshot (baseline)?"; body keeps its text | Should |
+| "Promote to baseline" | "Use as new Before screenshot (promote)"; the help line from Morgan stays ("After sign-off, the after screenshot replaces the baseline for the next cycle") | Should |
+| "Region", "regions" | "change(s)" everywhere visible (D8) | **Must** |
+| Module values (`HCM`, `FSCM`) in labels, cards, tables | Plain area names (12.17.2), the code only in brackets | **Must** |
+| Page names with codes such as "Time & Labor – tl-timesheet" or "FSCM - Purchase Order (timestamp only)" | The sample page name is the manifest `title`; never `module + " – " + page-id` | **Must** |
+| Tab "Boxes" / "Side-by-side" / "Overlay slider" / "Heatmap" | "Outlined changes" / "Side by side" / "Slide to compare" / "Heat map" (ids and `data-view` unchanged) | Should |
+| Compare progress "Aligning / Finding differences / Measuring regions / Drawing views" | "Lining up the pages / Finding differences / Outlining changes / Drawing views" | Should |
+| Advanced: "Sensitivity (threshold T, 1–255)" | "Sensitivity (1 to 255): lower finds smaller differences" | Should |
+| Advanced: "Minimum region size (pixels, area)" | "Smallest change to report (area, pixels)" | Should |
+| Advanced: "Region merging kernel (pixels)" | "Join nearby changes (distance, pixels)" | Should |
+| Advanced: "Fail above (% of page changed, saved for this page)" | "Fail when more than this share of the page changed (%, saved for this page)" | Should |
+| Advanced: "Alignment: Automatic / Off" | "Line up the screenshots first: Automatic / Off" | Should |
+| Save dialog "Tools version / PUM image" | "PeopleSoft version or update image" (placeholder "PI 50 (fictional)") | Should |
+| Save dialog "Role" | "User role used for the test" | Should |
+| Zone list line "Timestamp, 220 by 18 pixels at 1100, 20" | "Timestamp, top right of the page" (position words from 12.6); numbers shown in the zone dialog's form only | **Must** (it is a pixel line outside Details) |
+| Announcer "Zone 'Timestamp' added, 220 by 18 pixels." | "Zone 'Timestamp' added, top right of the page." | Should |
+| Zone summary "2 zones ignored (1.4% of page)" | Keep: a percent, not pixels | keep |
+| Region `aria-label` and card header with pixels | Words only; pixels in Details (12.6) | **Must** |
+| "Save run" | Open question: "run" is internal; "Save result" reads better. Left unchanged for now because Morgan's stories, the 3a table and tests use "Save run". If Atlas and Morgan agree, rename the button, dialog title, strip step and `#result-next` text together | Open |
+| Stat names SSIM, "Aligned: shift (dx, dy)" | Plain stats of 12.5 | **Must** |
+| Pill "Loading OpenCV…" | 12.16.7 | Should |
+| Library sample dropdown "Sample pair" | Removed, cards (12.17.1) | **Must** |
+
+**Priority for Juno within this section:** Must = the example cards (`manifest.json` fields, hero, collapsed groups, area tag, loading and error states), page names from titles, the zone list line, the baseline/after/region/module wording and the stat names. Should = everything else in the table, plus the "Your pages" layout details.
+
+#### 12.17.4 Verification additions for Quinn
+
+1. Fresh profile: the Timesheet hero card is the only thing under the landing sentence besides "Compare my own screenshots"; the other seven examples are in two collapsed groups with counts 3 and 4.
+2. Every card shows title, area tag in plain words, one-sentence story and a "What to expect:" line; none shows a bare module code or a pixel number (the scrolled-3-pixels title is a known item for Mason).
+3. **Open this example** on each card loads, compares and shows the Result for that sample; the pair's real PASS/FAIL matches the card text (the CLAUDE.md definition of done) or it is reported.
+4. A text scan of every screen, dialog and `how-it-works.html` for "region", "candidate", "SSIM" (outside help), module codes without a plain name, and "NNN by NNN pixels" outside Details, the manual zone form, Advanced and error messages.
+5. Keyboard: Tab reaches only the button of each card; summaries of the two groups toggle with Enter/Space; focus ring visible at 375 px and 1366 px.
