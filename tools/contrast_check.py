@@ -78,6 +78,7 @@ def main():
             "glass": [over(t["--glass-bg"], BLACK), over(t["--glass-bg"], WHITE)],
             "pill": [over(t["--pill-bg"], over(t["--glass-bg"], bd)) for bd in (BLACK, WHITE)],
             "pass-bg": [tok("--pass-bg")], "fail-bg": [tok("--fail-bg")], "warn-bg": [tok("--warn-bg")],
+            "accent-soft": [tok("--accent-soft")],  # selected card, current step, next-step callout, checked choice
         }
         pairs = []  # (label, fg-key, [bg surface names], min ratio)
         for s in ("canvas", "panel", "panel-2", "control", "field", "glass", "pill", "fail-bg"):
@@ -114,6 +115,22 @@ def main():
             ("focus ring on panel", "--focus", "panel", 3.0),
             ("focus ring on glass", "--focus", "glass", 3.0),
             ("focus ring on field", "--focus", "field", 3.0),
+            # UX-2 first-use clarity (css/app.css section 13b)
+            ("text on accent-soft (selected card, next step, current step)", "--text", "accent-soft", 4.5),
+            ("secondary text on accent-soft (choice help, strip status)", "--text-2", "accent-soft", 4.5),
+            ("link-btn / accent text on accent-soft (tour-again banner)", "--accent", "accent-soft", 4.5),
+            ("link-btn / accent text on control", "--accent", "control", 4.5),
+            ("strip step DONE icon on panel (non-text)", "--pass", "panel", 3.0),
+            ("strip step DONE icon on panel-2 (non-text)", "--pass", "panel-2", 3.0),
+            ("strip step CURRENT border/icon accent on accent-soft (non-text)", "--accent", "accent-soft", 3.0),
+            ("strip step TODO/BLOCKED border on panel-2 (non-text)", "--border-strong", "panel-2", 3.0),
+            ("selected card outline accent on panel (non-text)", "--accent", "panel", 3.0),
+            ("selected card outline accent on canvas (non-text)", "--accent", "canvas", 3.0),
+            ("selected Regression card outline accent on fail tint (non-text)", "--accent", "fail-bg", 3.0),
+            ("checked choice border accent on accent-soft (non-text)", "--accent", "accent-soft", 3.0),
+            ("tour focus ring accent on panel gap (non-text)", "--accent", "panel", 3.0),
+            ("tour bubble border on panel (non-text)", "--border-strong", "panel", 3.0),
+            ("Not-sure info icon accent on fail tint (non-text)", "--accent", "fail-bg", 3.0),
         ]
         # fg on accent surface
         for label, fg, bg in (("primary button / selected tab text on accent", "--on-accent", "--accent-bg"),):
