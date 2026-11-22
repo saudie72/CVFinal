@@ -131,6 +131,12 @@ def main():
             ("tour focus ring accent on panel gap (non-text)", "--accent", "panel", 3.0),
             ("tour bubble border on panel (non-text)", "--border-strong", "panel", 3.0),
             ("Not-sure info icon accent on fail tint (non-text)", "--accent", "fail-bg", 3.0),
+            # UX-7 (section 13d): phone tour bar and zoomed demo image
+            ("tour bar top border on panel (non-text)", "--border-strong", "panel", 3.0),
+            ("tour bar text on panel", "--text", "panel", 4.5),
+            ("tour bar secondary text on panel", "--text-2", "panel", 4.5),
+            ("zoomed tour caption on viewer", "--text-2", "viewer", 4.5),
+            ("tour zoom focus ring on viewer (non-text)", "--focus", "viewer", 3.0),
             # UX-POLISH (css/app.css section 13c): outcome-tinted result header, hero gradient, select arrow
             ("text on pass tint (PASS result header gradient)", "--text", "pass-bg", 4.5),
             ("secondary text on pass tint (PASS result header)", "--text-2", "pass-bg", 4.5),
