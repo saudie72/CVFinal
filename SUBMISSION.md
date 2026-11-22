@@ -7,7 +7,7 @@
 
 Everything is on the `main` branch.
 
-## Rubric check (verified 22 Nov 2026)
+## How the app meets each requirement
 
 | Area | What the rubric asks | Where to see it | Evidence |
 |---|---|---|---|
