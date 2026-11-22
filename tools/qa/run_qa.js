@@ -372,7 +372,7 @@ const run = (n) => !only || only.includes(n);
       let pdfText = ''; try { pdfText = execFileSync('pdftotext', [pdfPath, '-']).toString(); } catch (e) { pdfText = '(pdftotext not available)'; }
       note('5.7a', 'print layout details', { pr, vis, pdfBytes: pdf.length, pdfPages: (pdf.toString('latin1').match(/\/Type\s*\/Page[^s]/g) || []).length, pdfTextHead: clean(pdfText).slice(0, 200) });
       rec('5.7', 'Print report: #print-report is filled (h1, regions table, canvases), window.print called, and in print media it is displayed while the app chrome is hidden', pr.calls === 1 && pr.h1 && pr.tables >= 3 && pr.canvases >= 3 && vis.reportDisplay !== 'none' && vis.reportW > 300, { pr, vis });
-      rec('5.8', 'page.pdf() produces a non-empty PDF whose text contains the report headings', pdf.length > 5000 && /^Changes$/m.test(pdfText) && /Boxes view/.test(pdfText), { bytes: pdf.length, hasChangesHeading: /^Changes$/m.test(pdfText), hasDisclaimer: /not a replacement/i.test(pdfText) });
+      rec('5.8', 'page.pdf() produces a non-empty PDF whose text contains the report headings', pdf.length > 5000 && /(^|[\n\f])Changes\s*(\n|$)/.test(pdfText) && /Boxes view/.test(pdfText), { bytes: pdf.length, hasChangesHeading: /(^|[\n\f])Changes\s*(\n|$)/.test(pdfText), hasDisclaimer: /not a replacement/i.test(pdfText) });
       await page.emulateMedia({ media: 'screen' });
       rec('5.c', 'no console errors in section 5', log.console.length + log.page.length === 0, log.console);
       await ctx.close();
@@ -1241,10 +1241,13 @@ const run = (n) => !only || only.includes(n);
       rec('14.6', 'each change card is a focusable item with a spoken summary (aria-label "Change 1 of 2, where, shape, decision: not reviewed") and a fieldset legend "Your decision for change N" over three radios sharing one name', /^Change 1 of 2, .+, decision: not reviewed$/.test(sem.li0Label) && sem.fs.every((f, i) => f.legend === `Your decision for change ${i + 1}` && f.radios.join() === 'Expected,Regression,Noise' && f.groupName === 1), { label: sem.li0Label, fs: sem.fs });
       rec('14.7', 'buttons on the result screen have distinct accessible names (a screen reader list of buttons is not 2 x "Add ignore zone")', sem.dup.length === 0, { duplicates: sem.dup, all: sem.btns });
       // announcements through the flow
+      // human pace: announce() debounces 40 ms, so two actions inside 40 ms collapse into the last announcement
       await page.locator('#region-list > li').nth(1).locator('.region-title').click();       // card 1 is already selected after the tour, so pick card 2
+      await page.waitForTimeout(300);
       await page.locator('#region-list > li').nth(0).locator('input[value="Expected"]').check();
+      await page.waitForTimeout(300);
       await page.locator('#region-list > li').nth(1).locator('input[value="Regression"]').check();
-      await page.waitForTimeout(200);
+      await page.waitForTimeout(300);
       const ann = await page.evaluate(() => window.__ann.slice());
       note('14.8a', 'everything announced (aria-live) since page load, in order', ann);
       const has = (re) => ann.filter((a) => re.test(a));

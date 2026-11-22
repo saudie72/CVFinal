@@ -153,3 +153,4 @@ Kept by **Atlas (orchestrator)**. One row per handoff or review. Experts never c
 | 127 | A | Atlas | Riley | UX-5: js/ps-catalog.json (HCM + FSCM 9.2 modules/pages, names only) + sampleMap | js/ps-catalog.json | launched |
 | 128 | A | Atlas | Juno | UX-6: reproduce + fix Try an example (already-saved, legacy pages, after reset, tour, keyboard, double click); "Which PeopleSoft page is this?" dropdown → psPage | index.html, js/* | launched |
 | 129 | A | Atlas | Sable | UX-POLISH: visual polish from 12 screenshots Atlas rendered (Sable has no shell) | css/app.css | launched |
+| 130 | A | Riley | Atlas | js/ps-catalog.json: HCM 46 + FSCM 43 modules, 315 options, sampleMap for 8 samples; valid JSON (checked by Atlas); names mostly unverified per release (Firecrawl out of credits, FSCM index 404) | js/ps-catalog.json | done → routed to Juno |

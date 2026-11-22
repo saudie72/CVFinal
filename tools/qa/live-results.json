@@ -1,0 +1,92 @@
+{
+ "site": "https://cvfinal-erp-inspector.netlify.app/",
+ "date": "2026-11-22T17:23:56.002Z",
+ "checks": [
+  {
+   "name": "live: HTTP 200",
+   "ok": true,
+   "evidence": 200
+  },
+  {
+   "name": "live: serves the NEW landing (h1 starts \"Compare a page before and after\")",
+   "ok": false,
+   "evidence": "My pages"
+  }
+ ],
+ "requests": [
+  {
+   "url": "https://cvfinal-erp-inspector.netlify.app/",
+   "method": "GET"
+  },
+  {
+   "url": "https://cvfinal-erp-inspector.netlify.app/css/app.css",
+   "method": "GET"
+  },
+  {
+   "url": "https://cvfinal-erp-inspector.netlify.app/js/app.js",
+   "method": "GET"
+  },
+  {
+   "url": "https://cvfinal-erp-inspector.netlify.app/.netlify/scripts/hud?variant=public",
+   "method": "GET"
+  },
+  {
+   "url": "https://cvfinal-erp-inspector.netlify.app/js/db.js",
+   "method": "GET"
+  },
+  {
+   "url": "https://cvfinal-erp-inspector.netlify.app/js/worker-client.js",
+   "method": "GET"
+  },
+  {
+   "url": "https://cvfinal-erp-inspector.netlify.app/js/copy.js",
+   "method": "GET"
+  },
+  {
+   "url": "https://cvfinal-erp-inspector.netlify.app/js/ui.js",
+   "method": "GET"
+  },
+  {
+   "url": "https://cvfinal-erp-inspector.netlify.app/js/views.js",
+   "method": "GET"
+  },
+  {
+   "url": "https://cvfinal-erp-inspector.netlify.app/js/zones-ui.js",
+   "method": "GET"
+  },
+  {
+   "url": "https://cvfinal-erp-inspector.netlify.app/js/report.js",
+   "method": "GET"
+  },
+  {
+   "url": "https://cvfinal-erp-inspector.netlify.app/js/hints.js",
+   "method": "GET"
+  },
+  {
+   "url": "https://cvfinal-erp-inspector.netlify.app/js/plain.js",
+   "method": "GET"
+  },
+  {
+   "url": "https://cvfinal-erp-inspector.netlify.app/inspector.worker.js",
+   "method": "GET"
+  },
+  {
+   "url": "https://cvfinal-erp-inspector.netlify.app/samples/manifest.json",
+   "method": "GET"
+  }
+ ],
+ "console": [
+  {
+   "type": "error",
+   "text": "Applying inline style violates the following Content Security Policy directive 'style-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-8yreEHY+Xg9JoKqfg+6OwIKjoM+M9u5aNudQuWvORK0='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
+   "loc": "about:srcdoc"
+  },
+  {
+   "type": "error",
+   "text": "Executing inline script violates the following Content Security Policy directive 'script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval''. Either the 'unsafe-inline' keyword, a hash ('sha256-BkKP2XO6WOEc3kXOiLr2ZoY83hamalKjPY9xBcbXVuw='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
+   "loc": "about:srcdoc"
+  }
+ ],
+ "pageErrors": [],
+ "csp": []
+}
