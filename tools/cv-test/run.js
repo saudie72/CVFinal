@@ -53,7 +53,8 @@ function reflowCandidates(regions) {
     page.on('console', m => { if (m.type() === 'error') consoleErrors.push(m.text()); });
     page.on('pageerror', e => consoleErrors.push(String(e)));
     await page.goto(`http://127.0.0.1:${PORT}/tools/cv-test/harness.html`);
-    const call = msg => page.evaluate(m => window.call(m), msg);
+    const call = msg => Promise.race([page.evaluate(m => window.call(m), msg),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('worker call timed out: ' + msg.type)), 120000))]);
     const t0 = Date.now();
     const info = await call({ type: 'info' });
     console.log('opencv.js', JSON.stringify(info.info), `(ready in ${Date.now() - t0} ms incl. compile)`);

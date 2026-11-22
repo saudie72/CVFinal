@@ -20,7 +20,7 @@ Common fictional keys: Jordan Rivera, EmplID 000123, Empl Record 0; Business Uni
 
 ## 1. hcm-job-data (HCM, Job Data)
 Breadcrumb: Workforce Administration › Job Information › Job Data.
-Key fields (top): EmplID 000123, Empl Record 0, Name Jordan Rivera. Effective-dated row navigator: "Effective Date 11/16/2026 · Effective Sequence 0 · 1 of 1".
+Key fields (top): EmplID 000123, Empl Record 0, Name Jordan Rivera. Effective-dated row navigator ("Effective Date 11/16/2026 · Effective Sequence 0 · 1 of 1"): **not in the demo build**; the page shows a read-only Effective Date key field instead.
 
 | Tab | Content |
 |---|---|
@@ -70,7 +70,7 @@ Variant `fscm-po-identical`: pixel-identical pair (VR-PASS-01).
 
 ## 5. tl-timesheet (Time and Labor, Timesheet)
 Breadcrumb: Time and Labor › Report Time › Timesheet.
-Header: Employee Jordan Rivera · EmplID 000123 · Empl Record 0 · Business Unit BU-NORTH · Period 11/16/2026 to 11/22/2026 (Mon to Sun, 7 columns) with Previous/Next Period arrows and a "Get Employee" button.
+Header: Employee Jordan Rivera · EmplID 000123 · Empl Record 0 · Business Unit BU-NORTH · Period 11/16/2026 to 11/22/2026 (Mon to Sun, 7 columns) (Previous/Next Period arrows and "Get Employee" button: **not in the demo build**). Built header also shows Empl Record 0 and Reported Status Needs Approval.
 Grid columns: Time Reporting Code · Mon · Tue · Wed · Thu · Fri · Sat · Sun · **Reported Hours**. Rows: REG Regular: 8.00 Mon to Fri, Sat/Sun blank, 40.00; OVT Overtime: 1.50 on Tue, 1.50. Footer row: Total Reported Hours 41.50. Optional status line: "Reported Status: Needs Approval".
 Buttons (before): **Submit** primary, directly above the grid at the right; Save for Later; Return to Search; Refresh.
 Planted (VR-TL-01): Submit moves below the grid; the Reported Hours column is cut off (e.g., "40.00" clipped to "40."). Matches `docs/business-case.md` and knowledge example ex2 (the verified one).
@@ -78,3 +78,6 @@ VR-SEC-01 variant: manager view adds an Approve button (and "Manager" role tag) 
 
 ## Not covered by the agreed fixture table (see test-scenarios.md)
 VR-BU-01 (BU-NORTH vs BU-SOUTH Job Data) and VR-SEC-01 (employee vs manager Timesheet) have no pair in the skill's page table. They need either extra pairs or a "Simulate" parameter; this is raised as a handoff request.
+
+## Demo-build notes (as built by Mason, reviewed)
+Tabs are decorative (only the first is active; nothing is clicked in a static capture). Job Data shows its Work Location, Job Information and Salary Plan/Compensation sections on one page. The Timesheet tabs are Timesheet, Exceptions, Summary; the Timesheet toolbar sits above the grid in the before page. Personal Data has three links (View Name History, Edit Address, View Department Details) that change colour together.

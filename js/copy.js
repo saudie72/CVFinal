@@ -29,6 +29,7 @@ export const copy = {
     noBaseline: 'Add a baseline for this page first.',
     undecodable: "That image couldn't be read. Try capturing it again as a PNG.",
     sizes: (a, b) => `These screenshots are very different sizes (${a} vs ${b}). Capture both at 100% zoom.`,
+    tooLarge: 'This screenshot is too large to compare (over 16 megapixels). Capture at the standard 1366-wide viewport.',
     alignment: "Alignment wasn't reliable. Capture both screenshots with the same browser zoom and window size, then try again.",
   },
   notice: {
@@ -56,6 +57,7 @@ export const copy = {
     promoteFirst: 'Sign off first.',
     line: (who, when) => `Signed off by ${who} on ${when}.`,
     cleared: 'Sign-off cleared because a decision changed.',
+    promotedLocked: 'Baseline already promoted; re-run to change decisions.',
   },
   confirm: {
     promote: { title: 'Replace the baseline?', body: p => `This screenshot becomes the new baseline for ${p}. The old baseline is deleted from this device. Saved runs and ignore zones are kept. This can't be undone.`, ok: 'Replace baseline' },

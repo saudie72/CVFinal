@@ -44,7 +44,9 @@
 
   ErpCV.deepCopy = function (cv, m) {        // Mat.clone() may be shallow in 4.13 (knowledge/opencv-expert)
     if (typeof m.mat_clone === 'function') return m.mat_clone();
-    var d = new cv.Mat(); m.copyTo(d); return d;
+    var d = new cv.Mat();
+    try { m.copyTo(d); } catch (e) { d.delete(); throw e; }   // never leak the target on failure
+    return d;
   };
 
   var WHITE = [255, 255, 255, 255];
@@ -148,7 +150,7 @@
     var T = ErpCV.track();
     try {
       if (typeof cv.ORB !== 'function' || typeof cv.findHomography !== 'function') return { reason: 'ORB/findHomography missing in build' };
-      var f = gb.cols > 900 ? 0.5 : 1;
+      var f = gb.cols > 900 ? 0.5 : 1;   // half-size ORB: ~0.3 s faster; full size changed the scale estimate by <0.2 %
       var sb = down(cv, gb, f, T), sc = down(cv, gc, f, T);
       var orb = T(new cv.ORB(s.orbFeatures));
       var kb = T(new cv.KeyPointVector()), kc = T(new cv.KeyPointVector());

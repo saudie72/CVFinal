@@ -95,9 +95,29 @@ async function mainSuite(browser, stub) {
     }
     await call(page, 'ready', {});
     r.manualRestart = await call(page, 'restart');
+    r.heapDuringRestart = await call(page, 'heapDuringRestart');
     r.pageErrors = ctx.errors;
     r.consoleErrors = ctx.console.filter(l => l.startsWith('error'));
     return r;
+  }));
+}
+
+async function stressSuite(browser) {
+  // Real pipeline on large and pathological inputs (not part of 'all': it takes minutes).
+  return withServer({ csp: 'netlify', stub: 'never' }, () => withPage(browser, async (page, ctx) => {
+    const out = [];
+    const cases = [[1366, 900, 'page'], [1920, 1080, 'page'], [1366, 4000, 'page'], [2560, 1440, 'page'], [1920, 8000, 'page'],
+                   [1366, 900, 'speckle', 300], [1366, 900, 'speckle', 1000], [1366, 900, 'speckle', 2500],
+                   [4000, 8000, 'page'], [4000, 8000, 'page', 0, { maxPixels: 1e9 }]];
+    for (const [w, h, p, n, opts] of cases) {
+      await call(page, 'ready', { jobTimeoutMs: 30000, ...(opts || {}) });   // fresh worker per case: heap starts at 128 MiB
+      const r = await call(page, 'stress', w, h, p, n || 0);
+      r.afterJob = await page.evaluate(async () => { try { const x = await window.__t.roundTrip({}); return x.status; } catch (e) { return 'ERR ' + e.message; } });
+      out.push(r);
+      console.log(JSON.stringify(r));
+    }
+    out.consoleErrors = ctx.console.filter(l => l.startsWith('error')).slice(0, 10);
+    return out;
   }));
 }
 
@@ -117,9 +137,10 @@ async function fatalSuite(browser) {
     if (which === 'all' || which === 'csp') results.csp = await cspSuite(browser);
     if (which === 'all' || which === 'stub') results.stub = await mainSuite(browser, 'always');
     if (which === 'all' || which === 'real') results.real = realCV ? await mainSuite(browser, 'never') : 'skipped: js/cv files not present yet';
+    if (which === 'stress') results.stress = await stressSuite(browser);
     if (which === 'all' || which === 'fatal') results.plainServer = await fatalSuite(browser);
   } finally { await browser.close(); }
   const file = path.join(__dirname, which === 'all' ? 'results.json' : `results-${which}.json`);
   fs.writeFileSync(file, JSON.stringify(results, null, 2));
-  console.log(JSON.stringify(results, (k, v) => (k === 'bytes' || k === 'regionList' ? undefined : v), 2));
+  console.log(JSON.stringify(results, (k, v) => (k === 'bytes' || k === 'probes' || k === 'regionList' ? undefined : v), 2));
 })().catch(e => { console.error(e); process.exit(1); });

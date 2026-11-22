@@ -103,6 +103,10 @@ const check = (n, ok, d) => { out.push(ok); console.log((ok ? 'PASS ' : 'FAIL ')
   await page.click('#btn-result-primary'); await page.click('#confirm-ok');
   await page.waitForFunction(() => document.getElementById('btn-result-primary').dataset.action === 'library');
   check('signed off and promoted', true);
+  await page.locator('#region-list > li').first().locator('input[value="Regression"]').click({ force: true });
+  check('promoted run: decision change is refused', await page.locator('#region-list > li').first().locator('input[value="Expected"]').isChecked());
+  check('promoted run: radios aria-disabled', await page.getAttribute('#region-list input[type=radio]', 'aria-disabled') === 'true');
+  check('promoted run keeps sign-off', (await page.textContent('#signoff-hint')).includes('Signed off by'));
   const [dl2] = await Promise.all([page.waitForEvent('download'), page.click('#btn-download-png')]);
   check('evidence PNG downloads', /\.png$/.test(dl2.suggestedFilename()), dl2.suggestedFilename());
 

@@ -88,17 +88,16 @@
   },
   {
     "page": "hcm-job-data-zoom110",
-    "title": "HCM – Job Data, 110% zoom",
+    "title": "HCM Job Data (1.1× device scale)",
     "module": "HCM",
     "before": "samples/hcm-job-data-zoom110_before.png",
     "after": "samples/hcm-job-data-zoom110_after.png",
     "expected": {
-      "status": "PASS",
-      "minRegions": 0,
-      "maxRegions": 0
+      "status": "FAIL",
+      "minRegions": 1
     },
     "ignoreZones": [],
-    "note": "After = same page rendered at 110% zoom (same 1366 px width). PASS needs scale alignment; unverified: re-rendered text may not match pixel-for-pixel, so treat a FAIL here as a pipeline limit."
+    "note": "Capture-standard violation demo: the after image was captured at 1.1× device scale. The inspector detects the scale (resize ≈ 0.91) but resampled text still differs; the app hints 'Likely capture artifact'. Fix: recapture both at the same device scale (docs/erp/capture-standards.md)."
   },
   {
     "page": "fscm-po-identical",

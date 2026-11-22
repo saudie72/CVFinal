@@ -16,7 +16,8 @@
  *
  * Steps: align -> blur(3×3) -> absdiff (max over R,G,B, or gray) -> zero ignore zones + warp
  * border -> threshold(T) -> [erode] -> dilate(kernel, iterations) -> findContours(EXTERNAL)
- * -> boundingRect, area >= minArea -> merge boxes closer than mergeGap -> % changed, SSIM, status.
+ * -> boundingRect, area >= minArea -> merge boxes closer than mergeGap -> % changed, SSIM, status
+ * (FAIL if any region exists or changedPct > thresholdPct).
  */
 (function (root) {
   'use strict';
@@ -29,9 +30,10 @@
     dilateIter: 2,
     erodeIter: 0,        // optional speck removal before dilate
     blur: 3,             // Gaussian blur kernel before absdiff (0/1 = off)
+    scaledBlur: 5,       // blur used instead when alignment rescaled the candidate (resampling fringe)
     minArea: 64,         // drop boxes smaller than this (px², width*height)
-    mergeGap: 10,        // merge boxes whose gap is < this (px)
-    thresholdPct: 0.1,   // FAIL if regions > 0 && changedPct > thresholdPct
+    mergeGap: 3,         // merge boxes only when they overlap or nearly touch (gap < 3 px); dilation already bridges 8 px
+    thresholdPct: 0.1,   // FAIL if any region (>= minArea) exists OR changedPct > thresholdPct
     diffMode: 'max-rgb', // 'max-rgb' (catches equal-luminance colour changes) | 'gray' (skill default)
     align: true,
     maxShift: 40,        // translation search radius (px)
@@ -54,13 +56,14 @@
     var s = {}, k;
     for (k in ErpCV.DEFAULTS) s[k] = ErpCV.DEFAULTS[k];
     if (user) for (k in user) if (user[k] !== undefined && user[k] !== null && k in ErpCV.DEFAULTS) s[k] = user[k];
-    ['T', 'kernel', 'dilateIter', 'erodeIter', 'blur', 'minArea', 'mergeGap', 'thresholdPct', 'maxShift',
+    ['T', 'kernel', 'dilateIter', 'erodeIter', 'blur', 'minArea', 'mergeGap', 'scaledBlur', 'thresholdPct', 'maxShift',
      'minMatchScore', 'fallbackMatchScore', 'orbFeatures', 'borderPad', 'ssimMaxPixels', 'heatmapBlend'].forEach(function (key) {
       var v = Number(s[key]); s[key] = isFinite(v) ? v : ErpCV.DEFAULTS[key];
     });
     s.T = Math.max(0, Math.min(254, Math.round(s.T)));
     s.kernel = Math.max(1, Math.round(s.kernel));
     if (s.blur > 1 && s.blur % 2 === 0) s.blur += 1;          // Gaussian kernels must be odd
+    if (s.scaledBlur > 1 && s.scaledBlur % 2 === 0) s.scaledBlur += 1;
     return s;
   }
 
@@ -90,27 +93,40 @@
     return out;
   }
 
-  // merge rectangles whose gap (Chebyshev, between edges) is < gap; repeat until stable
+  // Merge rectangles whose gap (between edges, per axis) is < gap. Each pass is a union-find over all
+  // pairs (O(n²)); passes repeat until stable because a merged box can reach new neighbours.
+  // More than MAX_BOXES raw boxes means the whole page changed: return one whole-extent region.
+  ErpCV.MAX_BOXES = 2000;
   ErpCV.mergeBoxes = function (rects, gap) {
     var rs = rects.map(function (r) { return { x: r.x, y: r.y, width: r.width, height: r.height }; });
-    var changed = true;
-    while (changed) {
-      changed = false;
-      for (var i = 0; i < rs.length && !changed; i++) {
-        for (var j = i + 1; j < rs.length; j++) {
-          var a = rs[i], b = rs[j];
+    if (rs.length > ErpCV.MAX_BOXES) {
+      var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      rs.forEach(function (r) { x0 = Math.min(x0, r.x); y0 = Math.min(y0, r.y); x1 = Math.max(x1, r.x + r.width); y1 = Math.max(y1, r.y + r.height); });
+      return [{ x: x0, y: y0, width: x1 - x0, height: y1 - y0 }];
+    }
+    for (;;) {
+      var n = rs.length, parent = new Int32Array(n), i, j;
+      for (i = 0; i < n; i++) parent[i] = i;
+      var find = function (k) { while (parent[k] !== k) { parent[k] = parent[parent[k]]; k = parent[k]; } return k; };
+      for (i = 0; i < n; i++) {
+        var a = rs[i];
+        for (j = i + 1; j < n; j++) {
+          var b = rs[j];
           var gx = Math.max(a.x, b.x) - Math.min(a.x + a.width, b.x + b.width);
           var gy = Math.max(a.y, b.y) - Math.min(a.y + a.height, b.y + b.height);
-          if (gx < gap && gy < gap) {
-            var x0 = Math.min(a.x, b.x), y0 = Math.min(a.y, b.y);
-            var x1 = Math.max(a.x + a.width, b.x + b.width), y1 = Math.max(a.y + a.height, b.y + b.height);
-            rs[i] = { x: x0, y: y0, width: x1 - x0, height: y1 - y0 };
-            rs.splice(j, 1); changed = true; break;
-          }
+          if (gx < gap && gy < gap) { var ri = find(i), rj = find(j); if (ri !== rj) parent[rj] = ri; }
         }
       }
+      var groups = {}, out = [];
+      for (i = 0; i < n; i++) {
+        var root = find(i), r = rs[i], g = groups[root];
+        if (!g) { g = groups[root] = { x0: r.x, y0: r.y, x1: r.x + r.width, y1: r.y + r.height }; out.push(g); }
+        else { g.x0 = Math.min(g.x0, r.x); g.y0 = Math.min(g.y0, r.y); g.x1 = Math.max(g.x1, r.x + r.width); g.y1 = Math.max(g.y1, r.y + r.height); }
+      }
+      var next = out.map(function (g) { return { x: g.x0, y: g.y0, width: g.x1 - g.x0, height: g.y1 - g.y0 }; });
+      if (next.length === rs.length) return next;
+      rs = next;
     }
-    return rs;
   };
 
   function drawBoxes(cv, img, regions, zones, s, T) {
@@ -136,13 +152,14 @@
   }
 
   ErpCV.compare = function (cv, base, cand, zones, settings, hooks) {
-    var t0 = now(), times = {}, tl = t0;
+    var t0 = now(), times = {}, tl = t0, out = null;
     function step(name) {
       var t = now(); times[name] = +(t - tl).toFixed(1); tl = t;
       if (hooks && typeof hooks.onProgress === 'function') { try { hooks.onProgress(name); } catch (e) {} }
     }
     if (!cv || typeof cv.Mat !== 'function') throw new Error('OpenCV.js is not ready (cv.Mat missing)');
     var s = settingsOf(settings);
+    ErpCV.stats = { created: 0, deleted: 0 };     // per-compare counters (reported as result.tracked)
     var T = ErpCV.track();
     try {
       var A = matFromRGBA(cv, base, 'base', T), B0 = matFromRGBA(cv, cand, 'cand', T);
@@ -152,14 +169,17 @@
       // 1. alignment
       var al = ErpCV.align(cv, A, B0, s, T);
       var B = al.aligned;
+      if (B !== B0) T.drop(B0);              // the raw candidate is no longer needed (lower peak heap)
       step('align');
 
       // 2. blur + absdiff
       var a = A, b = B;
-      if (s.blur > 1) {
+      var rescaled = Math.abs((al.info.scale || 1) - 1) > 0.005;
+      var blurK = rescaled ? Math.max(s.blur, s.scaledBlur) : s.blur;
+      if (blurK > 1) {
         a = T(new cv.Mat()); b = T(new cv.Mat());
-        cv.GaussianBlur(A, a, new cv.Size(s.blur, s.blur), 0, 0, cv.BORDER_DEFAULT);
-        cv.GaussianBlur(B, b, new cv.Size(s.blur, s.blur), 0, 0, cv.BORDER_DEFAULT);
+        cv.GaussianBlur(A, a, new cv.Size(blurK, blurK), 0, 0, cv.BORDER_DEFAULT);
+        cv.GaussianBlur(B, b, new cv.Size(blurK, blurK), 0, 0, cv.BORDER_DEFAULT);
       }
       var diff = T(new cv.Mat());
       if (s.diffMode === 'gray') {
@@ -171,6 +191,7 @@
         var ch = T(new cv.MatVector()); cv.split(d4, ch);
         var c0 = T(ch.get(0)), c1 = T(ch.get(1)), c2 = T(ch.get(2)), c3 = T(ch.get(3));
         cv.max(c0, c1, diff); cv.max(diff, c2, diff);
+        [c0, c1, c2, c3, ch, d4].forEach(T.drop);   // free the 4-channel diff and its planes early
       }
       if (a !== A) { T.drop(a); T.drop(b); }
       step('diff');
@@ -236,7 +257,9 @@
       var ssim = ErpCV.ssim(cv, sa, sb, { maxPixels: s.ssimMaxPixels });
       step('ssim');
 
-      var status = regions.length > 0 && changedPct > s.thresholdPct ? 'FAIL' : 'PASS';
+      // Any surviving region is a visible change (it already passed minArea + morphology), so it fails the
+      // page; thresholdPct additionally fails pages with widespread sub-minArea speckle (docs/cv-pipeline-notes.md)
+      var status = regions.length > 0 || changedPct > s.thresholdPct ? 'FAIL' : 'PASS';
 
       // 7. images (RGBA copies, safe to transfer)
       var images = null, heatMethod = null;
@@ -254,7 +277,7 @@
         step('images');
       }
 
-      var out = {
+      out = {
         regions: regions,
         changedPct: +changedPct.toFixed(4),
         rawChangedPct: +(100 * rawPx / N).toFixed(4),
@@ -264,7 +287,7 @@
         alignment: al.info,
         settings: { T: s.T, kernel: s.kernel, minArea: s.minArea, thresholdPct: s.thresholdPct,
                     dilateIter: s.dilateIter, erodeIter: s.erodeIter, mergeGap: s.mergeGap, blur: s.blur,
-                    diffMode: s.diffMode, minMatchScore: s.minMatchScore, maxShift: s.maxShift },
+                    blurUsed: blurK, diffMode: s.diffMode, minMatchScore: s.minMatchScore, maxShift: s.maxShift },
         zones: zr,
         size: { width: W, height: H },
         heatmapMethod: heatMethod,
@@ -274,6 +297,9 @@
       };
       out.ms = +(now() - t0).toFixed(1);
       return out;
-    } finally { T.free(); }
+    } finally {
+      T.free();
+      if (out) out.tracked = { created: ErpCV.stats.created, deleted: ErpCV.stats.deleted };
+    }
   };
 })(typeof self !== 'undefined' ? self : this);

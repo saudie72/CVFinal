@@ -41,7 +41,23 @@
     Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
-  for = "/*.html"
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/how-it-works.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/resources.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# ERP demo pages (HTML, CSS, JS). Revalidate. No other rule matches them.
+[[headers]]
+  for = "/demo-erp/*"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 

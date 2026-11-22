@@ -4,7 +4,7 @@
 //   const insp = createInspector({ onStatus: s => pill.update(s) });
 //   await insp.ready;                                   // resolves with the worker's ready info
 //   const r = await insp.compare(baseImageData, candImageData, zones, settings, { onProgress });
-//   const { bytes } = await insp.heap();
+//   const { bytes, probe } = await insp.heap();   // heap size + 64 KiB malloc probe address
 //   insp.restart();
 //
 // INPUT BUFFERS ARE TRANSFERRED, NOT COPIED (zero-copy). After compare() is called, the
@@ -19,6 +19,10 @@
 //   ready    "Ready"
 //   working  "Working… (<step>)"   while a job runs, with the pipeline's progress step
 //   error    <message>             load failure/timeout, or a watchdog restart (then loading again)
+//
+// Limits: an image above `maxPixels` (16 MP) is rejected before anything is sent. After a job
+// that left the Wasm heap above `recycleHeapBytes` (512 MiB), the worker is respawned (~0.5 s,
+// status loading -> ready) because Wasm memory never shrinks.
 //
 // Watchdog: each job gets `jobTimeoutMs` (default 30 000) from the moment it is sent to the
 // worker. If no result or error arrives in time: worker.terminate() (frees its whole Wasm heap),
@@ -47,6 +51,8 @@ export function createInspector({
   workerUrl = DEFAULT_WORKER_URL,
   loadTimeoutMs = 60000,
   jobTimeoutMs = 30000,
+  maxPixels = 16000000,                 // per image; the 2 GiB Wasm heap fails near 32 MP (measured)
+  recycleHeapBytes = 512 * 1024 * 1024, // heap never shrinks: respawn the worker after a job above this
 } = {}) {
   let worker = null;
   let generation = 0;           // bumps on every spawn; messages from old workers are ignored
@@ -122,13 +128,14 @@ export function createInspector({
           } else {
             job.reject(new Error(m.message));
           }
+          if (m.heapBytes > recycleHeapBytes) { recycle(); break; }
           status('ready', { label: 'Ready', info: readyInfo });
           pump();
           break;
         }
         case 'heap':
           if (m.id != null && heapWaiters.has(m.id)) {
-            heapWaiters.get(m.id).resolve({ bytes: m.bytes });
+            heapWaiters.get(m.id).resolve({ bytes: m.bytes, probe: m.probe });
             heapWaiters.delete(m.id);
           }
           break;
@@ -164,6 +171,13 @@ export function createInspector({
     spawn();
   }
 
+  // A big image grows the Wasm heap (1366x4000 -> 512 MiB, 1920x8000 -> 1 GiB) and Wasm memory never
+  // shrinks. Terminating the worker is the only way to give it back. Queued jobs wait for the new worker.
+  function recycle() {
+    try { worker?.terminate(); } catch {}
+    spawn();
+  }
+
   function pump() {
     if (current || !readyInfo || !queue.length || !worker) return;
     const job = queue.shift();
@@ -185,6 +199,11 @@ export function createInspector({
       b = asRGBA(base, 'base', copy);
       c = asRGBA(cand, 'cand', copy);
     } catch (e) { return Promise.reject(e); }
+    for (const [n, p] of [['Baseline', b], ['Candidate', c]]) {
+      if (p.w * p.h > maxPixels) {
+        return Promise.reject(new RangeError(`${n} is ${p.w}x${p.h} (${(p.w * p.h / 1e6).toFixed(1)} MP); the limit is ${(maxPixels / 1e6).toFixed(0)} MP. Capture a shorter page or split it.`));
+      }
+    }
     if (b.buf === c.buf) c = { ...c, buf: c.buf.slice(0) };   // one buffer can't be transferred twice
     const id = nextId++;
     // zones/settings are plain data: structured-cloned (copied), never transferred.
@@ -196,12 +215,20 @@ export function createInspector({
     });
   }
 
-  function heap() {
-    return readyPromise.then(() => new Promise((resolve, reject) => {
-      const id = 'h' + (nextId++);
-      heapWaiters.set(id, { resolve, reject });
-      worker.postMessage({ type: 'heap', id });
-    }));
+  // Always asks the CURRENT worker: if a restart happens while waiting, wait for the new one's ready.
+  // (The worker also queues 'heap' until it is ready, so an early request never reads 0.)
+  async function heap() {
+    for (;;) {
+      const rp = readyPromise;
+      await rp;
+      if (rp !== readyPromise) continue;          // restarted meanwhile
+      if (!worker) throw new Error('Inspector is not running');
+      return new Promise((resolve, reject) => {
+        const id = 'h' + (nextId++);
+        heapWaiters.set(id, { resolve, reject });
+        worker.postMessage({ type: 'heap', id });
+      });
+    }
   }
 
   function restart() {

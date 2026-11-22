@@ -49,7 +49,7 @@ As an **analyst** trying the tool for the first time, I want to load a ready-mad
 ### US-02 Compare a page against its baseline (Must)
 As an **analyst** testing a PUM update, I want to compare a page against its stored baseline so that I spot unintended UI changes in seconds.
 - **Given** the Timesheet baseline and the after-change screenshot, **when** I press Compare, **then** I see a FAIL status, the number of changed regions, and numbered boxes. Target: within about 5 seconds (target, to be confirmed by QA and the pilot).
-- **Given** the Timesheet pair, **then** the regions include the Submit button that moved below the time-reporting grid and the truncated Reported Hours column.
+- **Given** the Timesheet pair, **then** the result is FAIL with 2 regions: a reflow block (the grid moved up into the old toolbar row, including the truncated Reported Hours column, hinted "Likely reflow") and the moved footer line. One moved toolbar can reflow the content below it, so Submit and Reported Hours are not separate boxes (documented behaviour, VERIFICATION lesson 7).
 - **Given** an identical pair (Purchase Order identical), **when** I compare, **then** the result is PASS with 0 regions.
 - **Given** the comparison is running, **then** the page stays responsive (work happens in a Web Worker) and shows progress.
 

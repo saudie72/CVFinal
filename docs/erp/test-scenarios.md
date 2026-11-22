@@ -42,6 +42,8 @@ All other scenarios: no zones. Note for report text: an ignore zone hides everyt
 ## Security disclaimer (required in VR-SEC-01 and any role report)
 "A visual comparison shows what was rendered for the tested role. It does not prove authorization is correct: hidden controls may still be reachable, and data access is enforced by permission lists, roles and row-level security, which must be tested functionally."
 
+Note: the 110% zoom variant (hcm-job-data-zoom110) is a stretch case, not a definition-of-done gate; the 3 px shift (VR-ALN-01, hcm-job-data-shifted) is the gating alignment test. Re-rendered text at 110% may not match pixel for pixel.
+
 ## Acceptance for Mason's fixtures
 - Only the listed planted changes exist; every other pixel matches between before and after (same fonts, same layout), otherwise min-region counts and PASS cases will misfire.
 - The fscm-po timestamp is the single difference in that pair.

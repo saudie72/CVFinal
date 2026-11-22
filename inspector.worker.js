@@ -16,8 +16,8 @@
  *   {type:'fatal', stage, message}          loading failed; the worker cannot do any work
  *   {type:'progress', id, step}             'Received', then the pipeline's steps, then 'Packing'
  *   {type:'result', id, ...result, workerMs, heapBytes}   image buffers are transferred back
- *   {type:'error', id, message}             this job failed; the worker is still usable
- *   {type:'heap', id?, bytes, after?}       cv.HEAPU8.length (sent after every job, and on request)
+ *   {type:'error', id, message, heapBytes}  this job failed; the worker is still usable
+ *   {type:'heap', id?, bytes, probe, after?} cv.HEAPU8.length + 64 KiB malloc probe address (after every job, and on request; queued until ready)
  *
  * Sources: knowledge/wasm-expert/docs/04-web-workers.md, 02-memory.md;
  * skills wasm-worker-runtime, cv-mat-memory-hygiene; docs/build-plan.md.
@@ -50,6 +50,16 @@ function failFatal(stage, e) {
   pending.splice(0).forEach(function (m) {
     if (m.type === 'compare') post({ type: 'error', id: m.id, message: 'OpenCV failed to load: ' + state.fatal.message });
   });
+}
+
+// Probe: address of a fresh 64 KiB malloc. HEAPU8.length only grows in big steps (>= 16 MiB); a
+// probe address that keeps rising across runs means freed memory is not being reused (a leak).
+function heapProbe() {
+  var cv = state.cv;
+  if (!cv || typeof cv._malloc !== 'function') return null;
+  var p = cv._malloc(65536);
+  if (p) cv._free(p);
+  return p || null;
 }
 
 function heapBytes() {
@@ -182,10 +192,13 @@ function runCompare(m) {
     progress('Received');
     var base = toImage(m.base, 'base');
     var cand = toImage(m.cand, 'cand');
-    var res = self.ErpCV.compare(state.cv, base, cand, m.zones || [], m.settings || {}, { onProgress: progress, progress: progress });
+    var res = self.ErpCV.compare(state.cv, base, cand, m.zones || [], m.settings || {}, { onProgress: progress });
     if (!res || typeof res !== 'object') throw new Error('pipeline returned no result');
     progress('Packing');
     var transfer = [];
+    // Shallow copy of the pipeline result, passed through unchanged (alignment.dx/dy etc.).
+    // CONTRACT: the pipeline must never return top-level `type` or `id` (they would be overwritten
+    // below), and `workerMs` / `heapBytes` are added here.
     var out = {};
     for (var k in res) if (Object.prototype.hasOwnProperty.call(res, k)) out[k] = res[k];
     if (res.images) {
@@ -200,9 +213,9 @@ function runCompare(m) {
     out.heapBytes = heapBytes();
     post(out, transfer);
   } catch (e) {
-    post({ type: 'error', id: id, message: errText(e) });
+    post({ type: 'error', id: id, message: errText(e), heapBytes: heapBytes() });
   } finally {
-    post({ type: 'heap', after: id, bytes: heapBytes() });
+    post({ type: 'heap', after: id, bytes: heapBytes(), probe: heapProbe() });
   }
 }
 
@@ -213,7 +226,8 @@ function handle(m) {
     if (!state.cv) { pending.push(m); return; }
     runCompare(m);
   } else if (m.type === 'heap') {
-    post({ type: 'heap', id: m.id, bytes: heapBytes() });
+    if (!state.cv && !state.fatal) { pending.push(m); return; }   // answered once ready
+    post({ type: 'heap', id: m.id, bytes: heapBytes(), probe: heapProbe() });
   }
 }
 

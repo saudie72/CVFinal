@@ -1,2 +1,5 @@
 __pycache__/
 *.pyc
+pid
+*.pid
+__pycache__/

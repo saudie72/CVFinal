@@ -55,3 +55,43 @@ Kept by **Atlas (orchestrator)**. One row per handoff or review. Experts never c
 | 49 | C | Atlas | Juno | C-REV-DB2: review Ledger's db.js as the consumer | js/db.js | launched |
 | 50 | C | Atlas | Riley | C-REV-FIX: review Mason's pages + manifest | demo-erp/, samples/ | launched |
 | 51 | C | Atlas | Tess | C-REV-EVID: review the evidence form, sign-off rules, export | js/app.js, js/report.js, js/db.js | launched |
+| 52 | C | Riley | Atlas | Review of Mason's pages + manifest | demo-erp/, samples/ | **APPROVE** (3 minor, 3 nit; no rebuild) |
+| 53 | C | Atlas | Riley | Align page-catalogue.md with the build. Decision: hcm-job-data-zoom110 is a stretch case, not a DoD gate; the 3 px shift is the gating alignment test | docs/erp/page-catalogue.md, test-scenarios.md | routed |
+| 54 | C | Juno | Atlas | C-REV-DB2: review of db.js as the consumer | js/db.js | **APPROVE** (5 non-blocking suggestions; #3 runs.summaries for History performance queued for Ledger) |
+| 55 | C | Riley | Atlas | page-catalogue aligned with the build; zoom110 marked as a stretch case | docs/erp/page-catalogue.md, test-scenarios.md | done |
+| 56 | B | Sable | Atlas | print.css folded into app.css; styles for .region-hint, #btn-suggest-zone, #notice-action2, .report-*; contrast 208/208 | css/app.css | done |
+| 57 | B | Atlas | (integration) | Removed the dead `css/print.css` <link> from the HTML (small integration fix) | index.html | done |
+| 58 | C | Tess | Atlas | C-REV-EVID review | js/app.js, js/report.js, js/db.js | REQUEST CHANGES (blocker: decisions editable after promotion → "promoted without sign-off"); rulings: clearing sign-off on change OK, save with open Regression allowed, Promote hidden on PASS |
+| 59 | C | Atlas | Juno | Tess's blocker + minor fix | js/app.js | routed |
+| 60 | C | Ledger | Atlas | C-REV-DB review of Juno's db usage | js/app.js | **APPROVE** with 3 majors (versionchange gating, orphan-run guard, reset {blocked} message) + minors |
+| 61 | C | Atlas | Juno | Ledger's majors + selected minors added to the fix pass | js/app.js | routed |
+| 62 | C | Juno | Atlas | Fixed Tess's blocker + minor, Ledger's 3 majors + minors 4/5/6/8; new smoke step; privacy audit clean | js/app.js, js/copy.js, tools/app-smoke/run.js | done → re-review by Tess |
+| 63 | C | Tess | Atlas | Re-review of Juno's evidence fixes | js/app.js | **APPROVE** |
+| 64 | A | Iris | Atlas | Pipeline: 21/22 pairs as expected (all manifest pairs except zoom110), heap flat over 20 runs (leak control caught), 1,920/1,920 Mats deleted; defaults changed: mergeGap 3, FAIL if any region OR % > threshold, max-channel diff | js/cv/*, tools/cv-test/, docs/cv-pipeline-notes.md | needs review |
+| 65 | C | Atlas | Mason | Decision: recapture zoom110 as a 1.1× device-scale variant (browser zoom breaks the capture standard) | samples/ | routed |
+| 66 | C | Atlas | Volt | C-REV-CV: review Iris's pipeline at the worker boundary (+ thenable check) | js/cv/* | launched |
+| 67 | C | Atlas | Iris | C-REV-WASM: review Volt's worker + client | inspector.worker.js, js/worker-client.js | launched |
+| 68 | C | Atlas | Dex | C-REV-HINTS: regions vs planted changes; decide the reflow rule | docs/erp/change-catalogue.md, js/region-hints.json | launched |
+| 69 | C | Atlas | Vera | A-SEC 2/2: full privacy audit + runtime network/headers/logo checks | docs/security-audit.md | launched |
+| 70 | C | Atlas | Piper | C-LINKS: verify every link + netlify.toml coverage | resources.html, netlify.toml | launched |
+| 71 | C | Dex | Atlas | C-REV-HINTS: regions match the catalogue; reflow rule replaced (H≥100 & W≥300), catalogue updated with real numbers | docs/erp/change-catalogue.md, js/region-hints.json | **APPROVE** |
+| 72 | C | Atlas | Juno | Dex's 7-step hint rule + unit test | js/hints.js | routed |
+| 73 | C | Atlas | Morgan | Update demo story to the measured results. Decision: tl-timesheet stays the reflow demo; zoom110 stays a recapture (row 65) rather than Dex's "expected FAIL" proposal | docs/erp/demo-story.md | routed |
+| 74 | C | Piper | Atlas | C-LINKS: every local link resolves; external links 200 except docs.opencv.org (403 to bots, unverified) and BackstopJS (403); netlify.toml gains /demo-erp/* and per-page HTML rules, 0 overlaps | netlify.toml | done |
+| 75 | C | Atlas | Piper | Review of netlify.toml (release-docs ↔ orchestrator pair): publish ".", no build, 12 rules, worker path matches inspector.worker.js → vendor/opencv/4.13.0 | netlify.toml | **APPROVE** |
+| 76 | C | Mason | Atlas | zoom110 recaptured at 1.1× device scale; pipeline detects scale 0.91 but flags 25 resampling slivers (FAIL) | samples/, demo-erp/hcm-job-data-zoom110/ | needs decision |
+| 77 | C | Atlas | Mason | Decision (correctness > rubric): zoom110 expected FAIL as a capture-standard-violation demo (the capture-artifact hint fires); no pipeline loosening | samples/manifest.json | routed |
+| 78 | C | Morgan | Atlas | Demo story + US-02 aligned with the measured results | docs/erp/demo-story.md, user-stories.md | done |
+| 79 | C | Iris | Atlas | C-REV-WASM: review of Volt's worker + client (end-to-end Chromium run) | inspector.worker.js, js/worker-client.js | **APPROVE** (4 minor/nit) |
+| 80 | C | Atlas | Volt | Iris's minors (malloc probe, heap() after restart) | inspector.worker.js, js/worker-client.js | routed |
+| 81 | C | Juno | Atlas | Dex's hint rule implemented + unit test (8/8); app smoke 32/32 incl. both sample checks; privacy audit 0 findings | js/hints.js, js/app.js, tools/app-smoke/hints.test.mjs | done; one mismatch |
+| 82 | C | Atlas | Juno, Dex | Decision: control-moved tolerance ±1 px (two different links misread as a moved control) | js/hints.js, docs/erp/change-catalogue.md | routed |
+| 83 | C | Dex | Atlas | Catalogue §4 rule 5 updated to ±1 px (unverified, no fixture fires it) | docs/erp/change-catalogue.md | done |
+| 84 | C | Mason | Atlas | zoom110 expected FAIL (capture-standard violation demo); Iris's harness 22/22, leak check flat, negative control caught; Juno's hints already give capture-artifact for 25 regions | samples/manifest.json, tools/capture-samples.* | done |
+| 85 | C | Juno | Atlas | Rule 5 tightened; hints test 8/8, smoke 32/32 | js/hints.js, tools/app-smoke/hints.test.mjs | done |
+| 86 | C | Volt | Atlas | C-REV-CV: review of Iris's pipeline at the worker boundary; stress test to 15 MP; added 16 MP limit + 512 MiB heap recycle; applied Iris's minors | js/cv/*; inspector.worker.js, js/worker-client.js, docs/worker-notes.md | **APPROVE** |
+| 87 | C | Atlas | Iris, Juno | Volt's pipeline minors (mergeBoxes cap, early frees) → Iris; the 16 MP RangeError message → Juno | js/cv/pipeline.js, js/app.js, js/copy.js | routed |
+| 88 | C | Vera | Atlas | A-SEC 2/2: static audit 0 findings; 0 cross-origin requests across load + all 8 samples; headers on 10 paths; images checked by eye, all fictional | docs/security-audit.md | **APPROVE** |
+| 89 | C | Atlas | (integration) | Removed the stray pid file; .gitignore pid/__pycache__. README must say "no network needed after load", not "works offline" (routed to Piper for wave E) | .gitignore | done |
+| 90 | C | Juno | Atlas | Friendly >16 MP message; recycle handled; smoke 32/32 | js/copy.js, js/app.js | done |
+| 91 | C | Iris | Atlas | Volt's minors applied (union-find mergeBoxes + 2000 cap, early frees, nits); 22/22, 1,920/1,920 Mats freed, heap flat | js/cv/*, docs/cv-pipeline-notes.md | done |

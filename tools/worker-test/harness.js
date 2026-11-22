@@ -125,12 +125,13 @@ const api = {
     return { thrownMessage: msg, badInput: bad, workerStillWorks: after.status };
   },
   async heapRuns(n = 20, settings = {}) {
-    const bytes = [];
+    const bytes = [], probes = [];
     for (let i = 0; i < n; i++) {
       await insp.compare(synth('base'), synth('cand'), [], settings);
-      bytes.push((await insp.heap()).bytes);
+      const h = await insp.heap(); bytes.push(h.bytes); probes.push(h.probe);
     }
-    return { n, first: bytes[0], last: bytes[n - 1], max: Math.max(...bytes), growthAfterRun1: bytes[n - 1] - bytes[0], bytes };
+    return { n, first: bytes[0], last: bytes[n - 1], max: Math.max(...bytes), growthAfterRun1: bytes[n - 1] - bytes[0],
+             probeDistinct: new Set(probes).size, probeFirst: probes[0], probeLast: probes[n - 1], bytes, probes };
   },
   async sizeMismatch() {
     // The worker/pipeline decides: the page only checks that each buffer is w*h*4 bytes.
@@ -142,6 +143,46 @@ const api = {
     const r2 = await insp.compare(synth('base'), tiny, [], {}).then(r => ({ status: r.status }), e => ({ error: e.message }));
     const after = await insp.compare(synth('base'), synth('cand'), [], {});
     return { slightlyTaller: r1, tooSmall: r2, workerStillWorks: after.status };
+  },
+  // Large / pathological fictional inputs (C-REV-CV). pattern: 'page' (synthetic form, two changes),
+  // 'speckle' (n isolated 12x12 changes on a grid -> many regions, stresses contours + mergeBoxes).
+  async stress(w, h, pattern = 'page', n = 0) {
+    const mk = (variant) => {
+      const c = new OffscreenCanvas(w, h), g = c.getContext('2d');
+      g.fillStyle = '#f4f5f7'; g.fillRect(0, 0, w, h);
+      for (let y = 80; y < h - 40; y += 48) for (let x = 20; x < w - 200; x += 260) {
+        g.fillStyle = '#fff'; g.fillRect(x, y, 230, 32); g.strokeStyle = '#c3c8d0'; g.strokeRect(x, y, 230, 32);
+        g.fillStyle = '#333'; g.font = '14px sans-serif'; g.fillText('Field ' + x + '-' + y, x + 8, y + 21);
+      }
+      if (variant === 'cand') {
+        if (pattern === 'page') { g.fillStyle = '#b00020'; g.fillRect(Math.round(w / 3), Math.round(h / 2), 200, 30); g.fillRect(40, h - 120, 160, 40); }
+        else {
+          const cols = Math.ceil(Math.sqrt(n * w / h)), rows = Math.ceil(n / cols);
+          g.fillStyle = '#000';
+          for (let i = 0; i < n; i++) g.fillRect(Math.floor((i % cols + 0.5) * w / cols), Math.floor((Math.floor(i / cols) + 0.5) * h / rows), 12, 12);
+        }
+      }
+      return g.getImageData(0, 0, w, h);
+    };
+    const base = mk('base'), cand = mk('cand');
+    const steps = []; let t = performance.now(); const stepMs = {};
+    const t0 = performance.now();
+    try {
+      const r = await insp.compare(base, cand, [], {}, { onProgress: s => { const n2 = performance.now(); stepMs[s] = Math.round(n2 - t); t = n2; } });
+      const hb = (await insp.heap()).bytes;
+      return { w, h, mp: +(w * h / 1e6).toFixed(2), pattern, n, ms: Math.round(performance.now() - t0), workerMs: r.workerMs, status: r.status,
+               regions: r.regions.length, changedPct: r.changedPct, ssim: r.ssim, timings: r.timings, heapBytesAfter: hb };
+    } catch (e) {
+      let hb = null; try { hb = (await insp.heap()).bytes; } catch {}
+      return { w, h, mp: +(w * h / 1e6).toFixed(2), pattern, n, ms: Math.round(performance.now() - t0), error: e.message, stepMs, heapBytesAfter: hb };
+    }
+  },
+  async heapDuringRestart() {
+    // heap() asked while a restart is in progress must answer from the new, ready worker (not 0).
+    const p = insp.restart();
+    const h = await insp.heap();
+    await p;
+    return h;
   },
   async restart() {
     const t0 = performance.now();

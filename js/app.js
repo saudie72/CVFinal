@@ -26,6 +26,7 @@ let insp = null, zonesUI = null, tabs = null;
 const pageThreshold = () => (S.page && S.page.thresholdPct != null ? S.page.thresholdPct : S.settings.thresholdPct);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 class UserError extends Error {}
+const closeBmp = (x) => { try { x && x.bitmap && x.bitmap.close(); } catch { /* already closed */ } };
 
 async function decode(blob) {
   try {
@@ -194,6 +195,7 @@ function clearWork(clearPage) {
 
 async function openPage(page, cand = null) {
   const base = await decode(page.baseline);
+  if (S.base) closeBmp(S.base);
   S.page = page; S.base = base; S.result = null; S.runId = null; S.zoneAdded = null;
   let zs = [];
   if (S.dbOK && page.id != null) { try { zs = await zonesDb.forPage(page.id); } catch (e) { console.error(e); } }
@@ -278,7 +280,13 @@ async function loadSample() {
     if (!page) {
       const base = await decode(before);
       page = { name, module: s.module, notes: 'Sample (fictional)', baseline: before, width: base.width, height: base.height, thresholdPct: S.settings.thresholdPct };
-      if (S.dbOK) { try { page.id = await pagesDb.put(page); } catch (e) { console.error(e); page.id = null; if (e && e.name !== 'ConstraintError') showNotice('storage-blocked', copy.notice.blocked); } } else page.id = null;
+      if (S.dbOK) {
+        try { page.id = await pagesDb.put(page); }
+        catch (e) {
+          if (!e || e.name !== 'QuotaExceededError') throw e;           // surfaces as error-compare, never swallowed
+          page.id = null; showNotice('storage-quota', copy.notice.quota);   // compare in memory; saving is refused
+        }
+      } else page.id = null;
       S.tip = true;
     }
     await openPage(page, after);
@@ -298,7 +306,7 @@ function suggestedZones() {
 
 // ============================== compare screen ==============================
 function setCandidateNone() {
-  S.cand = null;
+  closeBmp(S.cand); S.cand = null;
   if (S.candUrl) { URL.revokeObjectURL(S.candUrl); S.candUrl = null; }
   $('candidate-thumb').hidden = true; $('candidate-thumb').removeAttribute('src');
 }
@@ -306,6 +314,8 @@ async function applyCandidate(blob, announceIt) {
   checkPng(blob);
   const c = await decode(blob);
   if (S.candUrl) URL.revokeObjectURL(S.candUrl);
+  closeBmp(S.cand);
+  S.result = null; S.runId = null; S.zoneAdded = null;     // a new screenshot invalidates the old result
   S.cand = c; S.candUrl = URL.createObjectURL(blob);
   const t = $('candidate-thumb'); t.src = S.candUrl; t.hidden = false;
   if (announceIt) announce(`After-change screenshot added, ${c.width} by ${c.height} pixels.`);
@@ -368,6 +378,7 @@ async function doCompare() {
     const msg = String((e && e.message) || e);
     if (S.cancelled) { S.cancelled = false; announce('Comparison cancelled. Your screenshots are still here.'); syncMain(); $('btn-compare').focus(); return; }
     if (msg === TIMEOUT_MESSAGE) showError('error-timeout');
+    else if (e instanceof RangeError || /\bMP\b|megapixel/i.test(msg)) showError('error-compare', copy.errors.tooLarge, 'raw');
     else if (/Size mismatch/i.test(msg)) showError('error-compare', copy.errors.sizes(`${S.base.width}×${S.base.height}`, `${S.cand.width}×${S.cand.height}`), 'raw');
     else if (/align/i.test(msg)) showError('error-compare', copy.errors.alignment, 'raw');
     else showError('error-compare', msg);
@@ -386,7 +397,7 @@ function cancelCompare() {
 // ============================== result ==============================
 async function showResult(res, zs) {
   const w = S.base.width, h = S.base.height;
-  const hints = classify(res.regions, res.changedPct, w);
+  const hints = classify(res.regions, res.changedPct);
   const m = {
     width: res.size ? res.size.width : w, height: res.size ? res.size.height : h,
     baseline: S.base.bitmap, candidate: S.cand.bitmap,
@@ -448,7 +459,7 @@ function renderRegionList() {
       rad.addEventListener('change', () => setDecision(i, rad.value));
     });
     const note = li.querySelector('.region-note'); note.value = r.note || '';
-    note.addEventListener('change', () => { r.note = note.value; persistRegions(); });
+    note.addEventListener('change', () => { if (S.signOff.baselinePromoted) { note.value = r.note || ''; return; } r.note = note.value; persistRegions(false); });
     li.querySelector('.region-zone').addEventListener('click', (e) => zonesUI.fromRegion(r, e.currentTarget));
     const on = () => redrawBoxes(m, i), off = () => redrawBoxes(m, -1);
     li.addEventListener('focusin', on); li.addEventListener('focusout', off);
@@ -465,20 +476,29 @@ function updateProgress() {
 }
 async function setDecision(i, value) {
   const m = S.result, r = m.regions[i];
-  r.decision = value;
   const li = $('region-list').children[i];
+  if (S.signOff.baselinePromoted) {              // promoted runs are read-only: never clear sign-off on them
+    li.querySelectorAll('input[type=radio]').forEach((rad) => { rad.checked = r.decision === rad.value; });
+    announce(copy.signoff.promotedLocked);
+    return;
+  }
+  r.decision = value;
   li.dataset.decision = value; li.setAttribute('aria-label', regionLabel(r, i, m.regions.length));
   updateProgress();
   announce(`Region ${i + 1} marked ${value}. ${reviewedCount()} of ${m.regions.length} reviewed.`);
-  let cleared = false;
-  if (S.runId != null && S.signOff.signedOff) { S.signOff = { signedOff: false, reviewer: '', signedOffAt: null, baselinePromoted: S.signOff.baselinePromoted }; cleared = true; }
-  await persistRegions(cleared);
+  const cleared = S.runId != null && S.signOff.signedOff;
+  const ok = await persistRegions(cleared);
+  if (cleared && ok) S.signOff = { signedOff: false, reviewer: '', signedOffAt: null, baselinePromoted: false };
   updateActions();
-  if (cleared) $('signoff-hint').textContent = copy.signoff.cleared;
+  if (cleared && ok) $('signoff-hint').textContent = copy.signoff.cleared;
 }
 async function persistRegions(clearSignOff) {
-  if (S.runId == null || !S.dbOK) return;
-  await guard(() => runsDb.update(S.runId, { regions: storedRegions(), ...(clearSignOff ? { signOff: { signedOff: false, reviewer: '', signedOffAt: null } } : {}) }));
+  if (S.runId == null || !S.dbOK) return true;
+  try {
+    // safety net: clearing sign-off always resets baselinePromoted too ("promoted without sign-off" is invalid)
+    await runsDb.update(S.runId, { regions: storedRegions(), ...(clearSignOff ? { signOff: { signedOff: false, reviewer: '', signedOffAt: null, baselinePromoted: false } } : {}) });
+    return true;
+  } catch (e) { guard(() => { throw e; }); return false; }
 }
 const storedRegions = () => S.result.regions.map((r) => ({ id: r.id, x: r.x, y: r.y, width: r.width, height: r.height, w: r.width, h: r.height, area: r.area, decision: r.decision, note: r.note || '' }));
 
@@ -525,6 +545,12 @@ function updateActions() {
   setDisabled(prim, storageBlocked);
   if (storageBlocked) $('signoff-hint').textContent = copy.notice.storageHint;
   $('save-state').textContent = saved ? `Saved as run ${S.runId}` : 'Not saved yet';
+  const locked = promoted;
+  $('region-list').querySelectorAll('input[type=radio], .region-note').forEach((el) => {
+    if (locked) el.setAttribute('aria-disabled', 'true'); else el.removeAttribute('aria-disabled');
+    if (el.classList.contains('region-note')) el.readOnly = locked;
+  });
+  if (locked) $('signoff-hint').textContent = `${$('signoff-hint').textContent} ${copy.signoff.promotedLocked}`.trim();
   const sug = suggestedZones();
   $('btn-suggest-zone').hidden = !(fail && sug.length);
   const zn = $('zone-added-note');
@@ -565,13 +591,14 @@ async function openSave(opener) {
   const m = S.result;
   const { fail, undecided } = computeReview();
   if (fail && undecided) { focusFirstUndecided(); announce(`Decide every changed region before saving (${undecided} left).`); return; }
-  const last = S.evidence || (S.dbOK ? await settingsDb.get('lastEvidence', {}).catch(() => ({})) : {}) || {};
+  const cur = S.evidence || {};
+  const last = { ...(S.dbOK ? await settingsDb.get('lastEvidence', {}).catch(() => ({})) : {}), ...cur };
   const set = (id, v) => { $(id).value = v || ''; $(id).removeAttribute('aria-invalid'); };
   const keep = S.evidence != null;
-  set('ev-testcase', keep ? last.testCaseId : ''); set('ev-ticket', keep ? last.ticketId : '');
+  set('ev-testcase', keep ? cur.testCaseId : ''); set('ev-ticket', keep ? cur.ticketId : '');
   set('ev-tools', last.toolsVersion); set('ev-tester', last.tester);
-  set('ev-bu', last.businessUnit); set('ev-role', last.role); set('ev-env', last.environment);
-  set('ev-note', S.runNote); set('ev-expected', last.expectedDifference);
+  set('ev-bu', cur.businessUnit); set('ev-role', cur.role); set('ev-env', cur.environment);
+  set('ev-note', S.runNote); set('ev-expected', cur.expectedDifference);
   $('evidence-error').hidden = true;
   await openDialog($('save-dialog'), opener);
   m.boxesFinal = $('canvas-boxes');
@@ -598,7 +625,7 @@ async function submitEvidence(e) {
   if (v('ev-expected')) evidence.expectedDifference = v('ev-expected');
   const m = S.result;
   try {
-    if (!S.dbOK) throw Object.assign(new Error(copy.notice.storageHint), { name: 'StorageBlocked' });
+    if (!S.dbOK || S.page.id == null) throw Object.assign(new Error(copy.notice.storageHint + ' This page is not stored, so the run cannot be saved. Download the evidence instead.'), { name: 'StorageBlocked' });
     if (S.runId == null) {
       redrawBoxes(m, -1);
       const rec = {
@@ -662,7 +689,12 @@ async function promote(opener) {
   await guard(async () => {
     const rec = { ...S.page, baseline: S.cand.blob, width: S.cand.width, height: S.cand.height };
     await pagesDb.put(rec);
-    await runsDb.update(S.runId, { signOff: { baselinePromoted: true } });
+    try { await runsDb.update(S.runId, { signOff: { baselinePromoted: true } }); }
+    catch (e1) {
+      console.error(e1); await sleep(300);
+      try { await runsDb.update(S.runId, { signOff: { baselinePromoted: true } }); }
+      catch (e2) { showNotice('storage-quota', 'The baseline was replaced, but the run could not be marked as promoted. Reload and check History.'); throw e2; }
+    }
     S.signOff = { ...S.signOff, baselinePromoted: true };
     S.page = rec; S.base = await decode(rec.baseline);
     zonesUI.load(rec, S.base, zonesUI.zones);
@@ -716,15 +748,16 @@ async function viewRun(r) {
     const page = S.pages.find((p) => p.id === r.pageId);
     const base = await decode(r.baseline || page.baseline);
     const cand = await decode(r.candidate);
-    S.page = page; S.base = base; S.cand = cand; setCandidateNone(); S.cand = cand;
+    closeBmp(S.base); setCandidateNone();
+    S.page = page; S.base = base; S.cand = cand;
     S.candUrl = URL.createObjectURL(r.candidate);
     let zs = []; try { zs = await zonesDb.forPage(page.id); } catch { /* ignore */ }
-    zonesUI.load(page, { blob: page.baseline, ...(await decode(page.baseline)) }, zs);
+    zonesUI.load(page, base, zs);                 // one decode of the baseline
     const boxes = (await decode(r.result)).bitmap;
     const heat = r.heatmap ? (await decode(r.heatmap)).bitmap : null;
     S.result = {
       width: base.width, height: base.height, baseline: base.bitmap, candidate: cand.bitmap, boxes, heatmap: heat,
-      regions: r.regions.map((x, i) => ({ ...x, id: i + 1, width: x.width ?? x.w, height: x.height ?? x.h, hintId: classify([{ x: x.x, y: x.y, width: x.width ?? x.w, height: x.height ?? x.h }], r.changedPct, base.width)[0] })),
+      regions: r.regions.map((x, i) => ({ ...x, id: i + 1, width: x.width ?? x.w, height: x.height ?? x.h })).map((x, i, all) => ({ ...x, hintId: classify(all, r.changedPct)[i] })),
       zones: r.ignoreZones || [], status: r.status, changedPct: r.changedPct, ssim: r.ssim, alignment: r.alignment, settings: r.settings, ms: r.ms, ignoredPct: r.ignoredPct ?? 0,
     };
     S.runId = r.id; S.evidence = r.evidence; S.runNote = r.note || ''; S.reviewMs = r.reviewMs; S.savedAt = r.createdAt;
@@ -762,6 +795,8 @@ const mb = (b) => (b / 1048576 >= 10 ? Math.round(b / 1048576) : (b / 1048576).t
 async function renderSettings() {
   const e = await storageEstimate().catch(() => ({}));
   $('storage-estimate').textContent = e.quota ? `This app uses ${mb(e.usage)} of about ${mb(e.quota)} available on this device (${e.percent.toFixed(2)}%).` : 'Storage figures are not available in this browser.';
+  $('storage-estimate').dataset.level = e.percent >= 80 ? 'warn' : '';
+  if (e.percent >= 80) $('storage-estimate').textContent += ' Storage is almost full. Delete old runs in History or export them, then reset if needed.';
   $('persist-status').textContent = e.persisted === true ? 'Persistent storage: granted. The browser will not clear this data on its own.' : e.persisted === false ? 'Persistent storage: not granted. The browser may clear the data if the device runs low on space.' : '';
 }
 function resetUi(state) {
@@ -786,12 +821,13 @@ async function doReset() {
   const btn = $('reset-confirm');
   btn.setAttribute('aria-busy', 'true');
   try {
-    await resetAppData();                     // waits while another tab blocks; onBlocked shows the message
+    const { blocked } = await resetAppData();   // waits while another tab blocks; onBlocked shows the message
     S.pages = []; clearWork(true); S.engineSeen = false;
     S.dbOK = true; showNotice('none');
     try { await openDB(); } catch (e) { S.dbOK = false; }
+    $('reset-blocked').hidden = true;
     resetUi('reset-done');
-    announce(copy.reset.announce);
+    announce(copy.reset.announce + (blocked ? '' : ''));
     $('reset-back').focus();
   } catch (e) {
     console.error(e);
@@ -890,7 +926,7 @@ async function boot() {
         if ($('reset-dialog').open) { $('reset-blocked').textContent = copy.reset.blocked; $('reset-blocked').hidden = false; }
         else showNotice('storage-blocked', msg || copy.notice.otherTab);
       },
-      onVersionChange: (info) => showNotice('storage-blocked', info.message, [{ label: 'Reload', run: () => location.reload() }]),
+      onVersionChange: (info) => { S.dbOK = false; showNotice('storage-blocked', info.message, [{ label: 'Reload', run: () => location.reload() }]); },
     });
     const [cs, seen] = await Promise.all([settingsDb.get('compareSettings', null), settingsDb.get('engineSeen', false)]);
     if (cs) S.settings = { ...DEFAULTS, ...cs };
