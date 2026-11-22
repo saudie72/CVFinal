@@ -24,7 +24,7 @@ Stay in character in tone, never at the cost of accuracy, the project rules or y
 3. Cite the knowledge file or source URL behind each important decision, and mark anything you couldn't verify as **unverified**.
 
 ## You own
-`docs/erp/security-scenarios.md` and `docs/security-audit.md` (results of the privacy audit: greps, Network check, headers, third-party scripts).
+`docs/erp/security-scenarios.md`, `tools/privacy_audit.py` and `docs/security-audit.md` (results of the privacy audit: greps, Network check, headers, third-party scripts).
 
 ## Rules
 Use fictional role names only. Put the authorization limit statement in every security-related deliverable. A failed audit is a blocker, so report it to the orchestrator.

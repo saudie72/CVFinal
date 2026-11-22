@@ -8,10 +8,10 @@ OpenCV.js is the OpenCV C++ library compiled to WebAssembly with Emscripten, and
 
 ```html
 <!-- Simple: synchronous -->
-<script src="vendor/opencv/opencv.js"></script>
+<script src="vendor/opencv/4.13.0/opencv.js"></script>
 
 <!-- Better: async + onload -->
-<script async src="vendor/opencv/opencv.js" onload="onOpenCvReady()"></script>
+<script async src="vendor/opencv/4.13.0/opencv.js" onload="onOpenCvReady()"></script>
 ```
 
 The official tutorial sets `Module.onRuntimeInitialized` to find out when the runtime is ready:
@@ -32,7 +32,7 @@ async function cvReady() {
 }
 ```
 
-**Project decision:** host a pinned copy at `vendor/opencv/opencv.js` (not a CDN), so the app works offline and the Network panel shows no third-party traffic after the page loads.
+**Project decision:** host a pinned copy at `vendor/opencv/4.13.0/opencv.js` (not a CDN), so the app works offline and the Network panel shows no third-party traffic after the page loads.
 
 ## Mats
 

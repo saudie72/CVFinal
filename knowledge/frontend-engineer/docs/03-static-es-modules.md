@@ -13,6 +13,6 @@ index.html  how-it-works.html  resources.html
 css/tokens.css (Sable)  css/app.css
 js/app.js (routing + state)  js/views.js (canvas views)  js/zones-ui.js  js/report.js
 js/db.js (indexeddb-expert)  js/worker-client.js (wasm-expert)
-inspector.worker.js  vendor/opencv/opencv.js
+inspector.worker.js  vendor/opencv/4.13.0/opencv.js
 ```
 Only `db.js` touches IndexedDB, and only `worker-client.js` talks to the worker. Everything else imports from them.

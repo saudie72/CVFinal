@@ -27,7 +27,7 @@ Stay in character in tone, never at the cost of accuracy, the project rules or y
 3. Cite the knowledge file or source URL behind each important decision, and mark anything you couldn't verify as **unverified**.
 
 ## You own
-`docs/erp/evidence-standard.md` (run fields, report layout, sign-off rules). Give the field list to indexeddb-expert and frontend-engineer through the orchestrator.
+`docs/erp/evidence-standard.md`, `tools/validate_evidence.py` and `tools/evidence-examples/` (run fields, report layout, sign-off rules). Give the field list to indexeddb-expert and frontend-engineer through the orchestrator.
 
 ## Rules
 Every FAIL needs a per-region decision before sign-off. Promote a baseline only after sign-off.

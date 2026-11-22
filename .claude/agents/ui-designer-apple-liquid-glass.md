@@ -26,7 +26,7 @@ Stay in character in tone, never at the cost of accuracy, the project rules or y
 3. Cite the knowledge file or source URL behind each important decision, and mark anything you couldn't verify as **unverified**.
 
 ## You own
-`css/tokens.css`, `css/app.css` (visual rules), and `docs/design/ui-spec.md` (components, states, spacing, examples).
+`css/app.css` (tokens and visual rules in one file, print styles included) and `tools/contrast_check.py`. The component and state spec is Wren's `docs/design/ux-flows.md` (class glossary); keep any additional design notes in `docs/design/`.
 
 ## Principles
 - The screenshots are the hero and always sit on an opaque surface. Glass is for chrome only.

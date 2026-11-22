@@ -1,0 +1,1073 @@
+{
+ "date": "2026-11-22T15:51:27.941Z",
+ "chromium": "157.0.8103.78",
+ "node": "v22.23.5",
+ "seconds": 72,
+ "passed": 95,
+ "failed": 0,
+ "results": [
+  {
+   "id": "1.0",
+   "name": "fresh profile: main=ready-empty, pill Ready, sample select has all manifest entries",
+   "ok": true,
+   "evidence": {
+    "main": "ready-empty",
+    "options": 8
+   }
+  },
+  {
+   "id": "1.1",
+   "name": "tl-timesheet: expected FAIL (min 2)",
+   "ok": true,
+   "evidence": {
+    "status": "FAIL — 2 changed regions (8.3% of page)",
+    "regions": 2,
+    "alignment": "No alignment needed"
+   }
+  },
+  {
+   "id": "1.2",
+   "name": "hcm-job-data: expected FAIL (min 2)",
+   "ok": true,
+   "evidence": {
+    "status": "FAIL — 3 changed regions (2% of page)",
+    "regions": 3,
+    "alignment": "No alignment needed"
+   }
+  },
+  {
+   "id": "1.3",
+   "name": "hcm-personal-data: expected FAIL (min 2)",
+   "ok": true,
+   "evidence": {
+    "status": "FAIL — 4 changed regions (0.6% of page)",
+    "regions": 4,
+    "alignment": "No alignment needed"
+   }
+  },
+  {
+   "id": "1.4",
+   "name": "fscm-voucher: expected FAIL (min 1)",
+   "ok": true,
+   "evidence": {
+    "status": "FAIL — 4 changed regions (1.8% of page)",
+    "regions": 4,
+    "alignment": "No alignment needed"
+   }
+  },
+  {
+   "id": "1.5",
+   "name": "fscm-po: expected FAIL (min 1)",
+   "ok": true,
+   "evidence": {
+    "status": "FAIL — 1 changed region (under 0.1% of page)",
+    "regions": 1,
+    "alignment": "No alignment needed"
+   }
+  },
+  {
+   "id": "1.po",
+   "name": "fscm-po: \"Add suggested ignore zone\" -> Compare again -> PASS with 0 regions",
+   "ok": true,
+   "evidence": {
+    "suggestVisible": true,
+    "note": "",
+    "after": "PASS — no unexpected changes",
+    "ignored": "1 zone (0.238% of page)"
+   }
+  },
+  {
+   "id": "1.6",
+   "name": "hcm-job-data-shifted: expected PASS (min 0, max 0)",
+   "ok": true,
+   "evidence": {
+    "status": "PASS — no unexpected changes",
+    "regions": 0,
+    "alignment": "Aligned: shift (0, 3)"
+   }
+  },
+  {
+   "id": "1.s",
+   "name": "shifted pair shows \"Aligned: shift (0, 3)\"",
+   "ok": true,
+   "evidence": "Aligned: shift (0, 3)"
+  },
+  {
+   "id": "1.7",
+   "name": "hcm-job-data-zoom110: expected FAIL (min 1)",
+   "ok": true,
+   "evidence": {
+    "status": "FAIL — 25 changed regions (0.3% of page)",
+    "regions": 25,
+    "alignment": "Aligned: shift (0, 0), scale 0.91"
+   }
+  },
+  {
+   "id": "1.z",
+   "name": "zoom110: FAIL with the \"Likely capture artifact\" hint",
+   "ok": true,
+   "evidence": {
+    "regions": 25,
+    "firstHints": [
+     "Likely: Capture or rendering artifact. Many small regions wi",
+     "Likely: Capture or rendering artifact. Many small regions wi"
+    ],
+    "alignment": "Aligned: shift (0, 0), scale 0.91"
+   }
+  },
+  {
+   "id": "1.8",
+   "name": "fscm-po-identical: expected PASS (min 0, max 0)",
+   "ok": true,
+   "evidence": {
+    "status": "PASS — no unexpected changes",
+    "regions": 0,
+    "alignment": "No alignment needed"
+   }
+  },
+  {
+   "id": "1.c",
+   "name": "no console errors/warnings, page errors or CSP violations during all 8 pairs",
+   "ok": true,
+   "evidence": {
+    "console": [],
+    "page": [],
+    "csp": []
+   }
+  },
+  {
+   "id": "2.1",
+   "name": "mouse drag opens the zone dialog pre-filled with baseline-pixel coordinates",
+   "ok": true,
+   "evidence": {
+    "filled": {
+     "x": 137,
+     "y": 90,
+     "w": 274,
+     "h": 46
+    },
+    "expectedApprox": {
+     "x": 137,
+     "y": 90,
+     "w": 273,
+     "h": 45
+    }
+   }
+  },
+  {
+   "id": "2.2",
+   "name": "focus lands in Label when the zone dialog opens",
+   "ok": true,
+   "evidence": "zone-label"
+  },
+  {
+   "id": "2.3",
+   "name": "empty label is rejected inline (role=alert) and the dialog stays open",
+   "ok": true,
+   "evidence": "Give the zone a short label, for example Timestamp."
+  },
+  {
+   "id": "2.4",
+   "name": "dragged zone appears in the zone list",
+   "ok": true,
+   "evidence": "Mouse zone, 274 by 46 pixels at 137, 90 Remove"
+  },
+  {
+   "id": "2.5",
+   "name": "keyboard-only numeric form adds \"Keyboard zone\" 120 by 30 at 400, 500",
+   "ok": true,
+   "evidence": [
+    "Mouse zone, 274 by 46 pixels at 137, 90 Remove",
+    "Keyboard zone, 120 by 30 pixels at 400, 500 Remove"
+   ]
+  },
+  {
+   "id": "2.6",
+   "name": "a zone past the baseline is rejected with the bounds message",
+   "ok": true,
+   "evidence": "That zone extends past the baseline (1366 by 900 pixels). Reduce X or Width."
+  },
+  {
+   "id": "2.7",
+   "name": "Esc closes the dialog and returns focus to \"Add zone manually\"",
+   "ok": true,
+   "evidence": "btn-add-zone"
+  },
+  {
+   "id": "2.8",
+   "name": "zone summary reads \"2 zones ignored (x% of page)\"",
+   "ok": true,
+   "evidence": "2 zones ignored (1.3% of page)"
+  },
+  {
+   "id": "2.9",
+   "name": "Compare with 2 zones: stat \"Ignored\" lists the zones",
+   "ok": true,
+   "evidence": "2 zones (1.318% of page)"
+  },
+  {
+   "id": "2.10",
+   "name": "zones are stored in IndexedDB ignoreZones (2 rows) and survive reload",
+   "ok": true,
+   "evidence": {
+    "counts": {
+     "ignoreZones": 2,
+     "pages": 1,
+     "runs": 0,
+     "settings": 2
+    },
+    "library": "Time & Labor – Timesheet Time & Labor · 1366 by 900 pixels · added 22 Nov 2026, 15:50 Compare History Delete page"
+   }
+  },
+  {
+   "id": "2.11",
+   "name": "alignment: shifted pair is aligned (0, 3) and PASSes (the +3 px does not count as a change)",
+   "ok": true,
+   "evidence": {
+    "state": "result-pass",
+    "status": "PASS — no unexpected changes",
+    "regions": 0,
+    "alignment": "Aligned: shift (0, 3)",
+    "changed": "0% of page",
+    "ignored": "None",
+    "hints": []
+   }
+  },
+  {
+   "id": "2.c",
+   "name": "no console errors / CSP violations in section 2",
+   "ok": true,
+   "evidence": {
+    "console": [],
+    "page": []
+   }
+  },
+  {
+   "id": "3.1",
+   "name": "IndexedDB 'erpinspector' exists with stores pages, ignoreZones, runs, settings",
+   "ok": true,
+   "evidence": {
+    "db": [
+     "erpinspector@v1"
+    ],
+    "version": 1,
+    "stores": [
+     "ignoreZones",
+     "pages",
+     "runs",
+     "settings"
+    ]
+   }
+  },
+  {
+   "id": "3.2",
+   "name": "page + run rows survive a reload (counts unchanged)",
+   "ok": true,
+   "evidence": {
+    "before": {
+     "ignoreZones": 0,
+     "pages": 1,
+     "runs": 1,
+     "settings": 3
+    },
+    "after": {
+     "ignoreZones": 0,
+     "pages": 1,
+     "runs": 1,
+     "settings": 3
+    },
+    "saved": "Saved as run 1"
+   }
+  },
+  {
+   "id": "3.3",
+   "name": "library lists the page after reload",
+   "ok": true,
+   "evidence": "Time & Labor – Timesheet Time & Labor · 1366 by 900 pixels · added 22 Nov 2026, 15:50 Compare Histor"
+  },
+  {
+   "id": "3.4",
+   "name": "History shows the saved run after reload",
+   "ok": true,
+   "evidence": {
+    "rows": 1,
+    "text": "22 Nov 2026, 15:50 FAIL 28.3% VR-TL-01CHG-0042QANot signed off View Delete"
+   }
+  },
+  {
+   "id": "3.5",
+   "name": "exported run JSON passes tools/validate_evidence.py",
+   "ok": true,
+   "evidence": "/tmp/qa-export-run.json: VALID"
+  },
+  {
+   "id": "3.c",
+   "name": "no console errors in section 3",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "4.1",
+   "name": "Reset dialog opens (title \"Reset app data?\") with default focus on Cancel",
+   "ok": true,
+   "evidence": {
+    "title": "Reset app data?",
+    "focusId": "reset-cancel",
+    "body": "Delete all baselines, ignore zones and runs on this device? This can't be undone. The sample screenshots aren't affected"
+   }
+  },
+  {
+   "id": "4.2",
+   "name": "Cancel closes the dialog and keeps the data",
+   "ok": true,
+   "evidence": {
+    "ignoreZones": 0,
+    "pages": 1,
+    "runs": 0,
+    "settings": 2
+   }
+  },
+  {
+   "id": "4.3a",
+   "name": "second tab open during reset: what happened",
+   "ok": null,
+   "evidence": {
+    "blockedMessageShown": false,
+    "blockedTxt": "Close other tabs of this app to finish the reset.",
+    "doneImmediately": true,
+    "otherTab": {
+     "notice": "storage-blocked",
+     "text": "The library was reset in another tab. Reload this page."
+    }
+   }
+  },
+  {
+   "id": "4.3",
+   "name": "with a 2nd tab open the reset either shows \"Close other tabs\" (blocked) or finishes cleanly (never hangs silently)",
+   "ok": true,
+   "evidence": {
+    "blockedShown": false,
+    "doneAlready": true
+   }
+  },
+  {
+   "id": "4.4",
+   "name": "dialog reaches \"App data deleted\" and Back to Library works",
+   "ok": true,
+   "evidence": "App data deleted"
+  },
+  {
+   "id": "4.5",
+   "name": "database is empty right after reset (pages/runs/ignoreZones = 0)",
+   "ok": true,
+   "evidence": {
+    "names": [
+     "erpinspector@v1"
+    ],
+    "version": 1,
+    "stores": [
+     "ignoreZones",
+     "pages",
+     "runs",
+     "settings"
+    ],
+    "counts": {
+     "ignoreZones": 0,
+     "pages": 0,
+     "runs": 0,
+     "settings": 0
+    }
+   }
+  },
+  {
+   "id": "4.6",
+   "name": "after reload the library shows the empty state (#library-empty visible, main=ready-empty) and pages/runs/ignoreZones hold 0 rows (settings keeps only the engineSeen flag)",
+   "ok": true,
+   "evidence": {
+    "hashAfterReload": "#/settings",
+    "main": "ready-empty",
+    "idb": {
+     "ignoreZones": 0,
+     "pages": 0,
+     "runs": 0,
+     "settings": 1
+    }
+   }
+  },
+  {
+   "id": "4.7",
+   "name": "samples still load after a reset",
+   "ok": true,
+   "evidence": "FAIL — 3 changed regions (2% of page)"
+  },
+  {
+   "id": "4.8",
+   "name": "blocked reset (a tab keeps the DB open): dialog says \"Close other tabs of this app to finish the reset.\" and keeps the button enabled for retry",
+   "ok": true,
+   "evidence": {
+    "shown": true,
+    "text": "Close other tabs of this app to finish the reset.",
+    "doneShown": false,
+    "confirmEnabled": true
+   }
+  },
+  {
+   "id": "4.9",
+   "name": "after the other tab lets go the reset completes (\"App data deleted\"; finished by itself: true)",
+   "ok": true,
+   "evidence": "App data deleted"
+  },
+  {
+   "id": "4.c",
+   "name": "no console errors in section 4",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "5.1",
+   "name": "after \"ready\": only the sample PNG fetches the user triggered (Load sample + 3 x Compare); nothing else",
+   "ok": true,
+   "evidence": {
+    "initialLoadRequests": 19,
+    "afterReady": [
+     "/samples/tl-timesheet_before.png",
+     "/samples/tl-timesheet_after.png",
+     "blob:/f278eea3-c093-4791-bb57-0cf4f8c45234"
+    ]
+   }
+  },
+  {
+   "id": "5.2",
+   "name": "0 cross-origin requests during the whole session",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "5.2a",
+   "name": "initial load request list (same-origin app files)",
+   "ok": null,
+   "evidence": [
+    "/index.html",
+    "/css/app.css",
+    "/js/app.js",
+    "/js/db.js",
+    "/js/worker-client.js",
+    "/js/copy.js",
+    "/js/ui.js",
+    "/js/views.js",
+    "/js/zones-ui.js",
+    "/js/report.js",
+    "/js/hints.js",
+    "/inspector.worker.js",
+    "/vendor/opencv/4.13.0/opencv.js",
+    "/samples/manifest.json",
+    "/js/region-hints.json",
+    "/js/cv/align.js",
+    "/js/cv/ssim.js",
+    "/js/cv/heatmap.js",
+    "/js/cv/pipeline.js"
+   ]
+  },
+  {
+   "id": "5.3",
+   "name": "3 s idle after compare: 0 requests",
+   "ok": true,
+   "evidence": 0
+  },
+  {
+   "id": "5.4",
+   "name": "context OFFLINE after load: Compare with a user-chosen file (setInputFiles) still gives FAIL + regions",
+   "ok": true,
+   "evidence": {
+    "state": "result-fail",
+    "status": "FAIL — 2 changed regions (8.3% of page)",
+    "regions": 2,
+    "alignment": "No alignment needed",
+    "changed": "8.3% of page",
+    "ignored": "None",
+    "hints": [
+     "Likely: Content shifted below a change. Large block: usually",
+     "Likely: Small text change. Small text change: likely a label"
+    ],
+    "offlineNote": "Offline — everything still works on this device."
+   }
+  },
+  {
+   "id": "5.5",
+   "name": "offline compare made no new network request (a blob: URL for the thumbnail is in-memory, not network)",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "5.6",
+   "name": "a non-PNG file shows the friendly \"isn't a PNG\" error, not a crash",
+   "ok": true,
+   "evidence": {
+    "errState": "error-compare",
+    "errT": "That file isn't a PNG image. Capture a full-page PNG (Chrome DevTools, Capture full size screenshot) and try again."
+   }
+  },
+  {
+   "id": "5.7a",
+   "name": "print layout details",
+   "ok": null,
+   "evidence": {
+    "pr": {
+     "calls": 1,
+     "h1": "Time & Labor – Timesheet (Time & Labor)",
+     "tables": 3,
+     "canvases": 3,
+     "text": 587
+    },
+    "vis": {
+     "reportDisplay": "block",
+     "reportW": 1366,
+     "headerDisplay": "none",
+     "mainDisplay": "none"
+    },
+    "pdfBytes": 139531,
+    "pdfPages": 2,
+    "pdfTextHead": "Time & Labor – Timesheet (Time & Labor) FAIL · 22 Nov 2026, 15:50 Test case ID Ticket / change ID Tools version / PUM image Business unit Role Environment Tester Reviewer Sign-off Not signed off Boxes"
+   }
+  },
+  {
+   "id": "5.7",
+   "name": "Print report: #print-report is filled (h1, regions table, canvases), window.print called, and in print media it is displayed while the app chrome is hidden",
+   "ok": true,
+   "evidence": {
+    "pr": {
+     "calls": 1,
+     "h1": "Time & Labor – Timesheet (Time & Labor)",
+     "tables": 3,
+     "canvases": 3,
+     "text": 587
+    },
+    "vis": {
+     "reportDisplay": "block",
+     "reportW": 1366,
+     "headerDisplay": "none",
+     "mainDisplay": "none"
+    }
+   }
+  },
+  {
+   "id": "5.8",
+   "name": "page.pdf() produces a non-empty PDF whose text contains the report headings",
+   "ok": true,
+   "evidence": {
+    "bytes": 139531,
+    "hasChangedRegions": true,
+    "hasDisclaimer": true
+   }
+  },
+  {
+   "id": "5.c",
+   "name": "no console errors in section 5",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "6.0",
+   "name": "per-compare click-to-result ms, max rAF gap, long tasks (>50 ms)",
+   "ok": null,
+   "evidence": {
+    "runs": [
+     {
+      "ms": 442,
+      "maxGap": 17,
+      "gaps": 26,
+      "longtasks": []
+     },
+     {
+      "ms": 467,
+      "maxGap": 17,
+      "gaps": 28,
+      "longtasks": []
+     },
+     {
+      "ms": 486,
+      "maxGap": 17,
+      "gaps": 30,
+      "longtasks": []
+     },
+     {
+      "ms": 452,
+      "maxGap": 17,
+      "gaps": 27,
+      "longtasks": []
+     },
+     {
+      "ms": 436,
+      "maxGap": 17,
+      "gaps": 26,
+      "longtasks": []
+     }
+    ],
+    "loadSample": {
+     "maxGap": 33,
+     "longtasks": []
+    }
+   }
+  },
+  {
+   "id": "6.1",
+   "name": "main thread stays responsive during Compare: max requestAnimationFrame gap < 100 ms over 5 compares",
+   "ok": true,
+   "evidence": {
+    "maxGapMs": 17
+   }
+  },
+  {
+   "id": "6.2",
+   "name": "no main-thread long task longer than 100 ms during Compare (PerformanceObserver longtask; the >50 ms ones are listed)",
+   "ok": true,
+   "evidence": {
+    "longtasksMs": []
+   }
+  },
+  {
+   "id": "6.c",
+   "name": "no console errors in section 6",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "7.0",
+   "name": "heap series (bytes, probe) before and after each of 20 compares",
+   "ok": null,
+   "evidence": {
+    "opencv": "4.13.0",
+    "before": [
+     134217728,
+     7098160
+    ],
+    "run1": [
+     134217728,
+     7098176
+    ],
+    "run2": [
+     134217728,
+     7098176
+    ],
+    "run20": [
+     134217728,
+     7098176
+    ],
+    "regionsPerRun": "2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2"
+   }
+  },
+  {
+   "id": "7.1",
+   "name": "Wasm heap bytes constant from run 2 to run 20 (no growth)",
+   "ok": true,
+   "evidence": {
+    "bytes": [
+     134217728
+    ]
+   }
+  },
+  {
+   "id": "7.2",
+   "name": "malloc probe address constant from run 3 to 20 (freed memory is reused => no Mat leak)",
+   "ok": true,
+   "evidence": {
+    "distinctProbes": [
+     7098176
+    ]
+   }
+  },
+  {
+   "id": "7.3",
+   "name": "before vs after: heap at run 20 equals heap after the first run (growth only once, for the working set)",
+   "ok": true,
+   "evidence": {
+    "before": 134217728,
+    "run1": 134217728,
+    "run20": 134217728
+   }
+  },
+  {
+   "id": "7.c",
+   "name": "no console errors in section 7",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "8.1",
+   "name": "0 console errors/warnings, 0 page errors and 0 CSP violations on 20 pages (index, how-it-works, resources, demo index + 16 demo pages)",
+   "ok": true,
+   "evidence": {
+    "pages": 20,
+    "problems": []
+   }
+  },
+  {
+   "id": "8.2",
+   "name": "0 cross-origin requests across those pages",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "8.3",
+   "name": "favicon.svg resolves (no favicon 404 like QA-001)",
+   "ok": true,
+   "evidence": 200
+  },
+  {
+   "id": "9.0",
+   "name": "pill sequence starts with the loading text and ends \"Ready\" (Wren 11.1)",
+   "ok": true,
+   "evidence": [
+    "Loading OpenCV (10 MB, first visit only)…",
+    "Ready"
+   ]
+  },
+  {
+   "id": "9.1",
+   "name": "live regions: pill role=status aria-live=polite; #announcer aria-live=polite",
+   "ok": true,
+   "evidence": {
+    "pill": [
+     "status",
+     "polite"
+    ],
+    "ann": [
+     "polite",
+     "sr-only"
+    ],
+    "liveRegions": 11
+   }
+  },
+  {
+   "id": "9.2",
+   "name": "keyboard: Tab reaches \"Load sample\" (after skip link + nav)",
+   "ok": true,
+   "evidence": [
+    "A",
+    "A",
+    "A",
+    "A",
+    "A",
+    "A",
+    "A",
+    "A",
+    "btn-load-sample"
+   ]
+  },
+  {
+   "id": "9.3",
+   "name": "every Tab stop shows a visible focus indicator (>=2 px outline or box-shadow)",
+   "ok": true,
+   "evidence": {
+    "stops": 9,
+    "withoutRing": []
+   }
+  },
+  {
+   "id": "9.4",
+   "name": "result: focus moves to #result-status and the result is announced once (\"Comparison finished. FAIL...\")",
+   "ok": true,
+   "evidence": {
+    "focus": "result-status",
+    "ann": [
+     "Comparison finished. FAIL, 2 changed regions, 8.3 percent of page."
+    ]
+   }
+  },
+  {
+   "id": "9.5",
+   "name": "view tabs: ArrowRight/End/Home move and activate (Side-by-side, Heatmap, Boxes)",
+   "ok": true,
+   "evidence": [
+    "tab-side",
+    "tab-heatmap",
+    "tab-boxes"
+   ]
+  },
+  {
+   "id": "9.6",
+   "name": "overlay slider: arrows/PageUp/Home/End change value (0..100) and aria-valuetext reads \"Showing N% after, M% before\"",
+   "ok": true,
+   "evidence": {
+    "v0": 50,
+    "vHome": 0,
+    "vEnd": 100,
+    "vt": "Showing 100% after, 0% before"
+   }
+  },
+  {
+   "id": "9.7",
+   "name": "keyboard: Tab + Space marks every region \"Expected\" (native radios)",
+   "ok": true,
+   "evidence": {
+    "regions": 2,
+    "decided": 2
+   }
+  },
+  {
+   "id": "9.8",
+   "name": "decision announcements (\"Region N marked Expected. K of M reviewed.\")",
+   "ok": true,
+   "evidence": [
+    "Comparison finished. FAIL, 2 changed regions, 8.3 percent of page.",
+    "Region 2 marked Expected. 2 of 2 reviewed."
+   ]
+  },
+  {
+   "id": "9.9",
+   "name": "arrow keys switch the radio group (Expected -> Regression)",
+   "ok": true,
+   "evidence": "Regression"
+  },
+  {
+   "id": "9.10",
+   "name": "keyboard-only: Load sample -> result -> decisions -> Save run (Enter) -> \"Saved as run N\" and announced",
+   "ok": true,
+   "evidence": {
+    "primary": "Save run",
+    "dialogFocus": "ev-testcase",
+    "saved": "Saved as run 1",
+    "announced": "Run saved as run 1."
+   }
+  },
+  {
+   "id": "9.11",
+   "name": "keyboard-only sign-off completes (\"Signed off by QA\")",
+   "ok": true,
+   "evidence": "Signed off by QAQA on 22 Nov 2026, 15:51."
+  },
+  {
+   "id": "9.12",
+   "name": "axe-like basics (result screen): lang set, title, 1 main/nav/header, skip link, exactly one visible h1",
+   "ok": true,
+   "evidence": {
+    "lang": "en",
+    "title": "Result - ERP Visual Regression Inspector",
+    "landmarks": {
+     "main": 1,
+     "nav": 1,
+     "header": 1
+    },
+    "h1": [
+     "Result"
+    ]
+   }
+  },
+  {
+   "id": "9.13",
+   "name": "axe-like basics: every button/link has an accessible name, every <img> has alt, every visible canvas has a label",
+   "ok": true,
+   "evidence": {
+    "unnamedButtons": [],
+    "imgsNoAlt": [],
+    "canvasNoLabel": []
+   }
+  },
+  {
+   "id": "9.14",
+   "name": "axe-like basics: every form control is labelled, no duplicate ids, every dialog is labelled, no tabindex > 0",
+   "ok": true,
+   "evidence": {
+    "unlabeled": [],
+    "dups": [],
+    "dialogsNoLabel": [],
+    "positiveTabindex": []
+   }
+  },
+  {
+   "id": "9.15",
+   "name": "aria-disabled buttons point to a reason via aria-describedby (Wren D5)",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "9.16",
+   "name": "targets under 44x44 px on the result screen (Wren section 7; WCAG 2.5.8 AA minimum is 24 px)",
+   "ok": null,
+   "evidence": []
+  },
+  {
+   "id": "9.17",
+   "name": "each screen shows exactly one h1 (and document.title changes per screen)",
+   "ok": true,
+   "evidence": {
+    "library": "Library",
+    "compare": "Compare",
+    "history": "Run history",
+    "settings": "Settings",
+    "title": "Settings - ERP Visual Regression Inspector"
+   }
+  },
+  {
+   "id": "9.c",
+   "name": "no console errors in section 9a",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "11.4a",
+   "name": "Regression keeps Sign off aria-disabled with the exact hint (Wren 11.4)",
+   "ok": true,
+   "evidence": "Sign off isn't available while a region is marked Regression. Log a defect, attach the report, and retest after the fix."
+  },
+  {
+   "id": "11.4b",
+   "name": "all Expected but unsaved: Sign off + Promote still disabled; hint says save first",
+   "ok": true,
+   "evidence": {
+    "signoff": "true",
+    "promote": "true",
+    "hint": "Save the run first."
+   }
+  },
+  {
+   "id": "11.4c",
+   "name": "after Save run: Sign off enabled; Promote still disabled (\"Sign off first.\")",
+   "ok": true,
+   "evidence": {
+    "signoff": null,
+    "promote": "true",
+    "hint": "Sign off first."
+   }
+  },
+  {
+   "id": "11.4d",
+   "name": "changing a decision after Save is allowed and keeps the run editable (re-save)",
+   "ok": true,
+   "evidence": "Saved as run 1"
+  },
+  {
+   "id": "11.4e",
+   "name": "after sign off, Promote to baseline is enabled and the signed-off line shows",
+   "ok": true,
+   "evidence": "Signed off by QA on 22 Nov 2026, 15:51."
+  },
+  {
+   "id": "11.6a",
+   "name": "duplicate page name: inline error + Open existing page (Wren 11.6)",
+   "ok": true,
+   "evidence": "A page named “Time & Labor – Timesheet” already exists. Choose another name, or open the existing page."
+  },
+  {
+   "id": "11.c",
+   "name": "no console errors in section 9b",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "11.6b",
+   "name": "storage blocked (indexedDB throws): #notice=storage-blocked and a sample can still be compared in memory (Wren 11.6)",
+   "ok": true,
+   "evidence": {
+    "notice": "storage-blocked",
+    "txt": "This browser is blocking storage, so pages and runs can't be saved. You can still load a s",
+    "pageErrors": []
+   }
+  },
+  {
+   "id": "10.c.1366.light",
+   "name": "no console errors/CSP violations at 1366px light",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "10.c.1366.dark",
+   "name": "no console errors/CSP violations at 1366px dark",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "10.c.375.light",
+   "name": "no console errors/CSP violations at 375px light",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "10.c.375.dark",
+   "name": "no console errors/CSP violations at 375px dark",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "10.1",
+   "name": "no horizontal page scroll on any screen at 1366 or 375 px, light or dark",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "10.2",
+   "name": "at most 8 screenshots saved",
+   "ok": true,
+   "evidence": [
+    "library-empty-1366-light.png",
+    "result-1366-light.png",
+    "how-it-works-1366-light.png",
+    "result-1366-dark.png",
+    "compare-1366-dark.png",
+    "result-375-light.png",
+    "result-375-dark.png",
+    "resources-375-dark.png"
+   ]
+  },
+  {
+   "id": "10.3.1366",
+   "name": "header links at 1366px: How it works and Resources visible, each one click, both pages reach each other and back home",
+   "ok": true,
+   "evidence": {
+    "vis": [
+     {
+      "t": "How it works",
+      "x": 642,
+      "w": 125,
+      "inView": true
+     },
+     {
+      "t": "Resources",
+      "x": 770,
+      "w": 107,
+      "inView": true
+     }
+    ],
+    "h1a": "How it works",
+    "h1b": "Resources",
+    "home": "http://localhost:8107/index.html#/library"
+   }
+  },
+  {
+   "id": "10.3.375",
+   "name": "header links at 375px: How it works and Resources visible, each one click, both pages reach each other and back home",
+   "ok": true,
+   "evidence": {
+    "vis": [
+     {
+      "t": "How it works",
+      "x": 16,
+      "w": 121,
+      "inView": true
+     },
+     {
+      "t": "Resources",
+      "x": 139,
+      "w": 102,
+      "inView": true
+     }
+    ],
+    "h1a": "How it works",
+    "h1b": "Resources",
+    "home": "http://localhost:8107/index.html#/library"
+   }
+  },
+  {
+   "id": "10.4",
+   "name": "Resources: all local links resolve (200); every external link has rel=noopener",
+   "ok": true,
+   "evidence": {
+    "total": 54,
+    "local": 16,
+    "external": 38,
+    "badLocal": [],
+    "externalWithoutNoopener": []
+   }
+  }
+ ]
+}

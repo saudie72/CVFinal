@@ -8,7 +8,12 @@ but not inside demo pages or samples.
 """
 import os, re, sys
 
-SKIP_DIRS = {".git", "node_modules", "out"}
+# vendor/ is third-party OpenCV.js (huge, full of doc URLs): it is sha256-pinned below instead of grepped.
+SKIP_DIRS = {".git", "node_modules", "out", "vendor"}
+# Files that hold the very patterns they search for (this example and the repo tool) are skipped.
+SKIP_FILES = {"ex2_privacy_audit.py", "privacy_audit.py"}
+OPENCV_PATH = "vendor/opencv/4.13.0/opencv.js"
+OPENCV_SHA256 = "63366510248adf3a7eddf3e793dd825404efb7df3749f4d6f8557c7fa4ca8aa0"
 TEXT_EXT = {".html", ".js", ".css", ".md", ".json", ".toml", ".py"}
 rules = [
     ("county hostname/email", re.compile(r"[\w.-]*@?miamidade\.gov|informs\.[a-z]+\.gov", re.I), None),
@@ -19,11 +24,15 @@ rules = [
      lambda p: p.startswith(("./demo-erp", "./samples")) or "/mock-erp-builder/examples/tl-timesheet/" in p),
 ]
 findings = []
+import hashlib
+_v = os.path.join(".", OPENCV_PATH)
+if os.path.exists(_v) and hashlib.sha256(open(_v, "rb").read()).hexdigest() != OPENCV_SHA256:
+    findings.append(f"vendor hash differs from the pin: {OPENCV_PATH}")
 for root, dirs, files in os.walk("."):
     dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
     for f in files:
         p = os.path.join(root, f)
-        if os.path.splitext(f)[1] not in TEXT_EXT or p.endswith("ex2_privacy_audit.py"):
+        if os.path.splitext(f)[1] not in TEXT_EXT or f in SKIP_FILES:
             continue
         text = open(p, encoding="utf-8", errors="ignore").read()
         for name, rx, scope in rules:

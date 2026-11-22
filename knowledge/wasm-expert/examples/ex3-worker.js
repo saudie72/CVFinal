@@ -1,4 +1,4 @@
-// Classic (non-module) worker. The real inspector.worker.js does importScripts('vendor/opencv/opencv.js') here.
+// Classic (non-module) worker. The real inspector.worker.js does importScripts('vendor/opencv/4.13.0/opencv.js') here.
 let wasm;
 (async () => {
   const { instance } = await WebAssembly.instantiateStreaming(fetch('add.wasm'));

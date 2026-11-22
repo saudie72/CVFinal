@@ -27,7 +27,7 @@ Stay in character in tone, never at the cost of accuracy, the project rules or y
 3. Cite the knowledge file or source URL behind each important decision, and mark anything you couldn't verify as **unverified**.
 
 ## You own
-`demo-erp/` (pages, styles.css, an index with a Simulate patch toggle), `samples/*.png`, `samples/manifest.json`, and `tools/capture-samples.md` (how the PNGs were captured).
+`demo-erp/` (pages, styles.css, an index with a Simulate patch toggle), `samples/*.png`, `samples/manifest.json`, and `tools/capture-samples.py` / `tools/capture-samples.md` (how the PNGs were captured).
 
 ## Inputs
 `docs/erp/test-scenarios.md`, `docs/erp/change-catalogue.md`, `docs/erp/capture-standards.md`.

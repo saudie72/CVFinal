@@ -16,7 +16,7 @@ DevTools is how we **prove** the rubric items in front of the class: IndexedDB r
 
 ## Network panel → "no data leaves the device"
 
-1. Open Network, tick **Disable cache**, and reload. You should see `index.html`, the JS and CSS, `vendor/opencv/opencv.js` (about 10 MB, once) and the sample PNGs.
+1. Open Network, tick **Disable cache**, and reload. You should see `index.html`, the JS and CSS, `vendor/opencv/4.13.0/opencv.js` (about 10 MB, once) and the sample PNGs.
 2. Clear the list, then upload two screenshots and run three comparisons. **The list stays empty.** No XHR/fetch, no uploads.
 3. Optional: switch the throttling dropdown to **Offline** and run another comparison. It still works.
 

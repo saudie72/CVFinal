@@ -9,7 +9,7 @@
 - `cv.imread(imgOrCanvas)` creates a `cv.Mat` from an `<img>`/`<canvas>`. Because images load asynchronously, call it from the image's `onload`. `cv.imshow(canvas, mat)` draws a Mat onto a canvas.
 
 ## Project rules derived from this
-- Self-host `vendor/opencv/opencv.js`. Load it **once, inside the Web Worker** with `importScripts` (see wasm-expert knowledge).
+- Self-host `vendor/opencv/4.13.0/opencv.js`. Load it **once, inside the Web Worker** with `importScripts` (see wasm-expert knowledge).
 - `cv.imread` and `cv.imshow` need the DOM, so they **can't be used in a worker**. In the worker, use `cv.matFromImageData(imageData)`, and go back with `new ImageData(new Uint8ClampedArray(mat.data), mat.cols, mat.rows)` (only for RGBA `CV_8UC4` Mats).
 - Some builds expose `cv` as a Promise or thenable. Handle both readiness styles:
 

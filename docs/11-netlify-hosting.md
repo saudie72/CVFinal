@@ -45,7 +45,7 @@ Notes:
 - `netlify.toml` lives at the repo root, and **its settings override the Netlify UI** when the two conflict.
 - Headers defined in `netlify.toml` or `_headers` are **global**. They can't be scoped to a branch or deploy context.
 - Netlify serves `.wasm` with the correct `application/wasm` MIME type. The prebuilt opencv.js embeds its Wasm, so no extra headers are needed.
-- If `vendor/opencv/opencv.js` is ever replaced with a new version, rename it (e.g., `opencv-4.10.0.js`), because the `immutable` cache would otherwise keep the old file.
+- If `vendor/opencv/4.13.0/opencv.js` is ever replaced with a new version, rename it (e.g., `opencv-4.10.0.js`), because the `immutable` cache would otherwise keep the old file.
 - A Content-Security-Policy with `script-src 'self' 'wasm-unsafe-eval'` is possible, but test it carefully, because opencv.js may need `'unsafe-eval'`. It is optional for the final.
 
 ## Testing locally before pushing

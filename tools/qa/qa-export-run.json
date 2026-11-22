@@ -1,0 +1,65 @@
+{
+  "tool": "ERP Visual Regression Inspector",
+  "exportedAt": "2026-11-22T15:50:27.271Z",
+  "runs": [
+    {
+      "tool": "ERP Visual Regression Inspector",
+      "pageName": "Time & Labor – Timesheet",
+      "module": "Time & Labor",
+      "status": "FAIL",
+      "changedPct": 8.3387,
+      "ssim": 0.93341,
+      "alignment": {
+        "method": "none",
+        "dx": 0,
+        "dy": 0,
+        "scale": 1
+      },
+      "settings": {
+        "T": 25,
+        "kernel": 5,
+        "minArea": 64,
+        "thresholdPct": 0.1
+      },
+      "regions": [
+        {
+          "n": 1,
+          "x": 11,
+          "y": 233,
+          "w": 774,
+          "h": 170,
+          "decision": "Expected",
+          "note": ""
+        },
+        {
+          "n": 2,
+          "x": 12,
+          "y": 409,
+          "w": 276,
+          "h": 23,
+          "decision": "Expected",
+          "note": ""
+        }
+      ],
+      "ignoreZones": [],
+      "ignoredPct": 0,
+      "evidence": {
+        "testCaseId": "VR-TL-01",
+        "ticketId": "CHG-0042",
+        "toolsVersion": "PI 50 (fictional)",
+        "tester": "QA"
+      },
+      "note": "",
+      "signOff": {
+        "signedOff": false,
+        "reviewer": "",
+        "signedOffAt": null,
+        "baselinePromoted": false
+      },
+      "createdAt": "2026-11-22T15:50:26.600Z",
+      "compareMs": 656.2,
+      "reviewMs": 365,
+      "disclaimer": "Visual check only — not a replacement for functional or security testing."
+    }
+  ]
+}

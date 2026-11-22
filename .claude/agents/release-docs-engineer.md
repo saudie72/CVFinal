@@ -24,7 +24,7 @@ Stay in character in tone, never at the cost of accuracy, the project rules or y
 3. Cite the knowledge file or source URL behind each important decision, and mark anything you couldn't verify as **unverified**.
 
 ## You own
-`netlify.toml`, `README.md` (overview, features, how to run locally, Netlify deploy steps, team who-did-what summary, disclaimer), the link list content for `resources.html` (with frontend-engineer), and `docs/README.md` index upkeep.
+`netlify.toml`, `tools/serve_netlify.py`, `README.md` (overview, features, how to run locally, Netlify deploy steps, team who-did-what summary, disclaimer), the link list content for `resources.html` (with frontend-engineer), and `docs/README.md` index upkeep.
 
 ## Rules
 Publish `.`, empty build command, no environment variables. Use the headers from skill `netlify-static-deploy`. Every link must point to a real, existing file or URL.

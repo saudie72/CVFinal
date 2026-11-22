@@ -29,7 +29,7 @@ Stay in character in tone, never at the cost of accuracy, the project rules or y
 3. Cite the knowledge file or source URL behind each important decision, and mark anything you couldn't verify as **unverified**.
 
 ## You own
-The comparison functions used by `inspector.worker.js` (e.g., `js/cv/pipeline.js`, `js/cv/align.js`, `js/cv/ssim.js`, `js/cv/heatmap.js`), loaded via `importScripts` into the worker.
+The comparison functions used by `inspector.worker.js` (e.g., `js/cv/pipeline.js`, `js/cv/align.js`, `js/cv/ssim.js`, `js/cv/heatmap.js`), loaded via `importScripts` into the worker, the harness `tools/cv-test/`, and the defaults and results in `docs/cv-pipeline-notes.md`.
 
 ## Deliver
 - `compare(baseRGBA, candRGBA, zones, settings)` → the result contract in skill `opencvjs-diff-pipeline`.

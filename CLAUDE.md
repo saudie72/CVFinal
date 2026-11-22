@@ -6,7 +6,8 @@ This is the CAI 2840 Computer Vision final project. It is a **100% in-browser** 
 ## Architecture (fixed decisions)
 - **Static site on Netlify.** There are no servers, no API keys and no build step. Publish directory `.`.
 - **OpenCV.js** does the computer vision: alignment, `absdiff`, threshold, morphology, contours, SSIM and heatmap.
-- **WebAssembly** makes it fast. OpenCV.js is self-hosted at `vendor/opencv/opencv.js` and loaded **once inside a Web Worker** (`inspector.worker.js`), so the page never freezes.
+- **WebAssembly** makes it fast. OpenCV.js 4.13.0 is self-hosted at `vendor/opencv/4.13.0/opencv.js` (the version is in the path so it can be cached as immutable; a new version gets a new folder) and loaded **once inside a classic Web Worker** (`inspector.worker.js`, driven by `js/worker-client.js`), so the page never freezes. The client rejects images over 16 MP and recycles the worker when its Wasm heap passes 512 MiB. The protocol and measurements are in `docs/worker-notes.md`.
+- **CSP:** `script-src` must include `'unsafe-eval'` (opencv.js's embind builds wrappers with `new Function`; measured by Volt in `docs/worker-notes.md`). Don't remove it from `netlify.toml`.
 - **IndexedDB** (`erpinspector`) keeps the baseline & run library: pages, ignoreZones, runs and settings. It has a **Reset app data** button.
 - **No network calls after load.** Data never leaves the device.
 
@@ -43,8 +44,20 @@ There are 17 project subagents in `.claude/agents/`, with skills in `.claude/ski
 - How it works and Resources pages exist. The README has deploy steps and the who-did-what summary.
 
 ## Key files
-`docs/` (research + roster) · `docs/erp/` (ERP specs) · `.claude/agents/` · `.claude/skills/` · `knowledge/<agent>/` · `index.html` · `inspector.worker.js` · `js/` · `css/` · `vendor/opencv/` · `demo-erp/` · `samples/` · `netlify.toml` · `README.md`
+`docs/` (research, roster, build plan, handoff log, `cv-pipeline-notes.md`, `worker-notes.md`, `db-notes.md`, `security-audit.md`, `qa-report.md`) · `docs/erp/` (ERP specs) · `docs/design/` (UX flows) · `tools/` (tests and audits) · `.claude/agents/` · `.claude/skills/` · `knowledge/<agent>/` · `index.html` · `inspector.worker.js` · `js/` · `css/` · `vendor/opencv/4.13.0/` · `demo-erp/` · `samples/` · `netlify.toml` · `README.md`
 
 ## Local testing
-`python -m http.server 8080` → http://localhost:8080. Don't test from `file://`.
-Re-run every knowledge example and team check: `bash tools/verify-knowledge/run_all.sh` (results in `knowledge/VERIFICATION.md`).
+Serve with `python3 tools/serve_netlify.py --port 8080` (applies the real `netlify.toml` headers, including the CSP) → http://localhost:8080. `python -m http.server 8080` also works for a quick look but skips the headers. Don't test from `file://`.
+
+| Command | What it checks |
+|---|---|
+| `node tools/app-smoke/run.js` | The whole app in headless Chromium under the real CSP: persistence, reset, export, both sample checks, no external requests, no console errors |
+| `node tools/cv-test/run.js` | The comparison pipeline on every sample and synthetic pair, plus the 20-run leak check and Mat tracker |
+| `node tools/worker-test/run.js` | Worker and client: readiness, transfer, watchdog, heap, CSP matrix (`stress` for large images) |
+| `node tools/db-test/run.js` | `js/db.js`: CRUD, Blobs, evidence, `runs.update`, blocked upgrades, reset with other tabs open |
+| `node tools/qa/run_qa.js` | The final QA run (Quinn); results in `docs/qa-report.md` |
+| `python3 tools/privacy_audit.py` | No real data, logos, third-party hosts or network calls in the repo |
+| `python3 tools/contrast_check.py` | WCAG contrast of every text/background pair in `css/app.css` |
+| `python3 tools/validate_evidence.py` | Evidence JSON against `docs/erp/evidence-standard.md` |
+
+Re-run every knowledge example and the team lint: `bash tools/verify-knowledge/run_all.sh` (results in `knowledge/VERIFICATION.md`). Team lint alone: `python3 knowledge/meta-agent/examples/ex1_lint_team.py`.

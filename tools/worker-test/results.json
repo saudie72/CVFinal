@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-22T15:25:31.348Z",
+  "date": "2026-11-22T15:40:44.445Z",
   "chrome": "153.0.8010.12",
   "realCVFilesPresent": true,
   "csp": {
@@ -8,7 +8,7 @@
       "workerCsp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
       "ready": {
         "ok": true,
-        "pageMs": 431,
+        "pageMs": 448,
         "readyStyle": "promise"
       },
       "compare": {
@@ -24,7 +24,7 @@
       "ready": {
         "ok": false,
         "error": "OpenCV failed to load (opencv.js): Could not load vendor/opencv/4.13.0/opencv.js: Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: script-src 'self' 'wasm-unsafe-eval'\".\n",
-        "pageMs": 226
+        "pageMs": 197
       },
       "compare": null,
       "cspConsole": [
@@ -37,7 +37,7 @@
       "workerCsp": "default-src 'self'; script-src 'self' 'unsafe-eval'; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
       "ready": {
         "ok": true,
-        "pageMs": 543,
+        "pageMs": 418,
         "readyStyle": "promise"
       },
       "compare": {
@@ -53,7 +53,7 @@
       "ready": {
         "ok": false,
         "error": "OpenCV failed to load (opencv.js): Could not load vendor/opencv/4.13.0/opencv.js: Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: script-src 'self'\".\n",
-        "pageMs": 226
+        "pageMs": 192
       },
       "compare": null,
       "cspConsole": [
@@ -67,24 +67,24 @@
     "ready": [
       {
         "ok": true,
-        "pageMs": 424,
-        "workerMs": 417,
-        "importMs": 252,
-        "initMs": 159
+        "pageMs": 483,
+        "workerMs": 477,
+        "importMs": 292,
+        "initMs": 180
       },
       {
         "ok": true,
-        "pageMs": 520,
-        "workerMs": 513,
-        "importMs": 272,
-        "initMs": 234
+        "pageMs": 408,
+        "workerMs": 403,
+        "importMs": 213,
+        "initMs": 186
       },
       {
         "ok": true,
-        "pageMs": 515,
-        "workerMs": 508,
-        "importMs": 267,
-        "initMs": 234
+        "pageMs": 438,
+        "workerMs": 430,
+        "importMs": 215,
+        "initMs": 212
       }
     ],
     "readyInfo": {
@@ -100,8 +100,8 @@
         "OpenCV modules:"
       ],
       "readyStyle": "promise",
-      "importMs": 267,
-      "initMs": 234,
+      "importMs": 215,
+      "initMs": 212,
       "heapBytes": 134217728,
       "cloneIsDeep": true,
       "stubs": [
@@ -110,8 +110,8 @@
         "heatmap",
         "pipeline"
       ],
-      "workerMs": 508,
-      "clientMs": 515
+      "workerMs": 430,
+      "clientMs": 438
     },
     "readyStatuses": [
       "loading:Loading OpenCV…",
@@ -119,9 +119,9 @@
     ],
     "roundTrip": [
       {
-        "ms": 81,
-        "workerMs": 80,
-        "pipelineMs": 79,
+        "ms": 54,
+        "workerMs": 53,
+        "pipelineMs": 52,
         "steps": [
           "Received",
           "Aligning",
@@ -188,9 +188,9 @@
         "stub": true
       },
       {
-        "ms": 38,
-        "workerMs": 37,
-        "pipelineMs": 37,
+        "ms": 26,
+        "workerMs": 25,
+        "pipelineMs": 25,
         "steps": [
           "Received",
           "Aligning",
@@ -257,9 +257,9 @@
         "stub": true
       },
       {
-        "ms": 37,
-        "workerMs": 36,
-        "pipelineMs": 35,
+        "ms": 26,
+        "workerMs": 25,
+        "pipelineMs": 25,
         "steps": [
           "Received",
           "Aligning",
@@ -336,12 +336,12 @@
       "changedPct": 0
     },
     "responsive": {
-      "compareMs": 3056,
-      "workerMs": 3055,
-      "rafTicks": 183,
+      "compareMs": 3036,
+      "workerMs": 3035,
+      "rafTicks": 182,
       "fps": 59.9,
       "maxFrameGapMs": 17,
-      "maxTimeoutLagMs": 5,
+      "maxTimeoutLagMs": 16,
       "longTasksMs": []
     },
     "jobError": {
@@ -461,69 +461,69 @@
       "r1": "rejected",
       "message": "Timed out, restarted",
       "expected": "Timed out, restarted",
-      "rejectMs": 2022,
-      "respawnMs": 2487,
+      "rejectMs": 2015,
+      "respawnMs": 2456,
       "queuedJobAfterRestart": "FAIL",
       "readyAgain": true,
-      "firstWorkerMs": 462,
+      "firstWorkerMs": 435,
       "statuses": [
         {
-          "t": 8172,
+          "t": 7531,
           "state": "working",
           "label": "Working…"
         },
         {
-          "t": 8192,
+          "t": 7545,
           "state": "working",
           "label": "Working… (Received)"
         },
         {
-          "t": 10173,
+          "t": 9531,
           "state": "error",
           "label": "Timed out, restarted"
         },
         {
-          "t": 10173,
+          "t": 9531,
           "state": "loading",
           "label": "Loading OpenCV…"
         },
         {
-          "t": 10638,
+          "t": 9972,
           "state": "ready",
           "label": "Ready"
         },
         {
-          "t": 10638,
+          "t": 9972,
           "state": "working",
           "label": "Working…"
         },
         {
-          "t": 10642,
+          "t": 9977,
           "state": "working",
           "label": "Working… (Received)"
         },
         {
-          "t": 10642,
+          "t": 9977,
           "state": "working",
           "label": "Working… (Aligning)"
         },
         {
-          "t": 10654,
+          "t": 9988,
           "state": "working",
           "label": "Working… (Diffing)"
         },
         {
-          "t": 10663,
+          "t": 9995,
           "state": "working",
           "label": "Working… (Finding regions)"
         },
         {
-          "t": 10693,
+          "t": 10032,
           "state": "working",
           "label": "Working… (Packing)"
         },
         {
-          "t": 10693,
+          "t": 10032,
           "state": "ready",
           "label": "Ready"
         }
@@ -533,76 +533,76 @@
       "r1": "rejected",
       "message": "Timed out, restarted",
       "expected": "Timed out, restarted",
-      "rejectMs": 30020,
-      "respawnMs": 30499,
+      "rejectMs": 30019,
+      "respawnMs": 30469,
       "queuedJobAfterRestart": "FAIL",
       "readyAgain": true,
-      "firstWorkerMs": 398,
+      "firstWorkerMs": 410,
       "statuses": [
         {
-          "t": 11123,
+          "t": 10473,
           "state": "working",
           "label": "Working…"
         },
         {
-          "t": 11142,
+          "t": 10489,
           "state": "working",
           "label": "Working… (Received)"
         },
         {
-          "t": 41124,
+          "t": 40474,
           "state": "error",
           "label": "Timed out, restarted"
         },
         {
-          "t": 41124,
+          "t": 40474,
           "state": "loading",
           "label": "Loading OpenCV…"
         },
         {
-          "t": 41602,
+          "t": 40925,
           "state": "ready",
           "label": "Ready"
         },
         {
-          "t": 41602,
+          "t": 40925,
           "state": "working",
           "label": "Working…"
         },
         {
-          "t": 41610,
+          "t": 40931,
           "state": "working",
           "label": "Working… (Received)"
         },
         {
-          "t": 41610,
+          "t": 40931,
           "state": "working",
           "label": "Working… (Aligning)"
         },
         {
-          "t": 41614,
+          "t": 40938,
           "state": "working",
           "label": "Working… (Diffing)"
         },
         {
-          "t": 41617,
+          "t": 40942,
           "state": "working",
           "label": "Working… (Finding regions)"
         },
         {
-          "t": 41640,
+          "t": 40967,
           "state": "working",
           "label": "Working… (Packing)"
         },
         {
-          "t": 41640,
+          "t": 40968,
           "state": "ready",
           "label": "Ready"
         }
       ]
     },
     "manualRestart": {
-      "ms": 560
+      "ms": 444
     },
     "heapDuringRestart": {
       "bytes": 134217728,
@@ -616,24 +616,24 @@
     "ready": [
       {
         "ok": true,
-        "pageMs": 617,
-        "workerMs": 611,
-        "importMs": 319,
-        "initMs": 284
+        "pageMs": 448,
+        "workerMs": 442,
+        "importMs": 214,
+        "initMs": 222
       },
       {
         "ok": true,
-        "pageMs": 529,
-        "workerMs": 521,
+        "pageMs": 435,
+        "workerMs": 429,
         "importMs": 228,
-        "initMs": 284
+        "initMs": 187
       },
       {
         "ok": true,
-        "pageMs": 557,
-        "workerMs": 549,
-        "importMs": 279,
-        "initMs": 261
+        "pageMs": 414,
+        "workerMs": 406,
+        "importMs": 222,
+        "initMs": 178
       }
     ],
     "readyInfo": {
@@ -649,13 +649,13 @@
         "OpenCV modules:"
       ],
       "readyStyle": "promise",
-      "importMs": 279,
-      "initMs": 261,
+      "importMs": 222,
+      "initMs": 178,
       "heapBytes": 134217728,
       "cloneIsDeep": true,
       "stubs": null,
-      "workerMs": 549,
-      "clientMs": 557
+      "workerMs": 406,
+      "clientMs": 414
     },
     "readyStatuses": [
       "loading:Loading OpenCV…",
@@ -663,9 +663,9 @@
     ],
     "roundTrip": [
       {
-        "ms": 474,
-        "workerMs": 473,
-        "pipelineMs": 471.6,
+        "ms": 377,
+        "workerMs": 376,
+        "pipelineMs": 374.9,
         "steps": [
           "Received",
           "load",
@@ -745,9 +745,9 @@
         "stub": false
       },
       {
-        "ms": 244,
-        "workerMs": 243,
-        "pipelineMs": 243.1,
+        "ms": 206,
+        "workerMs": 206,
+        "pipelineMs": 205.7,
         "steps": [
           "Received",
           "load",
@@ -827,9 +827,9 @@
         "stub": false
       },
       {
-        "ms": 318,
-        "workerMs": 317,
-        "pipelineMs": 316.9,
+        "ms": 207,
+        "workerMs": 204,
+        "pipelineMs": 204.2,
         "steps": [
           "Received",
           "load",
@@ -920,10 +920,10 @@
     },
     "realResponsive": {
       "runs": 5,
-      "totalMs": 1367,
-      "workerMs": 1281,
-      "rafTicks": 82,
-      "fps": 60,
+      "totalMs": 1145,
+      "workerMs": 1065,
+      "rafTicks": 68,
+      "fps": 59.4,
       "maxFrameGapMs": 17,
       "longTasksMs": []
     },
@@ -1005,7 +1005,7 @@
       ]
     },
     "manualRestart": {
-      "ms": 434
+      "ms": 502
     },
     "heapDuringRestart": {
       "bytes": 134217728,

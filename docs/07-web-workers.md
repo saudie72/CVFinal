@@ -9,7 +9,7 @@ A comparison (load, align, diff, contours, SSIM) on two full-page screenshots ca
 ```
 main thread (index.html, js/app.js)          inspector.worker.js
 ───────────────────────────────────          ────────────────────────────
-new Worker('inspector.worker.js')  ───────►  importScripts('vendor/opencv/opencv.js')
+new Worker('inspector.worker.js')  ───────►  importScripts('vendor/opencv/4.13.0/opencv.js')
                                    ◄───────  {type:'ready'}
 postMessage({type:'compare', id,
   base:{w,h,buf}, cand:{w,h,buf},
@@ -31,7 +31,7 @@ worker.postMessage({ type: 'compare', id, base: { w, h, buf: img.data.buffer }, 
 
 ```js
 // inspector.worker.js
-importScripts('vendor/opencv/opencv.js');       // synchronous; throws NETWORK_ERROR if missing
+importScripts('vendor/opencv/4.13.0/opencv.js');       // synchronous; throws NETWORK_ERROR if missing
 cv['onRuntimeInitialized'] = () => postMessage({ type: 'ready' });
 onmessage = ({ data }) => {
   if (data.type !== 'compare') return;

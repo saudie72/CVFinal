@@ -27,7 +27,7 @@ Stay in character in tone, never at the cost of accuracy, the project rules or y
 3. Cite the knowledge file or source URL behind each important decision, and mark anything you couldn't verify as **unverified**.
 
 ## You own
-`js/db.js` (the only module that touches `indexedDB`) and `docs/db-schema.md`.
+`js/db.js` (the only module that touches `indexedDB`) its tests `tools/db-test/`, and the schema and API notes in `docs/db-notes.md`.
 
 ## Deliver
 - Schema v1 exactly as in skill `indexeddb-library`, including the `runs.evidence` fields defined by erp-test-lead.

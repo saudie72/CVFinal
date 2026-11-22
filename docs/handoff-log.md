@@ -95,3 +95,31 @@ Kept by **Atlas (orchestrator)**. One row per handoff or review. Experts never c
 | 89 | C | Atlas | (integration) | Removed the stray pid file; .gitignore pid/__pycache__. README must say "no network needed after load", not "works offline" (routed to Piper for wave E) | .gitignore | done |
 | 90 | C | Juno | Atlas | Friendly >16 MP message; recycle handled; smoke 32/32 | js/copy.js, js/app.js | done |
 | 91 | C | Iris | Atlas | Volt's minors applied (union-find mergeBoxes + 2000 cap, early frees, nits); 22/22, 1,920/1,920 Mats freed, heap flat | js/cv/*, docs/cv-pipeline-notes.md | done |
+| 92 | D | Atlas | Quinn | D-QA: final real-browser QA (every manifest pair, zones, persistence, reset, network, main thread, leaks, console/CSP, a11y, layout, offline, print, all suites) + review of Mason's samples | docs/qa-report.md, tools/qa/ | launched |
+| 93 | E | Atlas | Forge | E-DRIFT: CLAUDE.md, skills, agent files, docs index in line with the build; team lint | CLAUDE.md, .claude/, docs/README.md | launched |
+| 94 | E | Forge | Atlas | CLAUDE.md, 5 skills, 11 agent "You own" lines, docs index and a VERIFICATION Step 9 correction (clone() depends on the build); TEAM OK | CLAUDE.md, .claude/, docs/README.md, knowledge/VERIFICATION.md | done |
+| 95 | E | Atlas | (integration) | Replaced the stale vendor/opencv/opencv.js path with the 4.13.0 path in the research docs and knowledge notes | docs/*.md, knowledge/** | done |
+| 96 | D | Quinn | Atlas | D-QA: 94/95 checks; every manifest pair as expected through the UI; persistence, Reset (incl. blocked), 0 cross-origin requests, 0 long tasks, heap + probe flat over 20 runs, 0 console/CSP errors on 20 pages, keyboard path, print; all suites pass. Samples review: APPROVE | docs/qa-report.md, tools/qa/, docs/qa/screenshots/ | **READY** (1 minor defect QA-001) |
+| 97 | E | Atlas | Juno | QA-001 (how-it-works table overflows at 375 px) + OBS-1 (zone-added note) | how-it-works.html, js/app.js | routed |
+| 98 | E | Atlas | Vera | Align the knowledge privacy example's exclusions with tools/privacy_audit.py | knowledge/erp-security-admin/examples/ex2_privacy_audit.py | routed |
+| 99 | E | Atlas | Piper | README: local run, Netlify deploy, verification, who-did-what | README.md | launched |
+| 100 | E | Juno | Atlas | QA-001 fixed (table-wrap + <wbr> in the file-name pattern; scrollWidth 375); OBS-1 was a timing artifact, not a bug; QA [10.1] PASS | how-it-works.html | done |
+| 101 | E | Piper | Atlas | README: run locally, Netlify deploy + checks, verify table, structure, who-did-what, known limits; 25/25 relative links resolve | README.md | done |
+| 102 | E | Vera | Atlas | Knowledge privacy example aligned (vendor hash-pinned, pattern files skipped); negative test still fails; run_all.sh: only the 3 Python-playwright examples skipped | knowledge/erp-security-admin/examples/ | done |
+| 103 | E | Atlas | (release) | Final local run: node tools/qa/run_qa.js 95/95 passed; QA-001 closed in docs/qa-report.md; committed and pushed to main | all | done |
+
+## Summary: who did what (Step 9)
+| Agent | Built | Reviewed by → verdict |
+|---|---|---|
+| Atlas (orchestrator, opus) | Plan, contracts, vendored opencv.js 4.13.0, routing, ~15 conflict decisions, integration fixes, release | Piper's netlify.toml → APPROVE (Atlas reviewed) |
+| Iris (opencv-expert, opus) | js/cv/* pipeline; 22/22 test pairs; leak-free | Volt → APPROVE; Dex → APPROVE |
+| Volt (wasm-expert, opus) | inspector.worker.js, js/worker-client.js; CSP finding; stress limits | Iris → APPROVE |
+| Ledger (indexeddb-expert, sonnet) | js/db.js (erpinspector v1), Reset; 32/32 tests | Juno → APPROVE |
+| Wren (ux-designer, sonnet) | docs/design/ux-flows.md (states, copy, skeletons) | Reviewed Sable |
+| Sable (ui-designer, sonnet) | css/app.css Liquid Glass; 208/208 AA | Wren → REQUEST CHANGES → APPROVE |
+| Juno (frontend-engineer, sonnet) | index/how-it-works/resources, js/* app; smoke 32/32 | Ledger → APPROVE; Tess → REQUEST CHANGES → APPROVE |
+| Mason (mock-erp-builder, sonnet) | demo-erp/ (8 pairs), samples/ + manifest | Riley → APPROVE; Quinn → APPROVE |
+| Morgan, Riley, Dex, Hal, Vera, Tess (ERP domain) | docs/erp/* specs, region hints, privacy audit, evidence validator | Cross-checked through Juno/Iris/Mason reviews |
+| Quinn (qa-tester, sonnet) | docs/qa-report.md, tools/qa/ (95 checks) | READY |
+| Piper (release-docs, haiku) | netlify.toml, serve_netlify.py, link check, README | Atlas → APPROVE |
+| Forge (meta-agent, sonnet) | CLAUDE.md, skills and agent files in line with the build; TEAM OK | — |

@@ -1,0 +1,1209 @@
+=== app-smoke: node tools/app-smoke/run.js
+PASS pill Ready after OpenCV loads
+PASS empty library state
+PASS sample select filled from manifest
+PASS Timesheet sample: FAIL with >= 2 regions  {"regions":2,"text":"FAIL — 2 changed regions (8.3% of page)"}
+PASS hints rendered
+PASS Sign off disabled before decisions
+PASS stats show alignment  "No alignment needed"
+PASS overlay valuetext
+PASS overlay --split set via CSSOM
+PASS Sign off disabled with a Regression
+PASS regression hint
+PASS evidence required
+PASS run saved  "Saved as run 1"
+PASS run persists after reload  "\n          22 Nov 2026, 15:40\n          FAIL\n          28.3%\n          VR-TL-01CHG-0042SAOpen regression\n          \n            View\n            Delete\n          \n        "
+PASS exported JSON passes validate_evidence.py  "/tmp/erp-smoke-export.json: VALID"
+PASS saved run opens with its decisions
+PASS PO pair FAILs before the ignore zone (manifest expectation)  "result-fail"
+PASS PO pair PASS after the ignore zone
+PASS zone from region sets Compare again
+PASS zone persisted for the page  "1 zone (0.292% of page)"
+PASS Promote disabled until signed off
+PASS signed off and promoted
+PASS promoted run: decision change is refused
+PASS promoted run: radios aria-disabled
+PASS promoted run keeps sign-off
+PASS evidence PNG downloads  "HCM_Job_Data_FAIL_2026-11-22.png"
+PASS reset dialog open
+PASS reset-done state
+PASS library empty after reset  0
+PASS still empty after reload
+PASS no external requests  []
+PASS zero console errors / CSP violations  []
+ALL 32 CHECKS PASSED
+=== hints-unit: node tools/app-smoke/hints.test.mjs
+PASS tl-timesheet 
+PASS hcm-job-data 
+PASS hcm-personal-data 
+PASS fscm-voucher 
+PASS fscm-po (no zones) 
+PASS hcm-job-data-zoom110 
+PASS whole-page above 30%
+PASS control-moved pair
+=== cv-test: node tools/cv-test/run.js
+opencv.js {"version":"4.13.0","applyColorMap":true,"ORB":true,"findHomography":true,"max":true,"malloc":true,"cloneShallow":false,"heap":134217728} (ready in 567 ms incl. compile)
+{"set":"synthetic","pair":"syn-identical","ok":true,"expected":"PASS ≥0 ≤0","status":"PASS","regions":0,"changedPct":0,"rawPct":0,"ssim":1,"alignment":"none (0,0) s=1 m=1","ms":384.9,"heat":"applyColorMap","reflow":"","boxes":"","errors":""}
+{"set":"synthetic","pair":"syn-two-changes","ok":true,"expected":"FAIL ≥2","status":"FAIL","regions":5,"changedPct":1.0333,"rawPct":0.3428,"ssim":0.99203,"alignment":"none (0,0) s=1 m=0.9924","ms":219.9,"heat":"applyColorMap","reflow":"","boxes":"#1 68x20@(63,203) #2 80x23@(38,322) #3 91x23@(204,322) #4 231x37@(195,355) #5 73x20@(36,363)","errors":""}
+{"set":"synthetic","pair":"syn-shift-3","ok":true,"expected":"PASS ≥0 ≤0","status":"PASS","regions":0,"changedPct":0,"rawPct":0,"ssim":1,"alignment":"translate (0,3) s=1 m=1","ms":282.8,"heat":"applyColorMap","reflow":"","boxes":"","errors":""}
+{"set":"synthetic","pair":"syn-shift-xy","ok":true,"expected":"PASS ≥0 ≤0","status":"PASS","regions":0,"changedPct":0,"rawPct":0,"ssim":1,"alignment":"translate (-5,7) s=1 m=1","ms":239,"heat":"applyColorMap","reflow":"","boxes":"","errors":""}
+{"set":"synthetic","pair":"syn-two-changes-lut","ok":true,"expected":"FAIL ≥2","status":"FAIL","regions":5,"changedPct":1.0333,"rawPct":0.3428,"ssim":0.99203,"alignment":"none (0,0) s=1 m=0.9924","ms":335.9,"heat":"lut","reflow":"","boxes":"#1 68x20@(63,203) #2 80x23@(38,322) #3 91x23@(204,322) #4 231x37@(195,355) #5 73x20@(36,363)","errors":""}
+{"set":"synthetic","pair":"syn-timestamp","ok":true,"expected":"FAIL ≥1","status":"FAIL","regions":1,"changedPct":0.0847,"rawPct":0.0178,"ssim":0.99957,"alignment":"none (0,0) s=1 m=1","ms":254.1,"heat":"applyColorMap","reflow":"","boxes":"#1 62x19@(1119,846)","errors":""}
+{"set":"synthetic","pair":"syn-timestamp-zone","ok":true,"expected":"PASS ≥0 ≤0","status":"PASS","regions":0,"changedPct":0,"rawPct":0,"ssim":1,"alignment":"none (0,0) s=1 m=1","ms":336,"heat":"applyColorMap","reflow":"","boxes":"","errors":""}
+{"set":"synthetic","pair":"syn-link-colour","ok":true,"expected":"FAIL ≥1","status":"FAIL","regions":1,"changedPct":0.3242,"rawPct":0.1089,"ssim":1,"alignment":"none (0,0) s=1 m=1","ms":277.8,"heat":"applyColorMap","reflow":"","boxes":"#1 213x21@(12,60)","errors":""}
+{"set":"synthetic","pair":"syn-link-colour-gray","ok":true,"expected":"PASS ≥0 ≤0","status":"PASS","regions":0,"changedPct":0,"rawPct":0,"ssim":1,"alignment":"none (0,0) s=1 m=1","ms":205.9,"heat":"applyColorMap","reflow":"","boxes":"","errors":""}
+{"set":"synthetic","pair":"syn-scale-110","ok":true,"expected":"PASS ≥0","status":"PASS","regions":0,"changedPct":0,"rawPct":0,"ssim":0.98959,"alignment":"resize (0,0) s=0.9088 m=0.9871","ms":336.1,"heat":"applyColorMap","reflow":"","boxes":"","errors":""}
+{"set":"synthetic","pair":"syn-zoom-105-same-size","ok":true,"expected":"FAIL ≥1","status":"FAIL","regions":51,"changedPct":2.192,"rawPct":0.2915,"ssim":0.96139,"alignment":"homography (-0.33,-0.47) s=0.9506 m=0.7935","ms":484.4,"heat":"applyColorMap","reflow":"","boxes":"#1 54x7@(0,0) #2 44x25@(14,12) #3 9x9@(70,19) #4 675x12@(629,42) #5 21x9@(0,45) #6 43x16@(13,62) #7 9x15@(72,64) #8 10x10@(89,64) #9 9x9@(59,69) #10 20x15@(37,164) #11 9x9@(37,204) #12 21x16@(37,244) #13 9x9@(87,247) #14 18x9@(48,289) #15 12x16@(37,324) #16 9x9@(66,325) #17 19x16@(37,365) #18 9x9@(70,366) #19 9x9@(89,367) #20 9x9@(565,477) #21 57x18@(744,477) #22 9x9@(580,478) #23 11x12@(45,482) #24 9x12@(898,495) #25 53x20@(744,506) #26 38x17@(565,507) #27 30x15@(46,508) #28 9x11@(898,526) #29 53x20@(744,536) #30 42x18@(565,537) #31 69x16@(46,538) #32 9x11@(898,556) #33 53x20@(744,566) #34 30x17@(46,567) #35 42x18@(565,567) #36 17x10@(89,574) #37 9x12@(898,585) #38 53x20@(744,596) #39 40x17@(46,597) #40 42x18@(565,597) #41 26x11@(89,603) #42 12x12@(895,615) #43 42x19@(565,626) #44 53x20@(744,626) #45 37x17@(46,627) #46 25x11@(89,633) #47 9x9@(898,646) #48 42x19@(50,707) #49 9x9@(36,728) #50 208x11@(976,846) #51 9x8@(56,847)","errors":""}
+{"set":"synthetic","pair":"syn-taller-3","ok":true,"expected":"PASS ≥0 ≤0","status":"PASS","regions":0,"changedPct":0,"rawPct":0,"ssim":1,"alignment":"translate (0,3) s=1 m=1","ms":259.6,"heat":"applyColorMap","reflow":"","boxes":"","errors":""}
+{"set":"synthetic","pair":"syn-unrelated","ok":true,"expected":"FAIL ≥1","status":"FAIL","regions":1,"changedPct":100,"rawPct":99.3683,"ssim":0.65254,"alignment":"none (0,0) s=1 m=0.0241 fb:too few keypoints (1440/0)","ms":266.2,"heat":"applyColorMap","reflow":"","boxes":"#1 1366x900@(0,0)","errors":""}
+{"set":"samples","pair":"tl-timesheet","ok":true,"expected":"FAIL ≥2","status":"FAIL","regions":2,"changedPct":8.3387,"rawPct":2.57,"ssim":0.93341,"alignment":"none (0,0) s=1 m=0.3676 fb:perspective terms too large","ms":491.2,"heat":"applyColorMap","reflow":"","boxes":"#1 774x170@(11,233) #2 276x23@(12,409)","errors":""}
+{"set":"samples","pair":"hcm-job-data","ok":true,"expected":"FAIL ≥2","status":"FAIL","regions":3,"changedPct":2.0323,"rawPct":0.7287,"ssim":0.98516,"alignment":"none (0,0) s=1 m=0.9332","ms":207.4,"heat":"applyColorMap","reflow":"","boxes":"#1 70x38@(1285,65) #2 320x32@(519,537) #3 588x37@(12,643)","errors":""}
+{"set":"samples","pair":"hcm-personal-data","ok":true,"expected":"FAIL ≥2","status":"FAIL","regions":4,"changedPct":0.6027,"rawPct":0.204,"ssim":0.99888,"alignment":"none (0,0) s=1 m=1","ms":210.1,"heat":"applyColorMap","reflow":"","boxes":"#1 110x19@(21,307) #2 75x19@(21,441) #3 76x21@(103,635) #4 151x20@(591,666)","errors":""}
+{"set":"samples","pair":"fscm-voucher","ok":true,"expected":"FAIL ≥1","status":"FAIL","regions":4,"changedPct":1.8465,"rawPct":0.5316,"ssim":0.98592,"alignment":"none (0,0) s=1 m=0.7589 fb:perspective terms too large","ms":391.3,"heat":"applyColorMap","reflow":"","boxes":"#1 105x154@(702,338) #2 84x113@(443,348) #3 132x113@(555,348) #4 64x21@(554,464)","errors":""}
+{"set":"samples","pair":"fscm-po (no zones)","ok":true,"expected":"FAIL ≥1","status":"FAIL","regions":1,"changedPct":0.087,"rawPct":0.0142,"ssim":0.99963,"alignment":"none (0,0) s=1 m=1","ms":273.5,"heat":"applyColorMap","reflow":"","boxes":"#1 69x18@(1275,75)","errors":""}
+{"set":"samples","pair":"fscm-po (+zones)","ok":true,"expected":"PASS ≤0","status":"PASS","regions":0,"changedPct":0,"rawPct":0,"ssim":1,"alignment":"none (0,0) s=1 m=1","ms":207,"heat":"applyColorMap","reflow":"","boxes":"","errors":""}
+{"set":"samples","pair":"hcm-job-data-shifted","ok":true,"expected":"PASS ≥0 ≤0","status":"PASS","regions":0,"changedPct":0,"rawPct":0,"ssim":1,"alignment":"translate (0,3) s=1 m=1","ms":238,"heat":"applyColorMap","reflow":"","boxes":"","errors":""}
+{"set":"samples","pair":"hcm-job-data-zoom110","ok":true,"expected":"FAIL ≥1","status":"FAIL","regions":25,"changedPct":0.2923,"rawPct":0.0114,"ssim":0.97079,"alignment":"resize (0,0) s=0.9088 m=0.9374","ms":284.7,"heat":"applyColorMap","reflow":"","boxes":"#1 5x37@(1361,0) #2 41x9@(166,7) #3 25x19@(53,111) #4 30x19@(90,111) #5 19x18@(28,112) #6 9x9@(153,112) #7 14x10@(273,112) #8 10x9@(384,112) #9 9x9@(205,114) #10 17x9@(462,114) #11 9x9@(344,121) #12 14x9@(22,213) #13 16x12@(61,217) #14 9x9@(610,244) #15 9x10@(618,274) #16 9x10@(213,304) #17 9x9@(616,304) #18 9x9@(252,309) #19 14x9@(65,513) #20 10x17@(189,514) #21 11x9@(124,520) #22 9x9@(233,653) #23 10x9@(358,653) #24 10x10@(461,653) #25 12x15@(535,653)","errors":""}
+{"set":"samples","pair":"fscm-po-identical","ok":true,"expected":"PASS ≥0 ≤0","status":"PASS","regions":0,"changedPct":0,"rawPct":0,"ssim":1,"alignment":"none (0,0) s=1 m=1","ms":226,"heat":"applyColorMap","reflow":"","boxes":"","errors":""}
+LEAK 20 runs (tl-timesheet): {"heapFirst":134217728,"heapLast":134217728,"heapGrowth":0,"probeDistinct":1,"probeFirst":7098176,"probeLast":7098176,"tracked":{"created":1920,"deleted":1920}}
+CONTROL (leaks 1 RGBA Mat/run): {"heapFirst":134217728,"heapLast":268435456,"heapGrowth":134217728,"probeDistinct":1,"probeFirst":12015784,"probeLast":12015784,"tracked":{"created":1920,"deleted":1920}}
+LEAK CHECK: FLAT (no leak); negative control detected
+
+RESULT: 22/22 pairs as expected; leak ok
+=== worker-test: node tools/worker-test/run.js
+{
+  "date": "2026-11-22T15:40:44.445Z",
+  "chrome": "153.0.8010.12",
+  "realCVFilesPresent": true,
+  "csp": {
+    "netlify": {
+      "pageCsp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "workerCsp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "ready": {
+        "ok": true,
+        "pageMs": 448,
+        "readyStyle": "promise"
+      },
+      "compare": {
+        "status": "FAIL",
+        "regions": 3
+      },
+      "cspConsole": [],
+      "pageErrors": []
+    },
+    "no-unsafe-eval": {
+      "pageCsp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' ; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "workerCsp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' ; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "ready": {
+        "ok": false,
+        "error": "OpenCV failed to load (opencv.js): Could not load vendor/opencv/4.13.0/opencv.js: Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: script-src 'self' 'wasm-unsafe-eval'\".\n",
+        "pageMs": 197
+      },
+      "compare": null,
+      "cspConsole": [
+        "error: [inspector.worker] fatal opencv.js EvalError: Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: script-src 'self' 'wasm-unsafe-eval'\".\n\n    at new Function (<anonymous>)\n    at createNamedFuncti"
+      ],
+      "pageErrors": []
+    },
+    "no-wasm-unsafe-eval": {
+      "pageCsp": "default-src 'self'; script-src 'self' 'unsafe-eval'; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "workerCsp": "default-src 'self'; script-src 'self' 'unsafe-eval'; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "ready": {
+        "ok": true,
+        "pageMs": 418,
+        "readyStyle": "promise"
+      },
+      "compare": {
+        "status": "FAIL",
+        "regions": 3
+      },
+      "cspConsole": [],
+      "pageErrors": []
+    },
+    "no-eval": {
+      "pageCsp": "default-src 'self'; script-src 'self' ; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "workerCsp": "default-src 'self'; script-src 'self' ; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "ready": {
+        "ok": false,
+        "error": "OpenCV failed to load (opencv.js): Could not load vendor/opencv/4.13.0/opencv.js: Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: script-src 'self'\".\n",
+        "pageMs": 192
+      },
+      "compare": null,
+      "cspConsole": [
+        "error: [inspector.worker] fatal opencv.js EvalError: Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: script-src 'self'\".\n\n    at new Function (<anonymous>)\n    at createNamedFunction (http://127.0.0."
+      ],
+      "pageErrors": []
+    }
+  },
+  "stub": {
+    "server": "serve_test on http://127.0.0.1:8102 stub=always CSP=default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+    "ready": [
+      {
+        "ok": true,
+        "pageMs": 483,
+        "workerMs": 477,
+        "importMs": 292,
+        "initMs": 180
+      },
+      {
+        "ok": true,
+        "pageMs": 408,
+        "workerMs": 403,
+        "importMs": 213,
+        "initMs": 186
+      },
+      {
+        "ok": true,
+        "pageMs": 438,
+        "workerMs": 430,
+        "importMs": 215,
+        "initMs": 212
+      }
+    ],
+    "readyInfo": {
+      "version": "4.13.0",
+      "build": [
+        "General configuration for OpenCV 4.13.0 =====================================",
+        "Version control:               4.13.0",
+        "Platform:",
+        "Timestamp:                   2025-12-31T07:16:15Z",
+        "Target:                      Emscripten 1 x86",
+        "C++ Compiler:                /opt/emsdk-portable/upstream/emscripten/em++  (ver 10.0.0)",
+        "C Compiler:                  /opt/emsdk-portable/upstream/emscripten/emcc",
+        "OpenCV modules:"
+      ],
+      "readyStyle": "promise",
+      "importMs": 215,
+      "initMs": 212,
+      "heapBytes": 134217728,
+      "cloneIsDeep": true,
+      "stubs": [
+        "align",
+        "ssim",
+        "heatmap",
+        "pipeline"
+      ],
+      "workerMs": 430,
+      "clientMs": 438
+    },
+    "readyStatuses": [
+      "loading:Loading OpenCV…",
+      "ready:Ready"
+    ],
+    "roundTrip": [
+      {
+        "ms": 54,
+        "workerMs": 53,
+        "pipelineMs": 52,
+        "steps": [
+          "Received",
+          "Aligning",
+          "Diffing",
+          "Finding regions",
+          "Packing"
+        ],
+        "senderBaseBytesAfter": 0,
+        "senderCandBytesAfter": 0,
+        "status": "FAIL",
+        "regions": 3,
+        "changedPct": 1.9433870180575892,
+        "ssim": null,
+        "alignment": {
+          "method": "none",
+          "dx": 0,
+          "dy": 0,
+          "scale": 1
+        },
+        "images": {
+          "boxes": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          },
+          "diff": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          },
+          "heatmap": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          }
+        },
+        "heapBytes": 134217728,
+        "stub": true
+      },
+      {
+        "ms": 26,
+        "workerMs": 25,
+        "pipelineMs": 25,
+        "steps": [
+          "Received",
+          "Aligning",
+          "Diffing",
+          "Finding regions",
+          "Packing"
+        ],
+        "senderBaseBytesAfter": 0,
+        "senderCandBytesAfter": 0,
+        "status": "FAIL",
+        "regions": 3,
+        "changedPct": 1.9433870180575892,
+        "ssim": null,
+        "alignment": {
+          "method": "none",
+          "dx": 0,
+          "dy": 0,
+          "scale": 1
+        },
+        "images": {
+          "boxes": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          },
+          "diff": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          },
+          "heatmap": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          }
+        },
+        "heapBytes": 134217728,
+        "stub": true
+      },
+      {
+        "ms": 26,
+        "workerMs": 25,
+        "pipelineMs": 25,
+        "steps": [
+          "Received",
+          "Aligning",
+          "Diffing",
+          "Finding regions",
+          "Packing"
+        ],
+        "senderBaseBytesAfter": 0,
+        "senderCandBytesAfter": 0,
+        "status": "FAIL",
+        "regions": 3,
+        "changedPct": 1.9433870180575892,
+        "ssim": null,
+        "alignment": {
+          "method": "none",
+          "dx": 0,
+          "dy": 0,
+          "scale": 1
+        },
+        "images": {
+          "boxes": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          },
+          "diff": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          },
+          "heatmap": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          }
+        },
+        "heapBytes": 134217728,
+        "stub": true
+      }
+    ],
+    "copyMode": {
+      "senderBaseBytesAfter": 4917600,
+      "status": "PASS",
+      "changedPct": 0
+    },
+    "sameBuffer": {
+      "status": "PASS",
+      "changedPct": 0
+    },
+    "responsive": {
+      "compareMs": 3036,
+      "workerMs": 3035,
+      "rafTicks": 182,
+      "fps": 59.9,
+      "maxFrameGapMs": 17,
+      "maxTimeoutLagMs": 16,
+      "longTasksMs": []
+    },
+    "jobError": {
+      "thrownMessage": "stub: deliberate failure",
+      "badInput": "base: 7 bytes is not 10x10x4 RGBA",
+      "workerStillWorks": "FAIL"
+    },
+    "heap": {
+      "n": 20,
+      "first": 134217728,
+      "last": 134217728,
+      "max": 134217728,
+      "growthAfterRun1": 0,
+      "probeDistinct": 1,
+      "probeFirst": 7098176,
+      "probeLast": 7098176
+    },
+    "heapLeakControl": {
+      "n": 20,
+      "first": 134217728,
+      "last": 268435456,
+      "max": 268435456,
+      "growthAfterRun1": 134217728,
+      "probeDistinct": 2,
+      "probeFirst": 7098176,
+      "probeLast": 42751144
+    },
+    "watchdogShort": {
+      "r1": "rejected",
+      "message": "Timed out, restarted",
+      "expected": "Timed out, restarted",
+      "rejectMs": 2015,
+      "respawnMs": 2456,
+      "queuedJobAfterRestart": "FAIL",
+      "readyAgain": true,
+      "firstWorkerMs": 435,
+      "statuses": [
+        {
+          "t": 7531,
+          "state": "working",
+          "label": "Working…"
+        },
+        {
+          "t": 7545,
+          "state": "working",
+          "label": "Working… (Received)"
+        },
+        {
+          "t": 9531,
+          "state": "error",
+          "label": "Timed out, restarted"
+        },
+        {
+          "t": 9531,
+          "state": "loading",
+          "label": "Loading OpenCV…"
+        },
+        {
+          "t": 9972,
+          "state": "ready",
+          "label": "Ready"
+        },
+        {
+          "t": 9972,
+          "state": "working",
+          "label": "Working…"
+        },
+        {
+          "t": 9977,
+          "state": "working",
+          "label": "Working… (Received)"
+        },
+        {
+          "t": 9977,
+          "state": "working",
+          "label": "Working… (Aligning)"
+        },
+        {
+          "t": 9988,
+          "state": "working",
+          "label": "Working… (Diffing)"
+        },
+        {
+          "t": 9995,
+          "state": "working",
+          "label": "Working… (Finding regions)"
+        },
+        {
+          "t": 10032,
+          "state": "working",
+          "label": "Working… (Packing)"
+        },
+        {
+          "t": 10032,
+          "state": "ready",
+          "label": "Ready"
+        }
+      ]
+    },
+    "watchdogDefault30s": {
+      "r1": "rejected",
+      "message": "Timed out, restarted",
+      "expected": "Timed out, restarted",
+      "rejectMs": 30019,
+      "respawnMs": 30469,
+      "queuedJobAfterRestart": "FAIL",
+      "readyAgain": true,
+      "firstWorkerMs": 410,
+      "statuses": [
+        {
+          "t": 10473,
+          "state": "working",
+          "label": "Working…"
+        },
+        {
+          "t": 10489,
+          "state": "working",
+          "label": "Working… (Received)"
+        },
+        {
+          "t": 40474,
+          "state": "error",
+          "label": "Timed out, restarted"
+        },
+        {
+          "t": 40474,
+          "state": "loading",
+          "label": "Loading OpenCV…"
+        },
+        {
+          "t": 40925,
+          "state": "ready",
+          "label": "Ready"
+        },
+        {
+          "t": 40925,
+          "state": "working",
+          "label": "Working…"
+        },
+        {
+          "t": 40931,
+          "state": "working",
+          "label": "Working… (Received)"
+        },
+        {
+          "t": 40931,
+          "state": "working",
+          "label": "Working… (Aligning)"
+        },
+        {
+          "t": 40938,
+          "state": "working",
+          "label": "Working… (Diffing)"
+        },
+        {
+          "t": 40942,
+          "state": "working",
+          "label": "Working… (Finding regions)"
+        },
+        {
+          "t": 40967,
+          "state": "working",
+          "label": "Working… (Packing)"
+        },
+        {
+          "t": 40968,
+          "state": "ready",
+          "label": "Ready"
+        }
+      ]
+    },
+    "manualRestart": {
+      "ms": 444
+    },
+    "heapDuringRestart": {
+      "probe": 7098160
+    },
+    "pageErrors": [],
+    "consoleErrors": []
+  },
+  "real": {
+    "server": "serve_test on http://127.0.0.1:8102 stub=never CSP=default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+    "ready": [
+      {
+        "ok": true,
+        "pageMs": 448,
+        "workerMs": 442,
+        "importMs": 214,
+        "initMs": 222
+      },
+      {
+        "ok": true,
+        "pageMs": 435,
+        "workerMs": 429,
+        "importMs": 228,
+        "initMs": 187
+      },
+      {
+        "ok": true,
+        "pageMs": 414,
+        "workerMs": 406,
+        "importMs": 222,
+        "initMs": 178
+      }
+    ],
+    "readyInfo": {
+      "version": "4.13.0",
+      "build": [
+        "General configuration for OpenCV 4.13.0 =====================================",
+        "Version control:               4.13.0",
+        "Platform:",
+        "Timestamp:                   2025-12-31T07:16:15Z",
+        "Target:                      Emscripten 1 x86",
+        "C++ Compiler:                /opt/emsdk-portable/upstream/emscripten/em++  (ver 10.0.0)",
+        "C Compiler:                  /opt/emsdk-portable/upstream/emscripten/emcc",
+        "OpenCV modules:"
+      ],
+      "readyStyle": "promise",
+      "importMs": 222,
+      "initMs": 178,
+      "heapBytes": 134217728,
+      "cloneIsDeep": true,
+      "stubs": null,
+      "workerMs": 406,
+      "clientMs": 414
+    },
+    "readyStatuses": [
+      "loading:Loading OpenCV…",
+      "ready:Ready"
+    ],
+    "roundTrip": [
+      {
+        "ms": 377,
+        "workerMs": 376,
+        "pipelineMs": 374.9,
+        "steps": [
+          "Received",
+          "load",
+          "align",
+          "diff",
+          "mask",
+          "threshold",
+          "regions",
+          "ssim",
+          "images",
+          "Packing"
+        ],
+        "senderBaseBytesAfter": 0,
+        "senderCandBytesAfter": 0,
+        "status": "FAIL",
+        "regions": 3,
+        "changedPct": 2.5775,
+        "ssim": 0.98284,
+        "alignment": {
+          "method": "none",
+          "dx": 0,
+          "dy": 0,
+          "scale": 1,
+          "score": 0.8079,
+          "steps": []
+        },
+        "images": {
+          "boxes": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          },
+          "diff": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          },
+          "heatmap": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          }
+        },
+        "heapBytes": 134217728,
+        "stub": false
+      },
+      {
+        "ms": 206,
+        "workerMs": 206,
+        "pipelineMs": 205.7,
+        "steps": [
+          "Received",
+          "load",
+          "align",
+          "diff",
+          "mask",
+          "threshold",
+          "regions",
+          "ssim",
+          "images",
+          "Packing"
+        ],
+        "senderBaseBytesAfter": 0,
+        "senderCandBytesAfter": 0,
+        "status": "FAIL",
+        "regions": 3,
+        "changedPct": 2.5775,
+        "ssim": 0.98284,
+        "alignment": {
+          "method": "none",
+          "dx": 0,
+          "dy": 0,
+          "scale": 1,
+          "score": 0.8079,
+          "steps": []
+        },
+        "images": {
+          "boxes": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          },
+          "diff": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          },
+          "heatmap": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          }
+        },
+        "heapBytes": 134217728,
+        "stub": false
+      },
+      {
+        "ms": 207,
+        "workerMs": 204,
+        "pipelineMs": 204.2,
+        "steps": [
+          "Received",
+          "load",
+          "align",
+          "diff",
+          "mask",
+          "threshold",
+          "regions",
+          "ssim",
+          "images",
+          "Packing"
+        ],
+        "senderBaseBytesAfter": 0,
+        "senderCandBytesAfter": 0,
+        "status": "FAIL",
+        "regions": 3,
+        "changedPct": 2.5775,
+        "ssim": 0.98284,
+        "alignment": {
+          "method": "none",
+          "dx": 0,
+          "dy": 0,
+          "scale": 1,
+          "score": 0.8079,
+          "steps": []
+        },
+        "images": {
+          "boxes": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          },
+          "diff": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          },
+          "heatmap": {
+            "width": 1366,
+            "height": 900,
+            "type": "Uint8ClampedArray"
+          }
+        },
+        "heapBytes": 134217728,
+        "stub": false
+      }
+    ],
+    "copyMode": {
+      "senderBaseBytesAfter": 4917600,
+      "status": "PASS",
+      "changedPct": 0
+    },
+    "sameBuffer": {
+      "status": "PASS",
+      "changedPct": 0
+    },
+    "realResponsive": {
+      "runs": 5,
+      "totalMs": 1145,
+      "workerMs": 1065,
+      "rafTicks": 68,
+      "fps": 59.4,
+      "maxFrameGapMs": 17,
+      "longTasksMs": []
+    },
+    "sizeMismatch": {
+      "slightlyTaller": {
+        "status": "PASS",
+        "alignment": {
+          "method": "resize",
+          "dx": 0,
+          "dy": 0,
+          "scale": 1,
+          "score": 1,
+          "steps": [
+            "resize"
+          ],
+          "sizeFrom": {
+            "width": 1366,
+            "height": 1000
+          }
+        }
+      },
+      "tooSmall": {
+        "error": "Size mismatch: baseline 1366x900 vs candidate 300x200 (ratio outside 0.5-2). Capture both at the same viewport and zoom."
+      },
+      "workerStillWorks": "FAIL"
+    },
+    "heap": {
+      "n": 20,
+      "first": 134217728,
+      "last": 134217728,
+      "max": 134217728,
+      "growthAfterRun1": 0,
+      "probeDistinct": 1,
+      "probeFirst": 7098176,
+      "probeLast": 7098176
+    },
+    "manualRestart": {
+      "ms": 502
+    },
+    "heapDuringRestart": {
+      "probe": 7098160
+    },
+    "pageErrors": [],
+    "consoleErrors": []
+  },
+  "plainServer": {
+    "ok": true,
+    "statuses": [
+      "loading:Loading OpenCV…",
+      "ready:Ready"
+    ]
+  }
+}
+=== db-test: node tools/db-test/run.js
+PASS pages: Blob in/out is image/png
+PASS pages: baseline pixel survives  [10,132,255,255]
+PASS pages: createdAt/updatedAt set; list = 1
+PASS zones: put/forPage/update/remove
+PASS runs: candidate+result are Blobs with right pixels  [[255,59,48,255],[52,199,89,255]]
+PASS runs: evidence object stored  {"testCaseId":"VR-TL-01","ticketId":"CHG-0042","toolsVersion":"PT 8.62.xx","businessUnit":"","role":"","tester":"AB","environment":"TEST-1","expectedDifference":"new Save label"}
+PASS runs: evidence normalised to full shape  "testCaseId,ticketId,toolsVersion,businessUnit,role,tester"
+PASS runs: extras kept only when given; ms stored; defaults for decision/signOff/reviewMs  {"d":{"signedOff":false,"reviewer":"","signedOffAt":null,"baselinePromoted":false},"ev":6}
+PASS runs.update: decisions, signOff merge, reviewMs, evidence merge; id/pageId/createdAt immutable; bad decision -> null  {"signedOff":true,"reviewer":"CD","signedOffAt":3000,"baselinePromoted":false}
+PASS runs.update on a missing run -> NotFoundError  "NotFoundError"
+PASS runs: forPage newest first  [2,1]
+PASS settings: get/set/default  ["dark",3,"dflt"]
+PASS persist() asked once after first baseline (record saved)  {"granted":false,"at":1795362102948}
+PASS storageEstimate: usage/quota numbers  {"usage":73728,"quota":10737491968,"percent":0.0006866407930243399,"persisted":false}
+PASS pages.remove cascades to zones and runs  [0,0,0]
+PASS reload: page, Blob, run, evidence, setting all still there  {"names":["Persist me (fictional)"],"blob":true,"px":[10,132,255,255],"runs":1,"ev":"VR-P-01","theme":"light"}
+PASS duplicate name: friendly Error, name ConstraintError, nothing added  {"name":"ConstraintError","message":"A page with this name already exists.","cause":"ConstraintError","count":1}
+PASS shipped DB_VERSION is 1
+PASS 4a: blocked fires on new request, A closes on versionchange, upgrade completes  ["upgradeneeded 1->2","open v2"]
+PASS 4a: A got onVersionChange callback (not deleting) with a message  [{"type":"versionchange","oldVersion":1,"newVersion":2,"deleting":false,"message":"The app was updated in another tab. Reload this page."}]
+PASS 4a: old code against a v2 DB gets a friendly VersionError (no silent hang)  {"name":"VersionError","message":"The library on this device is newer than this page. Reload to get the latest version."}
+PASS 4b: stubborn tab -> blocked event, upgrade still waiting (not silently done)  "blocked"
+PASS 4b: after the other tab closes the upgrade completes  "blocked | upgradeneeded 1->2 | open v2"
+PASS 5: tab D sees the data
+PASS 5: resetAppData resolves {blocked:false}
+PASS 5: DB gone from indexedDB.databases()  []
+PASS 5: tab D closed itself on versionchange (deleting=true) and reset was not blocked  [{"type":"versionchange","oldVersion":1,"newVersion":null,"deleting":true,"message":"The library was reset in another tab. Reload this page."}]
+PASS 5: only 'erpinspector:' localStorage keys cleared  {"a":null,"b":null,"keep":"x"}
+PASS 5: after reset the library reopens empty (v1 recreated), persist flag reset  {"pages":0}
+PASS 5b: reset blocked by a stubborn tab -> onBlocked message, reset still pending  {"events":["blocked: Close other tabs of this app to finish the reset."],"done":false}
+PASS 5b: resolves {blocked:true}
+PASS 5b: after closing it the reset completes and the DB is gone  []
+
+32/32 checks passed
+=== privacy-audit: python3 tools/privacy_audit.py
+Privacy audit, root: /home/user/cvfinal
+App files scanned fully: 60 (44 text)  |  other repo text files, secret/SSN scan only: 202
+Excluded: .git, node_modules, vendor/ (hash-pinned instead), tools/privacy_audit.py
+INFO    outbound link: resources.html:33: https://docs.opencv.org/4.x/d0/d84/tutorial_js_usage.html
+INFO    outbound link: resources.html:34: https://docs.opencv.org/4.x/de/d06/tutorial_js_basic_ops.html
+INFO    outbound link: resources.html:35: https://docs.opencv.org/4.x/d5/d10/tutorial_js_root.html
+INFO    outbound link: resources.html:36: https://docs.opencv.org/4.x/d7/dd0/tutorial_js_thresholding.html
+INFO    outbound link: resources.html:37: https://docs.opencv.org/4.x/d0/d43/tutorial_js_table_of_contents_contours.html
+INFO    outbound link: resources.html:38: https://docs.opencv.org/4.x/d3/d50/group__imgproc__colormap.html
+INFO    outbound link: resources.html:44: https://developer.mozilla.org/en-US/docs/WebAssembly
+INFO    outbound link: resources.html:45: https://developer.mozilla.org/en-US/docs/WebAssembly/Guides/Concepts
+INFO    outbound link: resources.html:46: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers
+INFO    outbound link: resources.html:47: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects
+INFO    outbound link: resources.html:48: https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
+INFO    outbound link: resources.html:49: https://developer.mozilla.org/en-US/docs/Web/API/IDBOpenDBRequest/blocked_event
+INFO    outbound link: resources.html:50: https://developer.mozilla.org/en-US/docs/Web/API/Storage_API
+INFO    outbound link: resources.html:51: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API
+INFO    outbound link: resources.html:52: https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob
+INFO    outbound link: resources.html:53: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
+INFO    outbound link: resources.html:54: https://developer.chrome.com/docs/devtools/storage/indexeddb
+INFO    outbound link: resources.html:55: https://developer.chrome.com/docs/devtools/network
+INFO    outbound link: resources.html:61: https://docs.netlify.com/build/configure-builds/file-based-configuration/
+INFO    outbound link: resources.html:62: https://docs.netlify.com/manage/routing/headers/
+INFO    outbound link: resources.html:68: https://developer.apple.com/design/human-interface-guidelines/feedback
+INFO    outbound link: resources.html:69: https://developer.apple.com/design/human-interface-guidelines/progress-indicators
+INFO    outbound link: resources.html:70: https://developer.apple.com/design/human-interface-guidelines/loading
+INFO    outbound link: resources.html:71: https://developer.apple.com/design/human-interface-guidelines/accessibility
+INFO    outbound link: resources.html:72: https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum
+INFO    outbound link: resources.html:73: https://www.w3.org/WAI/WCAG21/Understanding/non-text-contrast
+INFO    outbound link: resources.html:74: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Guides/Live_regions
+INFO    outbound link: resources.html:80: https://docs.oracle.com/cd/F86650_01/pt859pbr5/eng/pt/tswu/PeopleSoftUpdateManager.html
+INFO    outbound link: resources.html:81: https://docs.oracle.com/cd/F86650_01/pt859pbr5/eng/pt/tgst/ChangeAssistantAndUpdateManage...
+INFO    outbound link: resources.html:82: https://docs.oracle.com/cd/G23954_01/pt862pbr1/eng/pt/tptf/UnderstandingPeopleSoftTestFra...
+INFO    outbound link: resources.html:88: https://playwright.dev/docs/test-snapshots
+INFO    outbound link: resources.html:89: https://github.com/garris/BackstopJS
+INFO    outbound link: resources.html:95: https://code.claude.com/docs/en/sub-agents
+INFO    outbound link: resources.html:96: https://code.claude.com/docs/en/skills
+INFO    outbound link: resources.html:102: https://cvfinal-doc-scanner.netlify.app/guide/
+INFO    outbound link: resources.html:103: https://github.com/fenago/CVFinal
+INFO    outbound link: resources.html:104: https://github.com/saudie72/CVFinal
+INFO    outbound link: resources.html:105: https://github.com/saudie72/CVFinal/blob/main/docs/business-case.md
+INFO    Oracle public-docs link target: resources.html:80: oracle
+INFO    Oracle public-docs link target: resources.html:81: oracle
+INFO    Oracle public-docs link target: resources.html:82: oracle
+INFO    fetch (relative literal): js/app.js:250: const r = await fetch('samples/manifest.json');
+INFO    fetch (relative literal): js/hints.js:7: try { const r = await fetch('js/region-hints.json'); table = new Map((await r.json()).map...
+INFO    image to review by eye (logos/real data): samples/fscm-po-identical_after.png: 86210 bytes
+INFO    image to review by eye (logos/real data): samples/fscm-po-identical_before.png: 86210 bytes
+INFO    image to review by eye (logos/real data): samples/fscm-po_after.png: 86282 bytes
+INFO    image to review by eye (logos/real data): samples/fscm-po_before.png: 86210 bytes
+INFO    image to review by eye (logos/real data): samples/fscm-voucher_after.png: 94167 bytes
+INFO    image to review by eye (logos/real data): samples/fscm-voucher_before.png: 94200 bytes
+INFO    image to review by eye (logos/real data): samples/hcm-job-data-shifted_after.png: 96353 bytes
+INFO    image to review by eye (logos/real data): samples/hcm-job-data-shifted_before.png: 96384 bytes
+INFO    image to review by eye (logos/real data): samples/hcm-job-data-zoom110_after.png: 113530 bytes
+INFO    image to review by eye (logos/real data): samples/hcm-job-data-zoom110_before.png: 96384 bytes
+INFO    image to review by eye (logos/real data): samples/hcm-job-data_after.png: 95112 bytes
+INFO    image to review by eye (logos/real data): samples/hcm-job-data_before.png: 96384 bytes
+INFO    image to review by eye (logos/real data): samples/hcm-personal-data_after.png: 97932 bytes
+INFO    image to review by eye (logos/real data): samples/hcm-personal-data_before.png: 97586 bytes
+INFO    image to review by eye (logos/real data): samples/tl-timesheet_after.png: 71079 bytes
+INFO    image to review by eye (logos/real data): samples/tl-timesheet_before.png: 71229 bytes
+INFO    CSP: netlify.toml: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-...
+INFO    vendor/opencv.js sha256 matches the pin: vendor/opencv/4.13.0/opencv.js: 63366510248adf3a...
+WARN    Oracle name in app file: allowed only as a plain-text subject, never branding: resources.html:30: <nav class="toc" aria-label="On this page"><ul><li><a href="#opencv">OpenCV.js</a></li><l...
+WARN    Oracle name in app file: allowed only as a plain-text subject, never branding: resources.html:78: <section id="erp"><h2>ERP background (Oracle PeopleBooks)</h2>
+WARN    fetch with non-literal URL: confirm it is same-origin: js/app.js:264: const r = await fetch(url);
+WARN    CSP has 'unsafe-eval' (known: opencv.js may need it; remove if Volt confirms it does not): netlify.toml: script-src
+
+0 FINDING(S), 4 WARN(S), 61 INFO
+Reminder: a clean audit is not proof of privacy (logos inside images need a human look; run the DevTools Network check) and says nothing about authorization: a screenshot never proves authorization.
+PRIVACY AUDIT CLEAN
+=== contrast-check: python3 tools/contrast_check.py
+
+== light ==
+PASS   5.57:1  (need 4.5:1)  primary button / selected tab text on accent
+PASS   4.56:1  (need 4.5:1)  region number badge (--on-region on --region)
+PASS   5.57:1  (need 3.0:1)  selected-tab / primary fill on panel (non-text)
+PASS   3.93:1  (need 3.0:1)  selected-tab / primary fill on glass (non-text)
+PASS  15.08:1  (need 4.5:1)  text on canvas
+PASS  16.83:1  (need 4.5:1)  text on panel
+PASS  15.74:1  (need 4.5:1)  text on panel-2
+PASS  16.83:1  (need 4.5:1)  text on control
+PASS  16.83:1  (need 4.5:1)  text on field
+PASS  11.89:1  (need 4.5:1)  text on glass
+PASS  14.48:1  (need 4.5:1)  text on pill
+PASS  14.75:1  (need 4.5:1)  text on fail-bg
+PASS   5.95:1  (need 4.5:1)  secondary text on canvas
+PASS   6.64:1  (need 4.5:1)  secondary text on panel
+PASS   6.21:1  (need 4.5:1)  secondary text on panel-2
+PASS   6.64:1  (need 4.5:1)  secondary text on control
+PASS   6.64:1  (need 4.5:1)  secondary text on field
+PASS   4.69:1  (need 4.5:1)  secondary text on glass
+PASS   5.82:1  (need 4.5:1)  secondary text on fail-bg
+PASS   5.95:1  (need 4.5:1)  link/accent text on canvas
+PASS   6.64:1  (need 4.5:1)  link/accent text on panel
+PASS   6.21:1  (need 4.5:1)  link/accent text on panel-2
+PASS   4.69:1  (need 4.5:1)  link/accent text on glass
+PASS   5.48:1  (need 4.5:1)  PASS text on panel
+PASS   6.03:1  (need 4.5:1)  FAIL text on panel
+PASS   5.13:1  (need 4.5:1)  PASS text on panel-2
+PASS   5.64:1  (need 4.5:1)  FAIL text on panel-2
+PASS   4.91:1  (need 4.5:1)  PASS text on canvas
+PASS   5.40:1  (need 4.5:1)  FAIL text on canvas
+PASS   5.29:1  (need 4.5:1)  FAIL text on fail tint (decision Regression)
+PASS   4.83:1  (need 4.5:1)  PASS text on pass tint
+PASS   5.37:1  (need 4.5:1)  warning text on warn tint
+PASS   5.89:1  (need 4.5:1)  warning text on panel
+PASS   6.64:1  (need 4.5:1)  placeholder (secondary) on field
+PASS   6.03:1  (need 4.5:1)  btn-danger text on control
+PASS   4.71:1  (need 3.0:1)  pill icon PASS on pill (non-text)
+PASS   5.19:1  (need 3.0:1)  pill icon FAIL on pill (non-text)
+PASS   5.71:1  (need 3.0:1)  pill icon accent/working on pill (non-text)
+PASS   4.16:1  (need 3.0:1)  notice icon warn on glass (non-text)
+PASS   4.69:1  (need 3.0:1)  notice icon accent on glass (non-text)
+PASS   4.72:1  (need 3.0:1)  field border on field
+PASS   3.33:1  (need 3.0:1)  field border on glass (dialog)
+PASS   4.72:1  (need 3.0:1)  control border on control
+PASS   4.72:1  (need 3.0:1)  control border on panel
+PASS   4.41:1  (need 3.0:1)  drop-zone dashed border on panel-2
+PASS   4.56:1  (need 3.0:1)  region stroke on viewer (non-text)
+PASS   6.03:1  (need 3.0:1)  region left border FAIL on panel (non-text)
+PASS   5.48:1  (need 3.0:1)  region left border PASS on panel (non-text)
+PASS   5.95:1  (need 3.0:1)  focus ring on canvas
+PASS   6.64:1  (need 3.0:1)  focus ring on panel
+PASS   4.69:1  (need 3.0:1)  focus ring on glass
+PASS   6.64:1  (need 3.0:1)  focus ring on field
+
+== dark ==
+PASS   6.69:1  (need 4.5:1)  primary button / selected tab text on accent
+PASS   7.15:1  (need 4.5:1)  region number badge (--on-region on --region)
+PASS   6.48:1  (need 3.0:1)  selected-tab / primary fill on panel (non-text)
+PASS   4.06:1  (need 3.0:1)  selected-tab / primary fill on glass (non-text)
+PASS  19.29:1  (need 4.5:1)  text on canvas
+PASS  15.63:1  (need 4.5:1)  text on panel
+PASS  12.80:1  (need 4.5:1)  text on panel-2
+PASS  12.80:1  (need 4.5:1)  text on control
+PASS  12.80:1  (need 4.5:1)  text on field
+PASS   9.80:1  (need 4.5:1)  text on glass
+PASS   7.69:1  (need 4.5:1)  text on pill
+PASS  15.11:1  (need 4.5:1)  text on fail-bg
+PASS   9.50:1  (need 4.5:1)  secondary text on canvas
+PASS   7.69:1  (need 4.5:1)  secondary text on panel
+PASS   6.30:1  (need 4.5:1)  secondary text on panel-2
+PASS   6.30:1  (need 4.5:1)  secondary text on control
+PASS   6.30:1  (need 4.5:1)  secondary text on field
+PASS   4.82:1  (need 4.5:1)  secondary text on glass
+PASS   7.44:1  (need 4.5:1)  secondary text on fail-bg
+PASS   9.49:1  (need 4.5:1)  link/accent text on canvas
+PASS   7.69:1  (need 4.5:1)  link/accent text on panel
+PASS   6.30:1  (need 4.5:1)  link/accent text on panel-2
+PASS   4.82:1  (need 4.5:1)  link/accent text on glass
+PASS   9.25:1  (need 4.5:1)  PASS text on panel
+PASS   6.75:1  (need 4.5:1)  FAIL text on panel
+PASS   7.58:1  (need 4.5:1)  PASS text on panel-2
+PASS   5.53:1  (need 4.5:1)  FAIL text on panel-2
+PASS  11.42:1  (need 4.5:1)  PASS text on canvas
+PASS   8.34:1  (need 4.5:1)  FAIL text on canvas
+PASS   6.53:1  (need 4.5:1)  FAIL text on fail tint (decision Regression)
+PASS   8.52:1  (need 4.5:1)  PASS text on pass tint
+PASS   7.50:1  (need 4.5:1)  warning text on warn tint
+PASS   8.28:1  (need 4.5:1)  warning text on panel
+PASS   6.30:1  (need 4.5:1)  placeholder (secondary) on field
+PASS   5.53:1  (need 4.5:1)  btn-danger text on control
+PASS   4.55:1  (need 3.0:1)  pill icon PASS on pill (non-text)
+PASS   3.32:1  (need 3.0:1)  pill icon FAIL on pill (non-text)
+PASS   3.79:1  (need 3.0:1)  pill icon accent/working on pill (non-text)
+PASS   5.19:1  (need 3.0:1)  notice icon warn on glass (non-text)
+PASS   4.82:1  (need 3.0:1)  notice icon accent on glass (non-text)
+PASS   4.27:1  (need 3.0:1)  field border on field
+PASS   3.27:1  (need 3.0:1)  field border on glass (dialog)
+PASS   4.27:1  (need 3.0:1)  control border on control
+PASS   5.22:1  (need 3.0:1)  control border on panel
+PASS   4.27:1  (need 3.0:1)  drop-zone dashed border on panel-2
+PASS   5.79:1  (need 3.0:1)  region stroke on viewer (non-text)
+PASS   6.75:1  (need 3.0:1)  region left border FAIL on panel (non-text)
+PASS   9.25:1  (need 3.0:1)  region left border PASS on panel (non-text)
+PASS   9.61:1  (need 3.0:1)  focus ring on canvas
+PASS   7.79:1  (need 3.0:1)  focus ring on panel
+PASS   4.88:1  (need 3.0:1)  focus ring on glass
+PASS   6.38:1  (need 3.0:1)  focus ring on field
+
+== light+contrast-more ==
+PASS   7.78:1  (need 4.5:1)  primary button / selected tab text on accent
+PASS   4.56:1  (need 4.5:1)  region number badge (--on-region on --region)
+PASS   7.78:1  (need 3.0:1)  selected-tab / primary fill on panel (non-text)
+PASS   7.45:1  (need 3.0:1)  selected-tab / primary fill on glass (non-text)
+PASS  15.08:1  (need 4.5:1)  text on canvas
+PASS  16.83:1  (need 4.5:1)  text on panel
+PASS  15.74:1  (need 4.5:1)  text on panel-2
+PASS  16.83:1  (need 4.5:1)  text on control
+PASS  16.83:1  (need 4.5:1)  text on field
+PASS  16.11:1  (need 4.5:1)  text on glass
+PASS  16.50:1  (need 4.5:1)  text on pill
+PASS  14.75:1  (need 4.5:1)  text on fail-bg
+PASS   9.80:1  (need 4.5:1)  secondary text on canvas
+PASS  10.94:1  (need 4.5:1)  secondary text on panel
+PASS  10.23:1  (need 4.5:1)  secondary text on panel-2
+PASS  10.94:1  (need 4.5:1)  secondary text on control
+PASS  10.94:1  (need 4.5:1)  secondary text on field
+PASS  10.47:1  (need 4.5:1)  secondary text on glass
+PASS   9.59:1  (need 4.5:1)  secondary text on fail-bg
+PASS   6.98:1  (need 4.5:1)  link/accent text on canvas
+PASS   7.78:1  (need 4.5:1)  link/accent text on panel
+PASS   7.28:1  (need 4.5:1)  link/accent text on panel-2
+PASS   7.45:1  (need 4.5:1)  link/accent text on glass
+PASS   8.21:1  (need 4.5:1)  PASS text on panel
+PASS   7.92:1  (need 4.5:1)  FAIL text on panel
+PASS   7.68:1  (need 4.5:1)  PASS text on panel-2
+PASS   7.41:1  (need 4.5:1)  FAIL text on panel-2
+PASS   7.35:1  (need 4.5:1)  PASS text on canvas
+PASS   7.10:1  (need 4.5:1)  FAIL text on canvas
+PASS   6.95:1  (need 4.5:1)  FAIL text on fail tint (decision Regression)
+PASS   7.23:1  (need 4.5:1)  PASS text on pass tint
+PASS   7.13:1  (need 4.5:1)  warning text on warn tint
+PASS   7.82:1  (need 4.5:1)  warning text on panel
+PASS  10.94:1  (need 4.5:1)  placeholder (secondary) on field
+PASS   7.92:1  (need 4.5:1)  btn-danger text on control
+PASS   8.05:1  (need 3.0:1)  pill icon PASS on pill (non-text)
+PASS   7.77:1  (need 3.0:1)  pill icon FAIL on pill (non-text)
+PASS   7.63:1  (need 3.0:1)  pill icon accent/working on pill (non-text)
+PASS   7.48:1  (need 3.0:1)  notice icon warn on glass (non-text)
+PASS   7.45:1  (need 3.0:1)  notice icon accent on glass (non-text)
+PASS  16.83:1  (need 3.0:1)  field border on field
+PASS  16.11:1  (need 3.0:1)  field border on glass (dialog)
+PASS  16.83:1  (need 3.0:1)  control border on control
+PASS  16.83:1  (need 3.0:1)  control border on panel
+PASS  15.74:1  (need 3.0:1)  drop-zone dashed border on panel-2
+PASS   4.56:1  (need 3.0:1)  region stroke on viewer (non-text)
+PASS   7.92:1  (need 3.0:1)  region left border FAIL on panel (non-text)
+PASS   8.21:1  (need 3.0:1)  region left border PASS on panel (non-text)
+PASS   5.95:1  (need 3.0:1)  focus ring on canvas
+PASS   6.64:1  (need 3.0:1)  focus ring on panel
+PASS   6.35:1  (need 3.0:1)  focus ring on glass
+PASS   6.64:1  (need 3.0:1)  focus ring on field
+
+== dark+contrast-more ==
+PASS   9.63:1  (need 4.5:1)  primary button / selected tab text on accent
+PASS   7.15:1  (need 4.5:1)  region number badge (--on-region on --region)
+PASS   9.32:1  (need 3.0:1)  selected-tab / primary fill on panel (non-text)
+PASS   8.86:1  (need 3.0:1)  selected-tab / primary fill on glass (non-text)
+PASS  19.29:1  (need 4.5:1)  text on canvas
+PASS  15.63:1  (need 4.5:1)  text on panel
+PASS  12.80:1  (need 4.5:1)  text on panel-2
+PASS  12.80:1  (need 4.5:1)  text on control
+PASS  12.80:1  (need 4.5:1)  text on field
+PASS  14.84:1  (need 4.5:1)  text on glass
+PASS  11.69:1  (need 4.5:1)  text on pill
+PASS  15.11:1  (need 4.5:1)  text on fail-bg
+PASS  13.80:1  (need 4.5:1)  secondary text on canvas
+PASS  11.18:1  (need 4.5:1)  secondary text on panel
+PASS   9.16:1  (need 4.5:1)  secondary text on panel-2
+PASS   9.16:1  (need 4.5:1)  secondary text on control
+PASS   9.16:1  (need 4.5:1)  secondary text on field
+PASS  10.62:1  (need 4.5:1)  secondary text on glass
+PASS  10.81:1  (need 4.5:1)  secondary text on fail-bg
+PASS  11.51:1  (need 4.5:1)  link/accent text on canvas
+PASS   9.32:1  (need 4.5:1)  link/accent text on panel
+PASS   7.64:1  (need 4.5:1)  link/accent text on panel-2
+PASS   8.86:1  (need 4.5:1)  link/accent text on glass
+PASS  12.50:1  (need 4.5:1)  PASS text on panel
+PASS   7.51:1  (need 4.5:1)  FAIL text on panel
+PASS  10.24:1  (need 4.5:1)  PASS text on panel-2
+PASS   6.15:1  (need 4.5:1)  FAIL text on panel-2
+PASS  15.43:1  (need 4.5:1)  PASS text on canvas
+PASS   9.27:1  (need 4.5:1)  FAIL text on canvas
+PASS   7.26:1  (need 4.5:1)  FAIL text on fail tint (decision Regression)
+PASS  11.51:1  (need 4.5:1)  PASS text on pass tint
+PASS   8.64:1  (need 4.5:1)  warning text on warn tint
+PASS   9.54:1  (need 4.5:1)  warning text on panel
+PASS   9.16:1  (need 4.5:1)  placeholder (secondary) on field
+PASS   6.15:1  (need 4.5:1)  btn-danger text on control
+PASS   9.36:1  (need 3.0:1)  pill icon PASS on pill (non-text)
+PASS   5.62:1  (need 3.0:1)  pill icon FAIL on pill (non-text)
+PASS   6.98:1  (need 3.0:1)  pill icon accent/working on pill (non-text)
+PASS   9.06:1  (need 3.0:1)  notice icon warn on glass (non-text)
+PASS   8.86:1  (need 3.0:1)  notice icon accent on glass (non-text)
+PASS  12.80:1  (need 3.0:1)  field border on field
+PASS  14.84:1  (need 3.0:1)  field border on glass (dialog)
+PASS  12.80:1  (need 3.0:1)  control border on control
+PASS  15.63:1  (need 3.0:1)  control border on panel
+PASS  12.80:1  (need 3.0:1)  drop-zone dashed border on panel-2
+PASS   5.79:1  (need 3.0:1)  region stroke on viewer (non-text)
+PASS   7.51:1  (need 3.0:1)  region left border FAIL on panel (non-text)
+PASS  12.50:1  (need 3.0:1)  region left border PASS on panel (non-text)
+PASS   9.61:1  (need 3.0:1)  focus ring on canvas
+PASS   7.79:1  (need 3.0:1)  focus ring on panel
+PASS   7.40:1  (need 3.0:1)  focus ring on glass
+PASS   6.38:1  (need 3.0:1)  focus ring on field
+
+208/208 pairs pass  ->  ALL TOKEN PAIRS PASS
+=== validate-evidence: python3 tools/validate_evidence.py tools/qa/qa-export-run.json
+tools/qa/qa-export-run.json: VALID
+=== verify-knowledge: bash tools/verify-knowledge/run_all.sh
+== python3 -I knowledge/opencv-expert/examples/python_mirror.py
+{'example': 'diffRegions', 'ok': True, 'regions': [(37, 27, 57, 27), (127, 77, 47, 22)], 'changedPct': 10.69}
+{'example': 'shapes', 'ok': True, 'contours': 2, 'edgePixels': 356, 'shapes': [{'area': 2301, 'perimeter': 196, 'cx': 50, 'cy': 50}, {'area': 1890, 'perimeter': 165, 'cx': 160, 'cy': 70}]}
+{'example': 'alignment', 'ok': np.True_, 'dx': 0, 'dy': 3, 'score': 1.0, 'residual': 0}
+ALL OK  (cv2 5.1.0)
+
+== python3 tools/verify-knowledge/run_browser_examples.py
+Traceback (most recent call last):
+  File "/home/user/cvfinal/tools/verify-knowledge/run_browser_examples.py", line 11, in <module>
+    from playwright.sync_api import sync_playwright
+ModuleNotFoundError: No module named 'playwright'
+
+== python3 knowledge/mock-erp-builder/examples/capture_and_verify.py
+Traceback (most recent call last):
+  File "/home/user/cvfinal/knowledge/mock-erp-builder/examples/capture_and_verify.py", line 10, in <module>
+    from playwright.sync_api import sync_playwright
+ModuleNotFoundError: No module named 'playwright'
+
+== python3 knowledge/qa-tester/examples/ex1_qa_smoke.py
+Traceback (most recent call last):
+  File "/home/user/cvfinal/knowledge/qa-tester/examples/ex1_qa_smoke.py", line 12, in <module>
+    from playwright.sync_api import sync_playwright
+ModuleNotFoundError: No module named 'playwright'
+
+== python3 -I knowledge/ui-designer-apple-liquid-glass/examples/contrast_check.py
+PASS                                 15.08:1  (need 4.5:1)  light text on canvas
+PASS                                  5.95:1  (need 4.5:1)  light secondary on canvas
+PASS                                  4.70:1  (need 4.5:1)  light secondary on glass (worst)
+PASS                                 11.92:1  (need 4.5:1)  light text on glass (worst)
+PASS                                  5.57:1  (need 4.5:1)  white on accent button
+PASS                                  5.48:1  (need 4.5:1)  PASS text on white
+PASS                                  6.03:1  (need 4.5:1)  FAIL text on white
+PASS                                  4.56:1  (need 3.0:1)  region stroke on white (non-text)
+PASS                                 19.29:1  (need 4.5:1)  dark text on canvas
+PASS                                  4.83:1  (need 4.5:1)  dark secondary on glass (worst)
+PASS                                  9.25:1  (need 4.5:1)  dark PASS on viewer
+PASS                                  5.79:1  (need 4.5:1)  dark FAIL on viewer
+PASS                                  6.48:1  (need 4.5:1)  dark accent on viewer
+FAIL (expected — why we changed it)   1.89:1  (need 4.5:1)  rejected: old secondary #6e6e73 on light glass (worst)
+FAIL (expected — why we changed it)   2.48:1  (need 4.5:1)  rejected: secondary on old .62 light glass (worst)
+FAIL (expected — why we changed it)   2.48:1  (need 4.5:1)  rejected: dark secondary on old .66 dark glass (worst)
+ALL TOKEN PAIRS PASS
+
+== python3 -I knowledge/release-docs-engineer/examples/validate_examples.py
+PASS netlify.toml: publish is '.'
+PASS netlify.toml: no build command
+PASS netlify.toml: opencv immutable cache
+PASS netlify.toml: js revalidates
+PASS netlify.toml: nosniff on all
+FAIL links in docs/README.md: broken ['qa-report.md']
+PASS links in CLAUDE.md
+PASS links in knowledge/README.md
+FAILURES
+
+== python3 -I knowledge/erp-security-admin/examples/ex2_privacy_audit.py
+FINDING analytics: ./tools/privacy_audit.py:127: googletagmanager
+FINDING analytics: ./tools/privacy_audit.py:127: google-analytics
+FINDING analytics: ./tools/privacy_audit.py:127: hotjar
+FINDING secret-looking key: ./vendor/opencv/4.13.0/opencv.js:30: AKIARKBEADQCAIIANBAX
+FINDING secret-looking key: ./vendor/opencv/4.13.0/opencv.js:30: AKIARKBEADQCAIIANBAX
+FINDING secret-looking key: ./vendor/opencv/4.13.0/opencv.js:30: AKIASABKAIAKAI4EQEAI
+FINDING secret-looking key: ./vendor/opencv/4.13.0/opencv.js:30: AKIASEGIANBA0YEQCAAQ
+7 FINDINGS
+
+== python3 -I knowledge/erp-test-lead/examples/ex2_validate_evidence.py
+{
+  "file": "ex1-run-evidence.json",
+  "errors": [],
+  "negativeTestErrors": [
+    "missing evidence.tester",
+    "region 2 has no valid decision",
+    "cannot sign off a run with Regression regions"
+  ]
+}
+EVIDENCE VALID (and bad record rejected)
+
+== python3 knowledge/meta-agent/examples/ex1_lint_team.py
+17 agents, 26 skills checked
+TEAM OK
+
+suites failed: 5
+app-smoke rc=0
+hints-unit rc=0
+cv-test rc=0
+worker-test rc=0
+db-test rc=0
+privacy-audit rc=0
+contrast-check rc=0
+validate-evidence rc=0
+verify-knowledge rc=5

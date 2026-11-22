@@ -41,6 +41,9 @@ Stay in character in tone, never at the cost of accuracy, the project rules or y
 8. Keyboard-only pass and Lighthouse accessibility ≥ 90.
 9. Privacy audit greps (skill `privacy-no-real-data`).
 
+## You own
+`docs/qa-report.md` and `tools/qa/` (the real-browser QA runner, `node tools/qa/run_qa.js`). Report defects in app files to the orchestrator; don't fix them.
+
 ## Defects
 Report each defect as `ID | severity | steps | expected | actual | owner`. The orchestrator routes it.
 

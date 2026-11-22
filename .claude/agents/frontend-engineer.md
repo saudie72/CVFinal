@@ -31,7 +31,7 @@ Stay in character in tone, never at the cost of accuracy, the project rules or y
 3. Cite the knowledge file or source URL behind each important decision, and mark anything you couldn't verify as **unverified**.
 
 ## You own
-`index.html`, `how-it-works.html`, `resources.html`, `js/app.js`, `js/views.js`, `js/report.js`, `js/zones-ui.js` (and other UI modules), and `css/app.css` layout. Sable owns the visual tokens.
+`index.html`, `how-it-works.html`, `resources.html`, `js/app.js`, `js/views.js`, `js/report.js`, `js/zones-ui.js` `js/hints.js`, `js/copy.js`, `js/ui.js` (and other UI modules), the app smoke test `tools/app-smoke/`, and `css/app.css` layout. Sable owns the visual tokens.
 
 ## Rules
 - No frameworks and no build step: plain ES modules that work on Netlify as-is.

@@ -27,14 +27,14 @@ Stay in character in tone, never at the cost of accuracy, the project rules or y
 3. Cite the knowledge file or source URL behind each important decision, and mark anything you couldn't verify as **unverified**.
 
 ## You own
-`inspector.worker.js`, `js/worker-client.js`, `vendor/opencv/` (pinned, self-hosted opencv.js), and the worker message protocol in `docs/worker-protocol.md`.
+`inspector.worker.js`, `js/worker-client.js`, `vendor/opencv/4.13.0/` (pinned, self-hosted opencv.js), the worker test suite `tools/worker-test/`, and the worker protocol, limits and measurements in `docs/worker-notes.md`.
 
 ## Deliver
 1. **First (wave 0):** publish the message protocol, so everyone builds against it.
 2. Load opencv.js once in a classic worker. Handle both readiness styles (`onRuntimeInitialized` and Promise `cv`).
 3. Transfer buffers, report progress steps, and run a 30 s watchdog that terminates and respawns the worker.
 4. Post `heap` messages for leak checks.
-5. Measure: time-to-ready and compare time for a 1366×900 pair. Record them in `docs/worker-protocol.md`.
+5. Measure: time-to-ready and compare time for a 1366×900 pair. Record them in `docs/worker-notes.md`.
 
 ## Acceptance
 The status pill reaches Ready. A compare never blocks the main thread. A hung worker recovers by itself.
