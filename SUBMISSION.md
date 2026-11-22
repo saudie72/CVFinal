@@ -11,7 +11,7 @@ Everything is on the `main` branch.
 
 | Area | What the rubric asks | Where to see it | Evidence |
 |---|---|---|---|
-| **Live app** | The Netlify URL opens in Chrome and the app works without errors | https://cvfinal-erp-inspector.netlify.app/ → Getting started → Open example | Live check: page loads, OpenCV ready in about 3 s, the Timesheet example gives FAIL with 2 changes, 0 requests to other sites. App console errors: 0 (Netlify's own injected badge script logs CSP errors; turn the badge off in Netlify to remove them, see below). |
+| **Live app** | The Netlify URL opens in Chrome and the app works without errors | https://cvfinal-erp-inspector.netlify.app/ → Getting started → Open example | Live check: page loads, OpenCV ready in about 3 s, the Timesheet example gives FAIL with 2 changes, 0 requests to other sites. The app itself logs no console errors (see the note on the browser console below). |
 | **OpenCV.js** | Real, visible computer vision that fits the use case | Result screen: outlined changes, heat map, side by side, slide to compare | `js/cv/align.js` (resize, `matchTemplate` translation, ORB + homography), `js/cv/pipeline.js` (absdiff, threshold, morphology, contours → numbered change boxes), `js/cv/ssim.js`, `js/cv/heatmap.js` (`applyColorMap`). 22/22 test pairs as expected (`node tools/cv-test/run.js`); notes in `docs/cv-pipeline-notes.md`. |
 | **WebAssembly** | OpenCV.js loads once in a Web Worker, no freezing, every Mat deleted | DevTools → Sources → Threads: `inspector.worker.js` | OpenCV.js 4.13.0 self-hosted at `vendor/opencv/4.13.0/opencv.js`, loaded once by `inspector.worker.js`; the page stays at ~60 fps with 0 long tasks during compares; every Mat tracked and deleted (1,920 created / 1,920 deleted), Wasm heap flat over 20 runs, a deliberate leak is caught; 30 s watchdog. `docs/worker-notes.md`. |
 | **IndexedDB** | Results persist after a refresh, Reset app data works, visible in DevTools | DevTools → Application → IndexedDB → `erpinspector`; Settings → Reset app data | Database `erpinspector` v1 with stores `pages`, `ignoreZones`, `runs`, `settings`; saved pages and results survive a refresh (checked on the live site); Reset app data deletes the database, including when another tab is open. `js/db.js`, `docs/db-notes.md` (32/32 tests). |
@@ -24,9 +24,9 @@ Everything is on the `main` branch.
 - **Reset app data:** Settings → Reset app data.
 - **Orchestrator summary of who did what:** `README.md` → "The agent team" (and every handoff in `docs/handoff-log.md`).
 
-## One thing to do before you submit
+## Note on the browser console
 
-Netlify adds a "Powered by Netlify" badge script to every page on free accounts. The app's security policy blocks it, which shows up as red errors in the Chrome console that are not from the app. To keep the console clean for grading: Netlify → your project → **Project configuration → General → Powered by Netlify badge → off** (if your plan has the toggle).
+On free accounts, Netlify adds its own "Powered by Netlify" badge script to every page it hosts. The app's Content Security Policy blocks that script's inline code, so Chrome's console can show two or more Content Security Policy messages. They come from Netlify's injected badge script, not from the app: the app's own code logs no errors, and it makes no requests to other sites.
 
 ## Demo script (3 minutes)
 
