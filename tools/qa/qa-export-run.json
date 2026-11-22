@@ -1,10 +1,10 @@
 {
   "tool": "ERP Visual Regression Inspector",
-  "exportedAt": "2026-11-22T15:50:27.271Z",
+  "exportedAt": "2026-11-22T17:20:56.922Z",
   "runs": [
     {
       "tool": "ERP Visual Regression Inspector",
-      "pageName": "Time & Labor – Timesheet",
+      "pageName": "Timesheet",
       "module": "Time & Labor",
       "status": "FAIL",
       "changedPct": 8.3387,
@@ -56,9 +56,9 @@
         "signedOffAt": null,
         "baselinePromoted": false
       },
-      "createdAt": "2026-11-22T15:50:26.600Z",
-      "compareMs": 656.2,
-      "reviewMs": 365,
+      "createdAt": "2026-11-22T17:20:56.201Z",
+      "compareMs": 593.9,
+      "reviewMs": 396,
       "disclaimer": "Visual check only — not a replacement for functional or security testing."
     }
   ]
