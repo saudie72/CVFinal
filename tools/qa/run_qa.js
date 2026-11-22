@@ -126,6 +126,8 @@ async function settingGet(page, key) {
   }), key);
 }
 const run = (n) => !only || only.includes(n);
+async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); await page.screenshot({ path: path.join(SHOTS, `r3-qa-${name}.png`) }); }
+
 
 // ================================================================ main
 (async () => {
@@ -930,8 +932,8 @@ const run = (n) => !only || only.includes(n);
         rec('11.34', 'tour step 5: "Save it as evidence." says Save result, the primary action is outlined, the Next button reads Finish', s5.title === 'Step 5 of 5. Save it as evidence.' && /Save result keeps the result and Sign off confirms it\./.test(s5.help) && s5.next === 'Finish' && t5.prim, { s5, t5 });
         await page.click('#tour-next');
         await page.waitForTimeout(200);
-        const fin = await page.evaluate(() => ({ hidden: document.getElementById('tour').hidden, body: document.body.dataset.tour, focus: document.activeElement.matches('li.region') ? 'card ' + document.activeElement.dataset.region : document.activeElement.id, ann: window.__ann.slice(-2), screen: document.querySelector('.screen:not([hidden])').dataset.screen, focusCard: document.querySelectorAll('.tour-focus').length }));
-        rec('11.35', 'Finish closes the tour, focus goes to change card 1, the announcer says "Tour finished. Decide each change, then save the result.", the Result screen stays', fin.hidden && fin.body === 'off' && fin.focus === 'card 1' && fin.ann.some((a) => /^Tour finished\. Decide each change, then save the result\.$/.test(a)) && fin.screen === 'result' && fin.focusCard === 0, fin);
+        const fin = await page.evaluate(() => ({ hidden: document.getElementById('tour').hidden, body: document.body.dataset.tour, focus: document.activeElement.matches('li.region') ? 'card ' + document.activeElement.dataset.region : (document.activeElement.id || document.activeElement.className || document.activeElement.tagName), focusInStrip: !!document.activeElement.closest('#result-steps') && document.activeElement.getAttribute('aria-current') === 'step', stripText: document.activeElement.textContent.replace(/\s+/g, ' ').trim().slice(0, 60), scrollY: Math.round(scrollY), ann: window.__ann.slice(-2), screen: document.querySelector('.screen:not([hidden])').dataset.screen, focusCard: document.querySelectorAll('.tour-focus').length }));
+        rec('11.35', 'Finish closes the tour, scrolls to the top and focus goes to the "What\'s happening" strip current step (U7, Atlas-approved; was card 1), the announcer says "Tour finished. Decide each change, then save the result.", the Result screen stays', fin.hidden && fin.body === 'off' && fin.focusInStrip && fin.scrollY <= 1 && fin.ann.some((a) => /^Tour finished\. Decide each change, then save the result\.$/.test(a)) && fin.screen === 'result' && fin.focusCard === 0, fin);
         rec('11.36', 'onboardingSeen persists in IndexedDB settings after Finish, and survives a reload (no "Take the 30-second tour" banner)', (await settingGet(page, 'onboardingSeen')) === true && await (async () => { await page.reload(); await ready(page); return !(await page.isVisible('#tour-again')); })(), await settingGet(page, 'onboardingSeen'));
         rec('11.37', 'no console errors / CSP violations during the full tour', log.console.length + log.page.length + (await cspOf(page)).length === 0, log.console);
         await page.context().close();
@@ -1063,7 +1065,7 @@ const run = (n) => !only || only.includes(n);
         const under = t ? Math.max(0, Math.min(bot, t.bottom) - Math.max(top, t.top)) : 0;
         const cx = r.left + Math.min(r.width, 600) / 2, cy = top + Math.max(vis, 1) / 2;
         const hit = document.elementFromPoint(Math.min(cx, innerWidth - 1), Math.min(Math.max(cy, 0), vh - 1));
-        return { found: true, targetH: Math.round(r.height), visibleH: Math.round(vis), coveredH: Math.round(under), coveredFrac: vis ? Math.round(under / vis * 100) / 100 : 1, panelH: t ? Math.round(t.height) : 0, panelTop: t ? Math.round(t.top) : 0, vh, pointInsidePanel: !!(hit && tour.contains(hit)), hscroll: document.documentElement.scrollWidth - document.documentElement.clientWidth };
+        return { found: true, top: Math.round(r.top), targetH: Math.round(r.height), visibleH: Math.round(vis), coveredH: Math.round(under), coveredFrac: vis ? Math.round(under / vis * 100) / 100 : 1, panelH: t ? Math.round(t.height) : 0, panelTop: t ? Math.round(t.top) : 0, vh, pointInsidePanel: !!(hit && tour.contains(hit)), hscroll: document.documentElement.scrollWidth - document.documentElement.clientWidth };
       }, sel);
       // is the tour instruction (heading + Next) on screen without scrolling? (the page scrolls to the thing the step points at)
       const pv = (page) => page.evaluate(() => { const n = document.getElementById('tour-next').getBoundingClientRect(), t = document.getElementById('tour-title').getBoundingClientRect(), k = document.getElementById('tour-skip').getBoundingClientRect(); const inV = (r) => r.height > 0 && r.top >= 0 && r.bottom <= innerHeight; return { title: inV(t), next: inV(n), skip: inV(k), nextTop: Math.round(n.top), position: getComputedStyle(document.getElementById('tour')).position, scrollY: Math.round(scrollY) }; });
@@ -1079,7 +1081,6 @@ const run = (n) => !only || only.includes(n);
         rec(`12.1.${tag}`, `landing at ${tag}: no horizontal scroll, "Try the demo" is above the fold (no scrolling) and at least 44 px tall, the secondary action is 44 px tall, colour scheme honoured`, (await ow()) <= 1 && land.btnBottom <= land.vh && land.btnH >= 44 && land.secH >= 44 && land.scheme === cfg.scheme, land);
         const cl = await page.evaluate(CONTRAST); lowC.push(...cl.filter((c) => c.ratio < c.need).map((c) => ({ tag, screen: 'landing', ...c })));
         if (tag === '375-light') await shot(page, 'landing-375-light', true);
-        if (tag === '375-dark') await shot(page, 'landing-375-dark', false);
         if (tag === '1366-dark') await shot(page, 'landing-1366-dark', false);
         // tour
         await page.click('#btn-load-sample'); await page.waitForSelector('#tour:not([hidden])');
@@ -1101,7 +1102,13 @@ const run = (n) => !only || only.includes(n);
         const c4t = await cover(page, 'li.region.tour-focus .region-title');
         const c4c = await cover(page, 'li.region.tour-focus .region-crops');
         pvs.s4 = await pv(page);
-        rec(`12.4.${tag}`, `tour step 4 at ${tag}: card 1 (what the step points at) and its title are not covered by the tour panel`, c4.found && c4.coveredFrac <= 0.25 && c4.visibleH >= 80 && c4t.coveredH === 0 && !c4t.pointInsidePanel, { card: c4, title: c4t });
+        // Round 3 rule (Atlas-approved): a card taller than the free area above the phone bar (panelTop) cannot be covered <= 25% by definition, so for such a target
+        // assert that its TOP (title + crops) is visible above the bar: title fully uncovered and inside the viewport, crops start above the bar. Shorter targets keep the old coverage rule.
+        const bottomBar = c4.panelTop > c4.vh / 2;                                    // phone: the panel is a bar at the bottom; desktop: a bar at the top
+        const free = bottomBar ? c4.panelTop : c4.vh - (c4.panelTop + c4.panelH);     // height of the area the card can use
+        const tall = c4.found && c4.panelH > 0 && c4.targetH > free;
+        const topOk = c4.found && c4t.found && c4t.coveredH === 0 && !c4t.pointInsidePanel && c4t.visibleH >= 20 && c4t.top >= 0 && c4c.found && c4c.coveredH === 0 && c4c.top < c4.vh && (bottomBar ? c4c.top < c4.panelTop : c4c.top >= c4.panelTop + c4.panelH - 1) && c4c.visibleH >= 80;
+        rec(`12.4.${tag}`, `tour step 4 at ${tag}: card 1 (what the step points at) is not hidden by the tour panel (card fits: <= 25% covered; card taller than the free area above the bar: its top, title + crops, is visible above the bar)`, c4.found && c4t.coveredH === 0 && !c4t.pointInsidePanel && (tall ? topOk : (c4.coveredFrac <= 0.25 && c4.visibleH >= 80)), { tall, bottomBar, free, card: c4, title: c4t, crops: c4c });
         rec(`12.4b.${tag}`, `tour step 4 at ${tag}: the Before/After crops of the highlighted card (the evidence the step is about) are not hidden under the tour panel (<= 25% covered)`, c4c.found && c4c.coveredFrac <= 0.25, c4c);
         (await page.evaluate(CONTRAST)).filter((c) => c.ratio < c.need).forEach((c) => lowC.push({ tag, screen: 'tour4', ...c }));
         if (tag === '375-dark') await shot(page, 'tour-step4-375-dark');
@@ -1154,7 +1161,8 @@ const run = (n) => !only || only.includes(n);
       await page.waitForSelector('#tour:not([hidden])');
       rec('13.2', 'Enter starts the tour and moves focus to the step heading (so the screen reader reads it)', (await idOf()) === 'tour-title', await idOf());
       const a = await tabTo((id) => id === 'tour-next', 4); if (!(await ring())) noRing.push('tour-next');
-      rec('13.3', 'step 1: one Tab from the heading reaches Next (the panel is first in the tab order); Next has a focus ring', a.ok && a.seen.length === 1, a.seen);
+      // Round 3: on step 1 the stage canvases are focusable (tap-to-enlarge), so the order is heading > [tour-before (+ tour-after if shown)] > Next. Only those canvas stops are accepted before Next.
+      rec('13.3', 'step 1: Tab from the heading reaches Next after at most the stage canvas stop(s) (tour-before / tour-after, tap-to-enlarge); nothing else is in between; Next has a focus ring', a.ok && a.seen.length >= 1 && a.seen.length <= 3 && a.seen.slice(0, -1).every((x) => /^tour-(before|after)$/.test(x)) && a.seen[a.seen.length - 1] === 'tour-next', a.seen);
       await key('Enter');
       rec('13.4', 'Enter on Next goes to step 2 and focus returns to the heading', (await idOf()) === 'tour-title' && (await tourTitle(page)).startsWith('Step 2 of 5'), await tourTitle(page));
       const f = await tabTo((id) => id === 'tour-flip', 3); await key('Space');
@@ -1174,7 +1182,8 @@ const run = (n) => !only || only.includes(n);
       await tabTo((id) => id === 'tour-next', 4); await key('Enter');                 // Finish
       await page.waitForTimeout(200);
       const fin = await idOf();
-      rec('13.7', 'tour completed with the keyboard only: step 3 "found N changes", step 4 outlines card 1, step 5 "Finish" ends it and focus lands on change card 1', /found 2 changes/.test(s3) && hl.tf === 1 && /^Step 5 of 5/.test(s5) && nextLabel.trim() === 'Finish' && fin === 'card1', { s3, hl, s5, nextLabel, focusAfterFinish: fin, keys });
+      const finStrip = await page.evaluate(() => { const e = document.activeElement; return { inStrip: !!e.closest('#result-steps'), current: e.getAttribute('aria-current') === 'step', text: e.textContent.replace(/\s+/g, ' ').trim().slice(0, 50), scrollY: Math.round(scrollY) }; });
+      rec('13.7', 'tour completed with the keyboard only: step 3 "found N changes", step 4 outlines card 1, step 5 "Finish" ends it, the page is at the top and focus lands on the current step of the "What\'s happening" strip (U7; was card 1)', /found 2 changes/.test(s3) && hl.tf === 1 && /^Step 5 of 5/.test(s5) && nextLabel.trim() === 'Finish' && finStrip.inStrip && finStrip.current && finStrip.scrollY <= 1, { s3, hl, s5, nextLabel, focusAfterFinish: fin, finStrip, keys });
       // review: Tab through each card
       const n = await page.locator('#region-list > li').count();
       const perCard = [];
@@ -1229,8 +1238,9 @@ const run = (n) => !only || only.includes(n);
       const oLand = await outline();
       rec('14.2', 'heading outline on the landing (groups open) starts at h1 and never skips a level', skips(oLand).length === 0, oLand.map((h) => `h${h.l} ${h.t}`));
       await page.click('#btn-load-sample'); await page.waitForSelector('#tour:not([hidden])');
-      const tourSem = await page.evaluate(() => { const t = document.getElementById('tour'); return { tag: t.tagName, labelledby: t.getAttribute('aria-labelledby'), name: document.getElementById(t.getAttribute('aria-labelledby')).textContent.trim(), canvases: [...t.querySelectorAll('canvas')].map((c) => ({ role: c.getAttribute('role'), label: c.getAttribute('aria-label') })), live: t.getAttribute('aria-live'), titleTabindex: document.getElementById('tour-title').getAttribute('tabindex'), skipTag: document.getElementById('tour-skip').tagName }; });
-      rec('14.3', 'tour: a labelled region (aria-labelledby the step heading), heading focusable (tabindex -1), NOT an aria-live region, Skip is a real button, both stage canvases are role=img with labels', tourSem.tag === 'SECTION' && tourSem.labelledby === 'tour-title' && tourSem.titleTabindex === '-1' && !tourSem.live && tourSem.skipTag === 'BUTTON' && tourSem.canvases.every((c) => c.role === 'img' && c.label), tourSem);
+      const tourSem = await page.evaluate(() => { const t = document.getElementById('tour'); return { tag: t.tagName, labelledby: t.getAttribute('aria-labelledby'), name: document.getElementById(t.getAttribute('aria-labelledby')).textContent.trim(), canvases: [...t.querySelectorAll('canvas')].map((c) => ({ role: c.getAttribute('role'), label: c.getAttribute('aria-label'), expanded: c.getAttribute('aria-expanded') })), live: t.getAttribute('aria-live'), titleTabindex: document.getElementById('tour-title').getAttribute('tabindex'), skipTag: document.getElementById('tour-skip').tagName }; });
+      rec('14.3', 'tour: a labelled region (aria-labelledby the step heading), heading focusable (tabindex -1), NOT an aria-live region, Skip is a real button, both stage canvases are role=button (tap-to-enlarge, Round 3) with aria-label "Enlarge image" (aria-expanded: see 14.3b)', tourSem.tag === 'SECTION' && tourSem.labelledby === 'tour-title' && tourSem.titleTabindex === '-1' && !tourSem.live && tourSem.skipTag === 'BUTTON' && tourSem.canvases.length === 2 && tourSem.canvases.every((c) => c.role === 'button' && c.label === 'Enlarge image'), tourSem);
+      rec('14.3b', 'the enlarge buttons expose their state at rest too: aria-expanded="false" is present before the first toggle (a toggle button should not start with no state)', tourSem.canvases.every((c) => c.expanded === 'false'), tourSem.canvases);
       const snapTour = await page.locator('#tour').ariaSnapshot();
       note('14.3a', 'accessibility tree of the tour panel at step 1', snapTour.split('\n').slice(0, 14));
       await tourNext(page); await tourNext(page);
@@ -1289,6 +1299,119 @@ const run = (n) => !only || only.includes(n);
       await ctx.close();
     }
 
+    // -------- 15. Round 3: tap-to-enlarge, Next/Skip inside the viewport on every step, "Try an example" for every example, PeopleSoft select -------
+    if (run(15)) {
+      const inV = (page) => page.evaluate(() => { const o = {}; for (const id of ['tour-title', 'tour-next', 'tour-skip']) { const r = document.getElementById(id).getBoundingClientRect(); o[id] = { top: Math.round(r.top), bottom: Math.round(r.bottom), h: Math.round(r.height), inside: r.height > 0 && r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth }; } o.vh = innerHeight; o.next = document.getElementById('tour-next').textContent.trim(); return o; });
+      // 15.1 tap-to-enlarge (mouse, keyboard, Esc) at phone and desktop width
+      for (const cfg of [{ vw: 375, vh: 812 }, { vw: 1366, vh: 900 }]) {
+        const { ctx, page, log } = await newPage(browser, { viewport: { width: cfg.vw, height: cfg.vh } });
+        await page.goto(URL); await ready(page);
+        await page.click('#btn-load-sample'); await page.waitForSelector('#tour:not([hidden])'); await page.waitForTimeout(500);
+        const st = (id) => page.evaluate((i) => { const c = document.getElementById(i), r = c.getBoundingClientRect(); const cs = getComputedStyle(c); return { zoomed: c.classList.contains('is-zoomed'), expanded: c.getAttribute('aria-expanded'), label: c.getAttribute('aria-label'), role: c.getAttribute('role'), pos: cs.position, x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height), vw: innerWidth, vh: innerHeight, focus: document.activeElement.id, tourOpen: !document.getElementById('tour').hidden }; }, id);
+        const before = await st('tour-before');
+        await page.click('#tour-before'); await page.waitForTimeout(250);
+        const open = await st('tour-before');
+        rec(`15.1a.${cfg.vw}`, `tap-to-enlarge at ${cfg.vw}: clicking the Before image opens a full-screen view (position fixed, covers the viewport), aria-expanded=true, label "Shrink image"`, !before.zoomed && open.zoomed && open.pos === 'fixed' && open.x <= 1 && open.y <= 1 && open.w >= open.vw - 2 && open.h >= open.vh - 2 && open.expanded === 'true' && open.label === 'Shrink image', { before, open });
+        await page.keyboard.press('Escape'); await page.waitForTimeout(250);
+        const closed = await st('tour-before');
+        rec(`15.1b.${cfg.vw}`, `Esc closes the enlarged view, focus returns to the image, and the tour stays open (Esc does not skip the tour)`, !closed.zoomed && closed.focus === 'tour-before' && closed.tourOpen && closed.expanded === 'false' && closed.label === 'Enlarge image', closed);
+        // keyboard: Enter opens, Space closes, then a second Esc (not zoomed) skips the tour as before
+        await page.focus('#tour-before'); await page.keyboard.press('Enter'); await page.waitForTimeout(200);
+        const k1 = await st('tour-before'); await page.keyboard.press('Space'); await page.waitForTimeout(200); const k2 = await st('tour-before');
+        rec(`15.1c.${cfg.vw}`, `keyboard: Enter on the focused image enlarges it, Space shrinks it again`, k1.zoomed && !k2.zoomed && k2.focus === 'tour-before', { k1: k1.zoomed, k2: k2.zoomed });
+        await page.click('#tour-before'); await page.waitForTimeout(150); await page.click('#tour-before', { position: { x: 20, y: 20 } }); await page.waitForTimeout(200);
+        const k3 = await st('tour-before');
+        rec(`15.1d.${cfg.vw}`, `clicking the enlarged image shrinks it again`, !k3.zoomed, k3);
+        // step 2: whichever of the two images is showing (Flip swaps them) enlarges the same way; check both
+        await tourNext(page); await page.waitForTimeout(300);
+        const vis = () => page.evaluate(() => ['tour-before', 'tour-after'].filter((i) => document.getElementById(i).offsetWidth > 0));
+        const both = [];
+        for (let k = 0; k < 2; k++) {
+          const [id] = await vis(); const a0 = await st(id); await page.click('#' + id); await page.waitForTimeout(200); const a1 = await st(id); await page.keyboard.press('Escape'); await page.waitForTimeout(200); const a2 = await st(id);
+          both.push({ id, role: a0.role, open: a1.zoomed, label: a1.label, closed: !a2.zoomed, focus: a2.focus, tourOpen: a2.tourOpen });
+          await page.click('#tour-flip'); await page.waitForTimeout(250);
+        }
+        rec(`15.1e.${cfg.vw}`, `step 2: both the Before and the After image (Flip swaps them) enlarge on click and Esc closes each with focus back on it, tour still open`, both.length === 2 && both[0].id !== both[1].id && both.every((b) => b.role === 'button' && b.open && b.label === 'Shrink image' && b.closed && b.focus === b.id && b.tourOpen), both);
+        rec(`15.1g.${cfg.vw}`, `aria-expanded is "false" at rest (before any toggle) on the tour images`, before.expanded === 'false', { expandedAtRest: before.expanded });
+        if (cfg.vw === 375) { await page.click('#tour-back'); await page.waitForTimeout(250); await page.click('#tour-before'); await page.waitForTimeout(300); await shot15(page, 'enlarged-375'); }
+        rec(`15.1f.${cfg.vw}`, `no console errors in the enlarge pass`, log.console.length + log.page.length + (await cspOf(page)).length === 0, log.console);
+        await ctx.close();
+      }
+      // 15.2 Next and Skip inside the viewport on all 5 steps, 375 and 1366, light and dark
+      for (const cfg of [{ vw: 375, vh: 812, scheme: 'light' }, { vw: 375, vh: 812, scheme: 'dark' }, { vw: 1366, vh: 900, scheme: 'light' }, { vw: 1366, vh: 900, scheme: 'dark' }]) {
+        const tag = `${cfg.vw}-${cfg.scheme}`;
+        const { ctx, page } = await newPage(browser, { viewport: { width: cfg.vw, height: cfg.vh }, colorScheme: cfg.scheme });
+        await page.goto(URL); await ready(page);
+        await page.click('#btn-load-sample'); await page.waitForSelector('#tour:not([hidden])');
+        const steps = [];
+        for (let i = 1; i <= 5; i++) {
+          await page.waitForFunction(() => document.getElementById('tour-next').getAttribute('aria-disabled') !== 'true', null, { timeout: 60000 });
+          await page.waitForTimeout(450);
+          const t = await tourTitle(page); const v = await inV(page);
+          steps.push({ step: i, title: t.slice(0, 22), next: v['tour-next'].inside, skip: v['tour-skip'].inside, title_in: v['tour-title'].inside, nextBottom: v['tour-next'].bottom, nextH: v['tour-next'].h, vh: v.vh });
+          if (i < 5) await page.click('#tour-next');
+        }
+        rec(`15.2.${tag}`, `tour at ${tag}: on all 5 steps the Next (Finish on 5) and Skip buttons are fully inside the viewport without scrolling, Next is >= 44 px tall`, steps.length === 5 && steps.every((x, i) => x.step === i + 1 && x.next && x.skip && x.nextH >= 44), steps);
+        await ctx.close();
+      }
+      // 15.3 "Try an example" from My pages opens a result for every example (clean profile, then everything already saved)
+      const expectOk = (s, r) => { const e = s.expected; const n = r.regions; const st = /^PASS/.test(r.status) ? 'PASS' : /^FAIL/.test(r.status) ? 'FAIL' : '?'; return st === e.status && (e.minRegions == null || n >= e.minRegions) && (e.maxRegions == null || n <= e.maxRegions); };
+      {
+        const { ctx, page, log } = await newPage(browser);
+        await page.goto(URL); await ready(page);
+        const pass1 = [], pass2 = [];
+        for (let i = 0; i < manifest.length; i++) { const t0x = Date.now(); try { await loadSample(page, i); const r = await resultSummary(page); const notice = await page.evaluate(() => document.getElementById('notice').dataset.state); pass1.push({ id: manifest[i].page, ok: expectOk(manifest[i], r) && r.state.startsWith('result'), status: r.status.slice(0, 24), regions: r.regions, notice, ms: Date.now() - t0x }); } catch (e) { pass1.push({ id: manifest[i].page, ok: false, error: String(e.message).slice(0, 160) }); } }
+        rec('15.3a', 'clean profile: Try the demo, then "Try an example" from My pages opens a result with the manifest status for all 8 examples (the first opens the already-saved demo page)', pass1.length === 8 && pass1.every((x) => x.ok), pass1);
+        await page.waitForTimeout(500);
+        const pagesN = await idbInfo(page);
+        for (let i = 0; i < manifest.length; i++) { try { await loadSample(page, i); const r = await resultSummary(page); const notice = await page.evaluate(() => document.getElementById('notice').dataset.state); pass2.push({ id: manifest[i].page, ok: expectOk(manifest[i], r) && r.state.startsWith('result'), notice }); } catch (e) { pass2.push({ id: manifest[i].page, ok: false, error: String(e.message).slice(0, 160) }); } }
+        await page.waitForTimeout(500);
+        const after = await idbInfo(page);
+        rec('15.3b', 'second round, every example is already saved: opening each one again still gives its result, and does not create duplicate pages', pass2.every((x) => x.ok) && after.counts.pages === pagesN.counts.pages, { pass2, pagesBefore: pagesN.counts.pages, pagesAfter: after.counts.pages });
+        rec('15.3c', 'no console errors while opening 16 examples', log.console.length + log.page.length + (await cspOf(page)).length === 0, log.console.slice(0, 4));
+        await ctx.close();
+      }
+      // 15.4 old-titled saved pages (pre-redesign names, no sampleId) do not break "Try an example"
+      {
+        const { ctx, page, log } = await newPage(browser);
+        await page.goto(URL); await ready(page);
+        const legacy = [['tl-timesheet', 'Time & Labor – Timesheet', 'Time & Labor'], ['fscm-po', 'FSCM – Purchase Order (timestamp only)', 'FSCM'], ['hcm-job-data', 'HCM – hcm-job-data', 'HCM'], ['fscm-po-identical', 'FSCM – Purchase Order (identical)', 'FSCM']];
+        const seeded = await page.evaluate(async (items) => {
+          const out = [];
+          for (const [id, name, module] of items) {
+            const b = await (await fetch(`samples/${id}_before.png`)).blob();
+            const bm = await createImageBitmap(b);
+            await new Promise((res, rej) => { const r = indexedDB.open('erpinspector'); r.onerror = () => rej(r.error); r.onsuccess = () => { const db = r.result; const tx = db.transaction('pages', 'readwrite'); tx.objectStore('pages').add({ name, module, notes: 'Sample (fictional)', baseline: b, width: bm.width, height: bm.height, thresholdPct: 0.1, createdAt: Date.now(), updatedAt: Date.now() }); tx.oncomplete = () => { db.close(); res(); }; tx.onerror = () => rej(tx.error); }; });
+            out.push(name);
+          }
+          return out;
+        }, legacy);
+        await page.reload(); await ready(page);
+        const libNames = await page.evaluate(() => [...document.querySelectorAll('#screen-library .page-card, #screen-library [data-page-id]')].length);
+        const res = [];
+        for (let i = 0; i < manifest.length; i++) { try { await loadSample(page, i); const r = await resultSummary(page); const notice = await page.evaluate(() => document.getElementById('notice').dataset.state); res.push({ id: manifest[i].page, ok: expectOk(manifest[i], r) && r.state.startsWith('result'), notice }); } catch (e) { res.push({ id: manifest[i].page, ok: false, error: String(e.message).slice(0, 200) }); } }
+        await page.waitForTimeout(500);
+        const info = await idbInfo(page);
+        rec('15.4a', 'with 4 old-titled pages already saved ("Time & Labor – Timesheet", "FSCM – Purchase Order (timestamp only)", ...), "Try an example" opens a result for all 8 examples', seeded.length === 4 && res.length === 8 && res.every((x) => x.ok), { res, libNames });
+        rec('15.4b', 'old-titled pages are reused, not duplicated: 8 examples -> 8 saved pages in total (4 old + 4 new), no error notice', info.counts.pages === 8 && res.every((x) => x.notice !== 'error'), { pages: info.counts.pages });
+        rec('15.4c', 'no console errors in the old-titles pass', log.console.length + log.page.length + (await cspOf(page)).length === 0, log.console.slice(0, 4));
+        await ctx.close();
+      }
+      // 15.5 "Which PeopleSoft page is this?" lists Time & Labor - Timesheet and fills the name
+      {
+        const { ctx, page, log } = await newPage(browser);
+        await page.goto(URL); await ready(page);
+        await page.click('#btn-new-page'); await page.waitForSelector('#ps-page', { state: 'visible' });
+        const sel = await page.evaluate(() => { const s = document.getElementById('ps-page'); return { label: document.querySelector('label[for="ps-page"]').textContent.trim(), options: [...s.options].map((o) => o.value), groups: [...s.querySelectorAll('optgroup')].map((g) => g.label), nameVisibleBefore: !document.getElementById('page-name-field').hidden }; });
+        const wanted = 'Time & Labor – Timesheet';
+        await page.selectOption('#ps-page', wanted);
+        const filled = await page.evaluate(() => ({ name: document.getElementById('page-name').value, module: document.getElementById('page-module').value, nameVisible: !document.getElementById('page-name-field').hidden }));
+        rec('15.5a', 'the "Which PeopleSoft page is this?" select lists "Time & Labor – Timesheet" (and more than 10 other pages), and picking it fills the name', sel.label === 'Which PeopleSoft page is this?' && sel.options.includes(wanted) && sel.options.length > 10 && sel.options.includes('__other') && filled.name === wanted && filled.nameVisible, { sel: { label: sel.label, count: sel.options.length, groups: sel.groups, hasWanted: sel.options.includes(wanted) }, filled });
+        rec('15.5c', 'picking "Time & Labor – Timesheet" also sets the Module field to "Time and labor" (the sample for this page is a Time & Labor page); it must not be left on HCM', filled.module === 'Time & Labor', filled);
+        rec('15.5b', 'no console errors in the select pass', log.console.length + log.page.length + (await cspOf(page)).length === 0, log.console.slice(0, 4));
+        await ctx.close();
+      }
+    }
 
   } finally {
     await browser.close();

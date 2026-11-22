@@ -1,10 +1,10 @@
 {
- "date": "2026-11-22T17:44:41.266Z",
+ "date": "2026-11-22T18:00:21.900Z",
  "chromium": "157.0.8103.78",
  "node": "v22.23.5",
- "seconds": 150,
- "passed": 196,
- "failed": 6,
+ "seconds": 195,
+ "passed": 226,
+ "failed": 4,
  "results": [
   {
    "id": "1.0",
@@ -240,7 +240,7 @@
      "runs": 0,
      "settings": 3
     },
-    "library": "Timesheet Time & Labor – Timesheet Time and labor · Before screenshot added 22 Nov 2026, 17:42 Compare Past results More"
+    "library": "Timesheet Time & Labor – Timesheet Time and labor · Before screenshot added 22 Nov 2026, 17:57 Compare Past results More"
    }
   },
   {
@@ -308,7 +308,7 @@
    "id": "3.3",
    "name": "library lists the page after reload",
    "ok": true,
-   "evidence": "Timesheet Time & Labor – Timesheet Time and labor · Before screenshot added 22 Nov 2026, 17:42 Compa"
+   "evidence": "Timesheet Time & Labor – Timesheet Time and labor · Before screenshot added 22 Nov 2026, 17:57 Compa"
   },
   {
    "id": "3.4",
@@ -316,7 +316,7 @@
    "ok": true,
    "evidence": {
     "rows": 1,
-    "text": "22 Nov 2026, 17:42 FAIL 2 VR-TL-01Not signed off View Delete"
+    "text": "22 Nov 2026, 17:57 FAIL 2 VR-TL-01Not signed off View Delete"
    }
   },
   {
@@ -466,7 +466,7 @@
     "afterReady": [
      "/samples/tl-timesheet_before.png",
      "/samples/tl-timesheet_after.png",
-     "blob:/a90bc8bf-4852-4382-b80b-f041b5b9d95d"
+     "blob:/480eef29-a5dc-468e-b2db-442c60a996f7"
     ]
    }
   },
@@ -533,7 +533,7 @@
    "name": "offline compare made no new network request (a blob: URL for the thumbnail is in-memory, not network)",
    "ok": true,
    "evidence": [
-    "blob:http://localhost:8107/d8a14a23-da84-4d78-82cc-979671323730"
+    "blob:http://localhost:8107/9f61ea9f-4046-48fa-b6ad-368228460ecc"
    ]
   },
   {
@@ -563,9 +563,9 @@
      "headerDisplay": "none",
      "mainDisplay": "none"
     },
-    "pdfBytes": 139222,
+    "pdfBytes": 139301,
     "pdfPages": 2,
-    "pdfTextHead": "Timesheet (Time & Labor) FAIL · 22 Nov 2026, 17:42 Test case ID Ticket / change ID PeopleSoft version or update image Business unit Role Environment Tester Reviewer Sign-off Not signed off Boxes view "
+    "pdfTextHead": "Timesheet (Time & Labor) FAIL · 22 Nov 2026, 17:57 Test case ID Ticket / change ID PeopleSoft version or update image Business unit Role Environment Tester Reviewer Sign-off Not signed off Boxes view "
    }
   },
   {
@@ -593,7 +593,7 @@
    "name": "page.pdf() produces a non-empty PDF whose text contains the report headings",
    "ok": true,
    "evidence": {
-    "bytes": 139222,
+    "bytes": 139301,
     "hasChangesHeading": true,
     "hasDisclaimer": true
    }
@@ -611,33 +611,33 @@
    "evidence": {
     "runs": [
      {
-      "ms": 594,
+      "ms": 445,
       "maxGap": 33,
-      "gaps": 31,
+      "gaps": 27,
       "longtasks": []
      },
      {
-      "ms": 555,
+      "ms": 833,
       "maxGap": 33,
-      "gaps": 30,
+      "gaps": 47,
       "longtasks": []
      },
      {
-      "ms": 886,
+      "ms": 793,
       "maxGap": 33,
-      "gaps": 48,
+      "gaps": 47,
       "longtasks": []
      },
      {
-      "ms": 948,
+      "ms": 440,
       "maxGap": 33,
-      "gaps": 57,
+      "gaps": 26,
       "longtasks": []
      },
      {
-      "ms": 1019,
+      "ms": 762,
       "maxGap": 33,
-      "gaps": 57,
+      "gaps": 44,
       "longtasks": []
      }
     ],
@@ -878,7 +878,7 @@
    "id": "9.11",
    "name": "keyboard-only sign-off completes (\"Signed off by QA\"; primary action was \"signoff\")",
    "ok": true,
-   "evidence": "Signed off by QAQA on 22 Nov 2026, 17:43."
+   "evidence": "Signed off by QAQA on 22 Nov 2026, 17:58."
   },
   {
    "id": "9.12",
@@ -1046,7 +1046,7 @@
    "id": "11.4e",
    "name": "after sign off, Promote is enabled (and is now the primary button) and the signed-off line shows",
    "ok": true,
-   "evidence": "Signed off by QA on 22 Nov 2026, 17:43."
+   "evidence": "Signed off by QA on 22 Nov 2026, 17:58."
   },
   {
    "id": "11.6a",
@@ -1572,7 +1572,7 @@
      "Sign-off",
      "Actions"
     ],
-    "row": "22 Nov 2026, 17:43 FAIL 2 VR-TL-01 Not signed off View Delete",
+    "row": "22 Nov 2026, 17:58 FAIL 2 VR-TL-01 Not signed off View Delete",
     "nav": [
      "My pages",
      "Compare",
@@ -1721,12 +1721,15 @@
   },
   {
    "id": "11.35",
-   "name": "Finish closes the tour, focus goes to change card 1, the announcer says \"Tour finished. Decide each change, then save the result.\", the Result screen stays",
-   "ok": false,
+   "name": "Finish closes the tour, scrolls to the top and focus goes to the \"What's happening\" strip current step (U7, Atlas-approved; was card 1), the announcer says \"Tour finished. Decide each change, then save the result.\", the Result screen stays",
+   "ok": true,
    "evidence": {
     "hidden": true,
     "body": "off",
-    "focus": "",
+    "focus": "strip-step",
+    "focusInStrip": true,
+    "stripText": "1. Review changes1 of 2 looked at",
+    "scrollY": 0,
     "ann": [
      "Comparison finished. 2 changes found.",
      "Tour finished. Decide each change, then save the result."
@@ -1996,6 +1999,7 @@
    "ok": true,
    "evidence": {
     "found": true,
+    "top": 321,
     "targetH": 225,
     "visibleH": 225,
     "coveredH": 0,
@@ -2009,11 +2013,15 @@
   },
   {
    "id": "12.4.375-light",
-   "name": "tour step 4 at 375-light: card 1 (what the step points at) and its title are not covered by the tour panel",
-   "ok": false,
+   "name": "tour step 4 at 375-light: card 1 (what the step points at) is not hidden by the tour panel (card fits: <= 25% covered; card taller than the free area above the bar: its top, title + crops, is visible above the bar)",
+   "ok": true,
    "evidence": {
+    "tall": true,
+    "bottomBar": true,
+    "free": 634,
     "card": {
      "found": true,
+     "top": 206,
      "targetH": 1483,
      "visibleH": 606,
      "coveredH": 178,
@@ -2026,8 +2034,22 @@
     },
     "title": {
      "found": true,
+     "top": 224,
      "targetH": 44,
      "visibleH": 44,
+     "coveredH": 0,
+     "coveredFrac": 0,
+     "panelH": 178,
+     "panelTop": 634,
+     "vh": 812,
+     "pointInsidePanel": false,
+     "hscroll": 0
+    },
+    "crops": {
+     "found": true,
+     "top": 361,
+     "targetH": 243,
+     "visibleH": 243,
      "coveredH": 0,
      "coveredFrac": 0,
      "panelH": 178,
@@ -2044,6 +2066,7 @@
    "ok": true,
    "evidence": {
     "found": true,
+    "top": 361,
     "targetH": 243,
     "visibleH": 243,
     "coveredH": 0,
@@ -2074,7 +2097,7 @@
      "skip": true,
      "nextTop": 759,
      "position": "fixed",
-     "scrollY": 1730
+     "scrollY": 1736
     },
     "s4": {
      "title": true,
@@ -2100,6 +2123,7 @@
    "ok": true,
    "evidence": {
     "found": true,
+    "top": 405,
     "targetH": 44,
     "visibleH": 44,
     "coveredH": 0,
@@ -2233,6 +2257,7 @@
    "ok": true,
    "evidence": {
     "found": true,
+    "top": 327,
     "targetH": 225,
     "visibleH": 225,
     "coveredH": 0,
@@ -2246,11 +2271,15 @@
   },
   {
    "id": "12.4.375-dark",
-   "name": "tour step 4 at 375-dark: card 1 (what the step points at) and its title are not covered by the tour panel",
-   "ok": false,
+   "name": "tour step 4 at 375-dark: card 1 (what the step points at) is not hidden by the tour panel (card fits: <= 25% covered; card taller than the free area above the bar: its top, title + crops, is visible above the bar)",
+   "ok": true,
    "evidence": {
+    "tall": true,
+    "bottomBar": true,
+    "free": 634,
     "card": {
      "found": true,
+     "top": 206,
      "targetH": 1483,
      "visibleH": 606,
      "coveredH": 178,
@@ -2263,8 +2292,22 @@
     },
     "title": {
      "found": true,
+     "top": 224,
      "targetH": 44,
      "visibleH": 44,
+     "coveredH": 0,
+     "coveredFrac": 0,
+     "panelH": 178,
+     "panelTop": 634,
+     "vh": 812,
+     "pointInsidePanel": false,
+     "hscroll": 0
+    },
+    "crops": {
+     "found": true,
+     "top": 361,
+     "targetH": 243,
+     "visibleH": 243,
      "coveredH": 0,
      "coveredFrac": 0,
      "panelH": 178,
@@ -2281,6 +2324,7 @@
    "ok": true,
    "evidence": {
     "found": true,
+    "top": 361,
     "targetH": 243,
     "visibleH": 243,
     "coveredH": 0,
@@ -2311,7 +2355,7 @@
      "skip": true,
      "nextTop": 759,
      "position": "fixed",
-     "scrollY": 1736
+     "scrollY": 1730
     },
     "s4": {
      "title": true,
@@ -2337,6 +2381,7 @@
    "ok": true,
    "evidence": {
     "found": true,
+    "top": 405,
     "targetH": 44,
     "visibleH": 44,
     "coveredH": 0,
@@ -2476,6 +2521,7 @@
    "ok": true,
    "evidence": {
     "found": true,
+    "top": 334,
     "targetH": 460,
     "visibleH": 460,
     "coveredH": 0,
@@ -2489,11 +2535,15 @@
   },
   {
    "id": "12.4.1366-dark",
-   "name": "tour step 4 at 1366-dark: card 1 (what the step points at) and its title are not covered by the tour panel",
+   "name": "tour step 4 at 1366-dark: card 1 (what the step points at) is not hidden by the tour panel (card fits: <= 25% covered; card taller than the free area above the bar: its top, title + crops, is visible above the bar)",
    "ok": true,
    "evidence": {
+    "tall": true,
+    "bottomBar": false,
+    "free": 600,
     "card": {
      "found": true,
+     "top": 308,
      "targetH": 1061,
      "visibleH": 592,
      "coveredH": 0,
@@ -2506,8 +2556,22 @@
     },
     "title": {
      "found": true,
+     "top": 329,
      "targetH": 44,
      "visibleH": 44,
+     "coveredH": 0,
+     "coveredFrac": 0,
+     "panelH": 206,
+     "panelTop": 94,
+     "vh": 900,
+     "pointInsidePanel": false,
+     "hscroll": 0
+    },
+    "crops": {
+     "found": true,
+     "top": 415,
+     "targetH": 183,
+     "visibleH": 183,
      "coveredH": 0,
      "coveredFrac": 0,
      "panelH": 206,
@@ -2524,6 +2588,7 @@
    "ok": true,
    "evidence": {
     "found": true,
+    "top": 415,
     "targetH": 183,
     "visibleH": 183,
     "coveredH": 0,
@@ -2554,7 +2619,7 @@
      "skip": true,
      "nextTop": 159,
      "position": "sticky",
-     "scrollY": 806
+     "scrollY": 812
     },
     "s4": {
      "title": true,
@@ -2580,6 +2645,7 @@
    "ok": true,
    "evidence": {
     "found": true,
+    "top": 566,
     "targetH": 44,
     "visibleH": 44,
     "coveredH": 0,
@@ -2690,7 +2756,6 @@
    "evidence": [
     "ux2-qa-landing-375-light.png",
     "ux2-qa-tour-step3-375-light.png",
-    "ux2-qa-landing-375-dark.png",
     "ux2-qa-tour-step1-375-dark.png",
     "ux2-qa-tour-step4-375-dark.png",
     "ux2-qa-result-cards-375-dark.png",
@@ -2720,8 +2785,8 @@
   },
   {
    "id": "13.3",
-   "name": "step 1: one Tab from the heading reaches Next (the panel is first in the tab order); Next has a focus ring",
-   "ok": false,
+   "name": "step 1: Tab from the heading reaches Next after at most the stage canvas stop(s) (tour-before / tour-after, tap-to-enlarge); nothing else is in between; Next has a focus ring",
+   "ok": true,
    "evidence": [
     "tour-before",
     "tour-next"
@@ -2750,8 +2815,8 @@
   },
   {
    "id": "13.7",
-   "name": "tour completed with the keyboard only: step 3 \"found N changes\", step 4 outlines card 1, step 5 \"Finish\" ends it and focus lands on change card 1",
-   "ok": false,
+   "name": "tour completed with the keyboard only: step 3 \"found N changes\", step 4 outlines card 1, step 5 \"Finish\" ends it, the page is at the top and focus lands on the current step of the \"What's happening\" strip (U7; was card 1)",
+   "ok": true,
    "evidence": {
     "s3": "Step 3 of 5. The inspector found 2 changes, highlighted in red.",
     "hl": {
@@ -2761,6 +2826,12 @@
     "s5": "Step 5 of 5. Save it as evidence.",
     "nextLabel": "Finish",
     "focusAfterFinish": "LI:1. Review changes1 o",
+    "finStrip": {
+     "inStrip": true,
+     "current": true,
+     "text": "1. Review changes1 of 2 looked at",
+     "scrollY": 0
+    },
     "keys": 33
    }
   },
@@ -2832,7 +2903,7 @@
    "name": "Sign off by keyboard completes (\"Signed off by QA on ...\") and the primary becomes the next step",
    "ok": true,
    "evidence": {
-    "signed": "Signed off by QAQA on 22 Nov 2026, 17:44.",
+    "signed": "Signed off by QAQA on 22 Nov 2026, 17:59.",
     "primary": "Use as new Before screenshot (promote)",
     "reached": true
    }
@@ -2885,8 +2956,8 @@
   },
   {
    "id": "14.3",
-   "name": "tour: a labelled region (aria-labelledby the step heading), heading focusable (tabindex -1), NOT an aria-live region, Skip is a real button, both stage canvases are role=img with labels",
-   "ok": false,
+   "name": "tour: a labelled region (aria-labelledby the step heading), heading focusable (tabindex -1), NOT an aria-live region, Skip is a real button, both stage canvases are role=button (tap-to-enlarge, Round 3) with aria-label \"Enlarge image\" (aria-expanded: see 14.3b)",
+   "ok": true,
    "evidence": {
     "tag": "SECTION",
     "labelledby": "tour-title",
@@ -2894,17 +2965,36 @@
     "canvases": [
      {
       "role": "button",
-      "label": "Enlarge image"
+      "label": "Enlarge image",
+      "expanded": null
      },
      {
       "role": "button",
-      "label": "Enlarge image"
+      "label": "Enlarge image",
+      "expanded": null
      }
     ],
     "live": null,
     "titleTabindex": "-1",
     "skipTag": "BUTTON"
    }
+  },
+  {
+   "id": "14.3b",
+   "name": "the enlarge buttons expose their state at rest too: aria-expanded=\"false\" is present before the first toggle (a toggle button should not start with no state)",
+   "ok": false,
+   "evidence": [
+    {
+     "role": "button",
+     "label": "Enlarge image",
+     "expanded": null
+    },
+    {
+     "role": "button",
+     "label": "Enlarge image",
+     "expanded": null
+    }
+   ]
   },
   {
    "id": "14.3a",
@@ -3087,6 +3177,803 @@
   {
    "id": "14.12",
    "name": "no console errors in the screen-reader pass",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "15.1a.375",
+   "name": "tap-to-enlarge at 375: clicking the Before image opens a full-screen view (position fixed, covers the viewport), aria-expanded=true, label \"Shrink image\"",
+   "ok": true,
+   "evidence": {
+    "before": {
+     "zoomed": false,
+     "expanded": null,
+     "label": "Enlarge image",
+     "role": "button",
+     "pos": "static",
+     "x": 23,
+     "y": 518,
+     "w": 328,
+     "h": 217,
+     "vw": 375,
+     "vh": 812,
+     "focus": "tour-title",
+     "tourOpen": true
+    },
+    "open": {
+     "zoomed": true,
+     "expanded": "true",
+     "label": "Shrink image",
+     "role": "button",
+     "pos": "fixed",
+     "x": 0,
+     "y": 0,
+     "w": 375,
+     "h": 812,
+     "vw": 375,
+     "vh": 812,
+     "focus": "tour-before",
+     "tourOpen": true
+    }
+   }
+  },
+  {
+   "id": "15.1b.375",
+   "name": "Esc closes the enlarged view, focus returns to the image, and the tour stays open (Esc does not skip the tour)",
+   "ok": true,
+   "evidence": {
+    "zoomed": false,
+    "expanded": "false",
+    "label": "Enlarge image",
+    "role": "button",
+    "pos": "static",
+    "x": 23,
+    "y": 518,
+    "w": 328,
+    "h": 217,
+    "vw": 375,
+    "vh": 812,
+    "focus": "tour-before",
+    "tourOpen": true
+   }
+  },
+  {
+   "id": "15.1c.375",
+   "name": "keyboard: Enter on the focused image enlarges it, Space shrinks it again",
+   "ok": true,
+   "evidence": {
+    "k1": true,
+    "k2": false
+   }
+  },
+  {
+   "id": "15.1d.375",
+   "name": "clicking the enlarged image shrinks it again",
+   "ok": true,
+   "evidence": {
+    "zoomed": false,
+    "expanded": "false",
+    "label": "Enlarge image",
+    "role": "button",
+    "pos": "static",
+    "x": 23,
+    "y": 518,
+    "w": 328,
+    "h": 217,
+    "vw": 375,
+    "vh": 812,
+    "focus": "tour-before",
+    "tourOpen": true
+   }
+  },
+  {
+   "id": "15.1e.375",
+   "name": "step 2: both the Before and the After image (Flip swaps them) enlarge on click and Esc closes each with focus back on it, tour still open",
+   "ok": true,
+   "evidence": [
+    {
+     "id": "tour-after",
+     "role": "button",
+     "open": true,
+     "label": "Shrink image",
+     "closed": true,
+     "focus": "tour-after",
+     "tourOpen": true
+    },
+    {
+     "id": "tour-before",
+     "role": "button",
+     "open": true,
+     "label": "Shrink image",
+     "closed": true,
+     "focus": "tour-before",
+     "tourOpen": true
+    }
+   ]
+  },
+  {
+   "id": "15.1g.375",
+   "name": "aria-expanded is \"false\" at rest (before any toggle) on the tour images",
+   "ok": false,
+   "evidence": {
+    "expandedAtRest": null
+   }
+  },
+  {
+   "id": "15.1f.375",
+   "name": "no console errors in the enlarge pass",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "15.1a.1366",
+   "name": "tap-to-enlarge at 1366: clicking the Before image opens a full-screen view (position fixed, covers the viewport), aria-expanded=true, label \"Shrink image\"",
+   "ok": true,
+   "evidence": {
+    "before": {
+     "zoomed": false,
+     "expanded": null,
+     "label": "Enlarge image",
+     "role": "button",
+     "pos": "static",
+     "x": 506,
+     "y": 168,
+     "w": 354,
+     "h": 234,
+     "vw": 1366,
+     "vh": 900,
+     "focus": "tour-title",
+     "tourOpen": true
+    },
+    "open": {
+     "zoomed": true,
+     "expanded": "true",
+     "label": "Shrink image",
+     "role": "button",
+     "pos": "fixed",
+     "x": 0,
+     "y": 0,
+     "w": 1366,
+     "h": 900,
+     "vw": 1366,
+     "vh": 900,
+     "focus": "tour-before",
+     "tourOpen": true
+    }
+   }
+  },
+  {
+   "id": "15.1b.1366",
+   "name": "Esc closes the enlarged view, focus returns to the image, and the tour stays open (Esc does not skip the tour)",
+   "ok": true,
+   "evidence": {
+    "zoomed": false,
+    "expanded": "false",
+    "label": "Enlarge image",
+    "role": "button",
+    "pos": "static",
+    "x": 506,
+    "y": 168,
+    "w": 354,
+    "h": 234,
+    "vw": 1366,
+    "vh": 900,
+    "focus": "tour-before",
+    "tourOpen": true
+   }
+  },
+  {
+   "id": "15.1c.1366",
+   "name": "keyboard: Enter on the focused image enlarges it, Space shrinks it again",
+   "ok": true,
+   "evidence": {
+    "k1": true,
+    "k2": false
+   }
+  },
+  {
+   "id": "15.1d.1366",
+   "name": "clicking the enlarged image shrinks it again",
+   "ok": true,
+   "evidence": {
+    "zoomed": false,
+    "expanded": "false",
+    "label": "Enlarge image",
+    "role": "button",
+    "pos": "static",
+    "x": 506,
+    "y": 168,
+    "w": 354,
+    "h": 234,
+    "vw": 1366,
+    "vh": 900,
+    "focus": "tour-before",
+    "tourOpen": true
+   }
+  },
+  {
+   "id": "15.1e.1366",
+   "name": "step 2: both the Before and the After image (Flip swaps them) enlarge on click and Esc closes each with focus back on it, tour still open",
+   "ok": true,
+   "evidence": [
+    {
+     "id": "tour-after",
+     "role": "button",
+     "open": true,
+     "label": "Shrink image",
+     "closed": true,
+     "focus": "tour-after",
+     "tourOpen": true
+    },
+    {
+     "id": "tour-before",
+     "role": "button",
+     "open": true,
+     "label": "Shrink image",
+     "closed": true,
+     "focus": "tour-before",
+     "tourOpen": true
+    }
+   ]
+  },
+  {
+   "id": "15.1g.1366",
+   "name": "aria-expanded is \"false\" at rest (before any toggle) on the tour images",
+   "ok": false,
+   "evidence": {
+    "expandedAtRest": null
+   }
+  },
+  {
+   "id": "15.1f.1366",
+   "name": "no console errors in the enlarge pass",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "15.2.375-light",
+   "name": "tour at 375-light: on all 5 steps the Next (Finish on 5) and Skip buttons are fully inside the viewport without scrolling, Next is >= 44 px tall",
+   "ok": true,
+   "evidence": [
+    {
+     "step": 1,
+     "title": "Step 1 of 5. This is t",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 803,
+     "nextH": 44,
+     "vh": 812
+    },
+    {
+     "step": 2,
+     "title": "Step 2 of 5. This is t",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 804,
+     "nextH": 44,
+     "vh": 812
+    },
+    {
+     "step": 3,
+     "title": "Step 3 of 5. The inspe",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 803,
+     "nextH": 44,
+     "vh": 812
+    },
+    {
+     "step": 4,
+     "title": "Step 4 of 5. Decide wh",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 803,
+     "nextH": 44,
+     "vh": 812
+    },
+    {
+     "step": 5,
+     "title": "Step 5 of 5. Save it a",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 803,
+     "nextH": 44,
+     "vh": 812
+    }
+   ]
+  },
+  {
+   "id": "15.2.375-dark",
+   "name": "tour at 375-dark: on all 5 steps the Next (Finish on 5) and Skip buttons are fully inside the viewport without scrolling, Next is >= 44 px tall",
+   "ok": true,
+   "evidence": [
+    {
+     "step": 1,
+     "title": "Step 1 of 5. This is t",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 803,
+     "nextH": 44,
+     "vh": 812
+    },
+    {
+     "step": 2,
+     "title": "Step 2 of 5. This is t",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 804,
+     "nextH": 44,
+     "vh": 812
+    },
+    {
+     "step": 3,
+     "title": "Step 3 of 5. The inspe",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 803,
+     "nextH": 44,
+     "vh": 812
+    },
+    {
+     "step": 4,
+     "title": "Step 4 of 5. Decide wh",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 803,
+     "nextH": 44,
+     "vh": 812
+    },
+    {
+     "step": 5,
+     "title": "Step 5 of 5. Save it a",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 803,
+     "nextH": 44,
+     "vh": 812
+    }
+   ]
+  },
+  {
+   "id": "15.2.1366-light",
+   "name": "tour at 1366-light: on all 5 steps the Next (Finish on 5) and Skip buttons are fully inside the viewport without scrolling, Next is >= 44 px tall",
+   "ok": true,
+   "evidence": [
+    {
+     "step": 1,
+     "title": "Step 1 of 5. This is t",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 496,
+     "nextH": 44,
+     "vh": 900
+    },
+    {
+     "step": 2,
+     "title": "Step 2 of 5. This is t",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 519,
+     "nextH": 44,
+     "vh": 900
+    },
+    {
+     "step": 3,
+     "title": "Step 3 of 5. The inspe",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 203,
+     "nextH": 44,
+     "vh": 900
+    },
+    {
+     "step": 4,
+     "title": "Step 4 of 5. Decide wh",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 259,
+     "nextH": 44,
+     "vh": 900
+    },
+    {
+     "step": 5,
+     "title": "Step 5 of 5. Save it a",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 235,
+     "nextH": 44,
+     "vh": 900
+    }
+   ]
+  },
+  {
+   "id": "15.2.1366-dark",
+   "name": "tour at 1366-dark: on all 5 steps the Next (Finish on 5) and Skip buttons are fully inside the viewport without scrolling, Next is >= 44 px tall",
+   "ok": true,
+   "evidence": [
+    {
+     "step": 1,
+     "title": "Step 1 of 5. This is t",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 496,
+     "nextH": 44,
+     "vh": 900
+    },
+    {
+     "step": 2,
+     "title": "Step 2 of 5. This is t",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 518,
+     "nextH": 44,
+     "vh": 900
+    },
+    {
+     "step": 3,
+     "title": "Step 3 of 5. The inspe",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 203,
+     "nextH": 44,
+     "vh": 900
+    },
+    {
+     "step": 4,
+     "title": "Step 4 of 5. Decide wh",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 259,
+     "nextH": 44,
+     "vh": 900
+    },
+    {
+     "step": 5,
+     "title": "Step 5 of 5. Save it a",
+     "next": true,
+     "skip": true,
+     "title_in": true,
+     "nextBottom": 235,
+     "nextH": 44,
+     "vh": 900
+    }
+   ]
+  },
+  {
+   "id": "15.3a",
+   "name": "clean profile: Try the demo, then \"Try an example\" from My pages opens a result with the manifest status for all 8 examples (the first opens the already-saved demo page)",
+   "ok": true,
+   "evidence": [
+    {
+     "id": "tl-timesheet",
+     "ok": true,
+     "status": "FAIL — 2 changes found (",
+     "regions": 2,
+     "notice": "none",
+     "ms": 1177
+    },
+    {
+     "id": "hcm-job-data",
+     "ok": true,
+     "status": "FAIL — 3 changes found (",
+     "regions": 3,
+     "notice": "none",
+     "ms": 796
+    },
+    {
+     "id": "hcm-personal-data",
+     "ok": true,
+     "status": "FAIL — 4 changes found (",
+     "regions": 4,
+     "notice": "none",
+     "ms": 769
+    },
+    {
+     "id": "fscm-voucher",
+     "ok": true,
+     "status": "FAIL — 4 changes found (",
+     "regions": 4,
+     "notice": "none",
+     "ms": 983
+    },
+    {
+     "id": "fscm-po",
+     "ok": true,
+     "status": "FAIL — 1 change found (u",
+     "regions": 1,
+     "notice": "none",
+     "ms": 758
+    },
+    {
+     "id": "hcm-job-data-shifted",
+     "ok": true,
+     "status": "PASS — no unexpected cha",
+     "regions": 0,
+     "notice": "none",
+     "ms": 809
+    },
+    {
+     "id": "hcm-job-data-zoom110",
+     "ok": true,
+     "status": "FAIL — 25 changes found ",
+     "regions": 25,
+     "notice": "none",
+     "ms": 1002
+    },
+    {
+     "id": "fscm-po-identical",
+     "ok": true,
+     "status": "PASS — no unexpected cha",
+     "regions": 0,
+     "notice": "none",
+     "ms": 884
+    }
+   ]
+  },
+  {
+   "id": "15.3b",
+   "name": "second round, every example is already saved: opening each one again still gives its result, and does not create duplicate pages",
+   "ok": true,
+   "evidence": {
+    "pass2": [
+     {
+      "id": "tl-timesheet",
+      "ok": true,
+      "notice": "none"
+     },
+     {
+      "id": "hcm-job-data",
+      "ok": true,
+      "notice": "none"
+     },
+     {
+      "id": "hcm-personal-data",
+      "ok": true,
+      "notice": "none"
+     },
+     {
+      "id": "fscm-voucher",
+      "ok": true,
+      "notice": "none"
+     },
+     {
+      "id": "fscm-po",
+      "ok": true,
+      "notice": "none"
+     },
+     {
+      "id": "hcm-job-data-shifted",
+      "ok": true,
+      "notice": "none"
+     },
+     {
+      "id": "hcm-job-data-zoom110",
+      "ok": true,
+      "notice": "none"
+     },
+     {
+      "id": "fscm-po-identical",
+      "ok": true,
+      "notice": "none"
+     }
+    ],
+    "pagesBefore": 8,
+    "pagesAfter": 8
+   }
+  },
+  {
+   "id": "15.3c",
+   "name": "no console errors while opening 16 examples",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "15.4a",
+   "name": "with 4 old-titled pages already saved (\"Time & Labor – Timesheet\", \"FSCM – Purchase Order (timestamp only)\", ...), \"Try an example\" opens a result for all 8 examples",
+   "ok": true,
+   "evidence": {
+    "res": [
+     {
+      "id": "tl-timesheet",
+      "ok": true,
+      "notice": "none"
+     },
+     {
+      "id": "hcm-job-data",
+      "ok": true,
+      "notice": "none"
+     },
+     {
+      "id": "hcm-personal-data",
+      "ok": true,
+      "notice": "none"
+     },
+     {
+      "id": "fscm-voucher",
+      "ok": true,
+      "notice": "none"
+     },
+     {
+      "id": "fscm-po",
+      "ok": true,
+      "notice": "none"
+     },
+     {
+      "id": "hcm-job-data-shifted",
+      "ok": true,
+      "notice": "none"
+     },
+     {
+      "id": "hcm-job-data-zoom110",
+      "ok": true,
+      "notice": "none"
+     },
+     {
+      "id": "fscm-po-identical",
+      "ok": true,
+      "notice": "none"
+     }
+    ],
+    "libNames": 4
+   }
+  },
+  {
+   "id": "15.4b",
+   "name": "old-titled pages are reused, not duplicated: 8 examples -> 8 saved pages in total (4 old + 4 new), no error notice",
+   "ok": true,
+   "evidence": {
+    "pages": 8
+   }
+  },
+  {
+   "id": "15.4c",
+   "name": "no console errors in the old-titles pass",
+   "ok": true,
+   "evidence": []
+  },
+  {
+   "id": "15.5a",
+   "name": "the \"Which PeopleSoft page is this?\" select lists \"Time & Labor – Timesheet\" (and more than 10 other pages), and picking it fills the name",
+   "ok": true,
+   "evidence": {
+    "sel": {
+     "label": "Which PeopleSoft page is this?",
+     "count": 316,
+     "groups": [
+      "HCM · Human Resources",
+      "HCM · Workforce Administration",
+      "HCM · Position Management",
+      "HCM · Base Benefits",
+      "HCM · Benefits Administration",
+      "HCM · Payroll for North America",
+      "HCM · Global Payroll",
+      "HCM · Global Payroll & Absence Management",
+      "HCM · Absence Management",
+      "HCM · Time & Labor",
+      "HCM · Labor Administration",
+      "HCM · Talent Acquisition Manager",
+      "HCM · Recruiting",
+      "HCM · Onboarding",
+      "HCM · Learning Management",
+      "HCM · Performance Management",
+      "HCM · ePerformance",
+      "HCM · Compensation",
+      "HCM · Variable Compensation",
+      "HCM · Succession Planning",
+      "HCM · Workforce Planning",
+      "HCM · Workforce Monitoring",
+      "HCM · Health and Safety",
+      "HCM · Pension Administration",
+      "HCM · Stock Administration",
+      "HCM · Salary Administration",
+      "HCM · Contract Administration",
+      "HCM · Self Service",
+      "HCM · eProfile",
+      "HCM · eProfile Manager Desktop",
+      "HCM · eBenefits",
+      "HCM · ePay",
+      "HCM · eCompensation",
+      "HCM · Fluid Self Service",
+      "HCM · Fluid Approvals",
+      "HCM · Workforce Communications",
+      "HCM · Equity Management",
+      "HCM · Services Procurement",
+      "HCM · Resource Management",
+      "HCM · Candidate Gateway",
+      "HCM · Enterprise Learning Management",
+      "HCM · HR for Education and Government",
+      "HCM · HR for Public Sector",
+      "HCM · Global Core",
+      "HCM · HR Foundation",
+      "HCM · Application Fundamentals",
+      "FSCM · General Ledger",
+      "FSCM · Payables",
+      "FSCM · Receivables",
+      "FSCM · Billing",
+      "FSCM · Purchasing",
+      "FSCM · eProcurement",
+      "FSCM · Inventory",
+      "FSCM · Order Management",
+      "FSCM · Asset Management",
+      "FSCM · Project Costing",
+      "FSCM · Expenses",
+      "FSCM · Travel and Expenses",
+      "FSCM · Commitment Control",
+      "FSCM · Cash Management",
+      "FSCM · Treasury",
+      "FSCM · Contracts",
+      "FSCM · Grants",
+      "FSCM · Strategic Sourcing",
+      "FSCM · Supplier Contract Management",
+      "FSCM · Supplier Relationship Management",
+      "FSCM · Supplier Portal",
+      "FSCM · Supplier Registration",
+      "FSCM · Supply Planning",
+      "FSCM · Demand Planning",
+      "FSCM · Production Control",
+      "FSCM · Manufacturing",
+      "FSCM · Bills of Materials",
+      "FSCM · Cost Management",
+      "FSCM · Engineering",
+      "FSCM · Maintenance Management",
+      "FSCM · Configurator",
+      "FSCM · Promotions Management",
+      "FSCM · Services Procurement",
+      "FSCM · Staffing Front Office",
+      "FSCM · Deduction Management",
+      "FSCM · Payment Interface",
+      "FSCM · Banking",
+      "FSCM · Collections",
+      "FSCM · Lease Administration",
+      "FSCM · Real Estate Management",
+      "FSCM · Customer Contracts",
+      "FSCM · Customer Relationship Management",
+      "FSCM · Financial Gateway",
+      "FSCM · Fluid Financials",
+      "FSCM · FSCM Application Fundamentals",
+      "FSCM · Enterprise Components"
+     ],
+     "hasWanted": true
+    },
+    "filled": {
+     "name": "Time & Labor – Timesheet",
+     "module": "HCM",
+     "nameVisible": true
+    }
+   }
+  },
+  {
+   "id": "15.5c",
+   "name": "picking \"Time & Labor – Timesheet\" also sets the Module field to \"Time and labor\" (the sample for this page is a Time & Labor page); it must not be left on HCM",
+   "ok": false,
+   "evidence": {
+    "name": "Time & Labor – Timesheet",
+    "module": "HCM",
+    "nameVisible": true
+   }
+  },
+  {
+   "id": "15.5b",
+   "name": "no console errors in the select pass",
    "ok": true,
    "evidence": []
   }

@@ -310,3 +310,68 @@ Sources: `knowledge/qa-tester/` (devtools checks, accessibility testing, ex1 to 
 - **OBS-1:** not a defect. The note fills in after the zone is saved asynchronously (Juno).
 - **run_all.sh:** the knowledge privacy example now passes (Vera aligned its exclusions). The 3 remaining sub-failures are the Python-playwright examples, skipped because the Python `playwright` module isn't installed here. The Node suites cover the same behaviour.
 - **Verdict:** READY.
+
+---
+
+# Round 3 (UX-QA-3, final round), Quinn, 2026-11-22
+
+Targets: local build via `tools/serve_netlify.py` (real `netlify.toml` headers) **and** the live site https://cvfinal-erp-inspector.netlify.app/ (commit "Guided demo works on phones and shows Save result at step 5"). Chromium 157 (Playwright), not branded Chrome.
+
+## Verdict: **READY**
+No blockers or majors. Three minor defects (QA-R3-1 to QA-R3-3 below) are cosmetic or semantic and do not stop a first-time user from finishing the demo, saving and signing off. Fix them if there is time; none gates the release.
+
+## Results
+| Run | Result |
+|---|---|
+| `node tools/qa/run_qa.js` (local, full) | **226 pass, 4 fail, 19 info** (195 s). Before my edits: 196 pass, 6 fail. The 4 failures are the 3 new defects below (14.3b + 15.1g.375 + 15.1g.1366 are one defect; 15.5c is another) |
+| `node tools/qa/run_live.js` (live Netlify) | **8 pass, 0 fail**: HTTP 200, new landing, one primary button and plain nav, Try the demo then Skip gives "FAIL — 2 changes found" with 2 cards, 0 cross-origin requests, only the demo PNGs requested after ready, no app console or CSP errors, headers present (CSP, nosniff, no-referrer, frame DENY) |
+
+Live-site note (not an app defect, unchanged from Round 2): Netlify injects `/.netlify/scripts/hud?variant=public`, whose inline style and script are blocked by our CSP, logging 2 console errors with location `about:srcdoc`. The runner lists them separately. It is a hosting badge; the app itself logs nothing.
+
+## Existing checks I changed (all Atlas-approved, behaviour deliberately changed; nothing else weakened)
+| Check | Old rule | New rule |
+|---|---|---|
+| 13.3 | one Tab from heading reaches Next | Tab from heading reaches Next after **only** the stage canvas stop(s) (`tour-before` / `tour-after`); anything else in between fails. Observed `["tour-before","tour-next"]` |
+| 14.3 | canvases `role=img` | canvases `role=button`, `aria-label="Enlarge image"` (the rest of the rule is unchanged: labelled region, heading `tabindex=-1`, not aria-live, Skip a real button). The `aria-expanded` state is a separate check, 14.3b |
+| 13.7 | focus lands on card 1 after Finish | page at top (scrollY <= 1) and focus on the strip step with `aria-current="step"` inside `#result-steps` |
+| 11.35 | same Finish assertion as 13.7 (not on Atlas's list of 5, but the same change: it also failed) | same as 13.7 |
+| 12.4.375-* | card 1 covered <= 25% | if the card is taller than the free area (above the phone bar, or below the desktop top bar), assert its **top is visible**: title fully uncovered and inside the viewport, crops uncovered, starting on the free side and >= 80 px visible. A card that fits keeps the old coverage rule. Real values at 375: card 1,483 px, free area 634 px, title 44 px visible, crops 243 px visible, 0 px covered |
+
+My first version of the 12.4 rule failed at 1366-dark because I assumed the tour panel is always a bottom bar. At desktop it is a top bar (panelTop 94, card starts at 308, 0 px covered). That was my test bug, not the app; the rule now picks the side from the panel position. 12.4b (crops <= 25% covered) is unchanged and still passes.
+
+## New checks (section 15 in `tools/qa/run_qa.js`; 27 checks, 24 pass)
+| Check | Result |
+|---|---|
+| 15.1a-f tap-to-enlarge at 375 and 1366: click opens a full-screen view (position fixed, 0,0 and full viewport size, `aria-expanded=true`, label "Shrink image"); **Esc closes it, focus returns to the image, the tour stays open**; Enter opens and Space closes; clicking the enlarged image shrinks it; on step 2 both the Before and After image (after Flip) behave the same | **PASS** (both widths) |
+| 15.1g `aria-expanded="false"` present before the first toggle | **FAIL** (QA-R3-1) |
+| 15.2 Next/Finish and Skip fully inside the viewport, no scrolling, Next >= 44 px tall, on **all 5 steps** at 375 light, 375 dark, 1366 light, 1366 dark | **PASS** (20 of 20). Tightest case: Next bottom at 803 of 812 px on the phone |
+| 15.3a clean profile: Try the demo, then "Try an example" from My pages opens a result with the manifest's status for **all 8 examples** (FAIL counts 2, 3, 4, 4, 1, 0 PASS, 25 FAIL zoom, 0 PASS) | **PASS** |
+| 15.3b second round with every example already saved: all 8 open again; still 8 pages in IndexedDB (no duplicates) | **PASS** |
+| 15.4a/b 4 old-titled pages pre-seeded in IndexedDB without `sampleId` ("Time & Labor – Timesheet", "FSCM – Purchase Order (timestamp only)", "FSCM – Purchase Order (identical)", "HCM – hcm-job-data"): "Try an example" opens a result for all 8; the old pages are reused, 8 pages in total, no error notice | **PASS** (Juno's fix holds) |
+| 15.5a "Which PeopleSoft page is this?" lists "Time & Labor – Timesheet" (316 options, with Other) and picking it fills the name | **PASS** |
+| 15.5c picking it also sets Module to "Time and labor" | **FAIL** (QA-R3-2) |
+| 15.1f, 15.3c, 15.4c, 15.5b no console or CSP errors in these passes | **PASS** |
+
+My first seed for 15.4 used an invented legacy name ("HCM – Job Data"), which the app does not treat as an old name, and gave 9 pages. That was my test data, not an app defect; I replaced it with a name the app does list as an alias.
+
+## Defects
+ID | severity | steps | expected | actual | owner
+---|---|---|---|---|---
+QA-R3-1 | minor (a11y) | Try the demo, tour step 1. Inspect `#tour-before` / `#tour-after` (check 14.3b, 15.1g) | A toggle button exposes its state from the start: `aria-expanded="false"` | `role="button"` and `aria-label="Enlarge image"` are set, but `aria-expanded` does not exist until the first click (`js/app.js` ~1149-1152 sets it only inside `flip`). A screen reader announces a plain button, not a collapsed one, until it has been used | Juno: add `c.setAttribute('aria-expanded','false')` where the role is set
+QA-R3-2 | minor | My pages, "Compare my own screenshots", choose "Time & Labor – Timesheet" in "Which PeopleSoft page is this?" (check 15.5c) | Name "Time & Labor – Timesheet" and Module "Time and labor" (the Timesheet example is a Time & Labor page) | Name is filled, **Module stays HCM**. Cause: `onPsChange` (`js/app.js` ~347) tests `mod === 'Time & Labor'`, but `js/ps-catalog.json` spells the module "Time and Labor" (only the built-in fallback catalog uses "&"), so it never matches and falls back to the product, HCM | Juno: compare against the catalog's spelling, or normalise "and" and "&"
+QA-R3-3 | minor (UX, first-time user; unverified on a real phone) | At 375 px, tour step 1, tap the Before image (screenshot `docs/qa/screenshots/r3-qa-enlarged-375.png`) | The enlarged view is easier to read than the thumbnail; the way to close it is visible | It is a full-screen view, but the 1,366 px page is fitted to the 375 px width, so it is only about 1.1x the 328 px thumbnail and the text is still unreadable (the CSS caps the canvas at `max-width: 100%`, so there is nothing to pan or zoom). There is no close button or "Tap to close" hint, so a phone user (no Esc key) has to guess that tapping closes it | Sable and Wren: either show it at a legible scale with scrolling, or add a visible Close button and drop the "enlarge" promise
+
+Observations, no action needed: (a) at 375 px the sticky four-row app header takes about 200 px and the tour bar another 178 px, leaving roughly 430 px of page (visible in the step 3 screenshot); both stay usable. (b) On step 1 at 375 px the caption under the image is partly under the bar; it scrolls into view.
+
+## Screenshots reviewed (as a first-time user)
+Regenerated by `run_qa.js` (8 files, `docs/qa/screenshots/`): `ux2-qa-landing-1366-dark.png`, `ux2-qa-landing-375-light.png`, `ux2-qa-tour-step1-375-dark.png`, `ux2-qa-tour-step3-375-light.png`, `ux2-qa-tour-step4-375-dark.png`, `ux2-qa-result-cards-375-dark.png`, `ux2-qa-result-cards-1366-dark.png`, `r3-qa-enlarged-375.png`. I looked at five of them.
+- Landing 1366 dark: one big "Try the demo (30 seconds)" button, the story in plain words, "What to expect" tells me the answer before I click. Clear.
+- Tour step 1 and step 4 at 375: the bar always shows the step sentence, Back, Next and Skip. At step 4 I can see the change card's title, the Before/After crops and the red badge above the bar, which is what the new 12.4 rule asserts. I could follow the story.
+- Tour step 3 at 375: red boxes, view tabs and the "Changes to review" heading are visible; fine.
+- Result cards 1366 dark: numbered box on the page matches the card; the plain "What this probably is" text and the three decision choices read well.
+- Enlarged view at 375: the surprising one (QA-R3-3).
+
+## Still unverified (carried over)
+Lighthouse accessibility >= 90 (not installed here; DOM checks, keyboard pass and Sable's contrast run stand in), real-phone touch behaviour, branded Chrome, quota-exceeded storage.
+
+Sources: `knowledge/qa-tester/docs/` and `examples/`, `CLAUDE.md` definition of done, `tools/qa/qa-results.json`, `tools/qa/live-results.json`, `js/app.js`, `js/ps-catalog.json`, `css/app.css`.
