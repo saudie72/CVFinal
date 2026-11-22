@@ -26,10 +26,11 @@ const clean = (s) => (s || '').replace(/\s+/g, ' ').trim();
 
   const resp = await page.goto(SITE, { waitUntil: 'load', timeout: 60000 });
   rec('live: HTTP 200', resp.status() === 200, resp.status());
+  // the h1 is filled in by the app once it has started (the raw HTML says "My pages"), so wait for the app to be ready first
+  await page.waitForFunction(() => document.getElementById('status-pill').dataset.state === 'ready', null, { timeout: 90000 });
   const h1 = clean(await page.textContent('#h-library').catch(() => ''));
   rec('live: serves the NEW landing (h1 starts "Compare a page before and after")', /^Compare a page before and after/.test(h1), h1);
   if (!/^Compare a page before and after/.test(h1)) { fs.writeFileSync(path.join(__dirname, 'live-results.json'), JSON.stringify(out, null, 1)); await browser.close(); process.exit(1); }
-  await page.waitForFunction(() => document.getElementById('status-pill').dataset.state === 'ready', null, { timeout: 90000 });
   const landing = await page.evaluate(() => { const vis = (e) => !!(e && (e.offsetWidth || e.offsetHeight)); return { primaries: [...document.querySelectorAll('#screen-library .btn-primary')].filter(vis).map((b) => b.textContent.trim()), secondary: document.getElementById('btn-new-page').textContent.trim(), nav: [...document.querySelectorAll('.app-nav a')].filter(vis).map((a) => a.textContent.trim()), dropdown: !!document.getElementById('sample-select'), title: document.title }; });
   rec('live: landing has one primary button and the plain nav, no dropdown', landing.primaries.length === 1 && landing.primaries[0] === 'Try the demo (30 seconds)' && !landing.dropdown && landing.nav.join() === 'My pages,Settings,How it works,Resources', landing);
   const afterReady = out.requests.length;
