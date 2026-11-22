@@ -91,8 +91,8 @@ def headers_for(rules, path):
 
 def check_static_conflicts(rules):
     """Warn about rules that could match the same sample paths and set the same header."""
-    probes = ["/", "/index.html", "/vendor/opencv/4.10.0/opencv.js", "/samples/x.jpg",
-              "/js/app.js", "/css/app.css", "/scanner.worker.js", "/x.wasm"]
+    probes = ["/", "/index.html", "/vendor/opencv/4.13.0/opencv.js", "/samples/x.png", "/demo-erp/index.html",
+              "/js/app.js", "/css/app.css", "/inspector.worker.js", "/x.wasm"]
     seen = set()
     for p in probes:
         _, conflicts = headers_for(rules, p)
