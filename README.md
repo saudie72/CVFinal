@@ -1,24 +1,27 @@
 # ERP Visual Regression Inspector
 
-Compare a "before" and "after" screenshot of an ERP page and see exactly which regions changed. The app runs entirely in your browser (OpenCV.js on WebAssembly). The demo data is fictional and labelled "Demo ERP (fictional)". Built for the CAI 2840 Computer Vision final.
+Compare a page before and after a PeopleSoft update, and see exactly what changed on screen. The app runs entirely in your browser (OpenCV.js on WebAssembly). The demo data is fictional and labelled "Demo ERP (fictional)". Built for the CAI 2840 Computer Vision final.
 
 It is a **supplemental QA tool, not a replacement for functional or security testing.** A visual diff can show that a field or button appeared or disappeared for the tested role. It does not prove that authorization is correct. See [docs/business-case.md](docs/business-case.md).
 
-**Try it in 30 seconds:** run it locally (below), click **Load sample**, then pick the `tl-timesheet` pair. It should FAIL with 2 changed regions.
+**Live app:** https://cvfinal-erp-inspector.netlify.app/ · **Repo:** https://github.com/saudie72/CVFinal
+
+**Try it in 30 seconds:** open the live app → **Getting started** → **Start the walkthrough** (or pick an example and click **Open example**). The Timesheet example should FAIL with 2 changes: the moved Submit toolbar and the cut-off Reported Hours column.
 
 ---
 
 ## Features
 
-- **Load sample**: one click loads 8 fictional before/after pairs (Timesheet, Job Data, Personal Data, Voucher, Purchase Order, plus edge cases such as an identical pair, a shifted page and a 1.1x zoom).
-- **Alignment**: a page shifted by a few pixels is aligned first, so it is not reported as a change.
-- **Ignore zones**: mask timestamps, user names and session IDs. Draw a zone with the mouse or type X, Y, Width and Height. Zones are saved per page.
-- **Four views**: Boxes (numbered regions), Side-by-side, Overlay slider and Heatmap.
-- **Region hints**: plain-language likely causes for a region, based on its size and position (for example, a capture artifact or a moved control).
-- **Evidence and sign-off**: each run records the test case ID, ticket, tool version, business unit, role and tester. Every region is marked Expected, Regression or Noise. Sign-off is blocked while any region is Regression. The baseline can be promoted only after sign-off.
-- **History and export**: pages and runs are kept in the browser. Export a run as JSON, or print a report.
-- **Reset app data**: deletes all pages, zones and runs after a confirmation. It is visible in DevTools under IndexedDB.
-- **[How it works](how-it-works.html)** and **[Resources](resources.html)** pages.
+- **Getting started**: a 5-step guided walkthrough (before → after → changes found → decide → save) and a **Try an example** dropdown with 8 demo before/after pairs, each with a one-sentence story and what to expect.
+- **My pages**: a **"Which PeopleSoft page are you testing?"** library dropdown (PeopleSoft 9.2 HCM and FSCM modules and pages, named as in PeopleBooks, e.g. *Time & Labor – Timesheet*). It filters your saved pages and starts a new comparison. Each saved page shows its latest result (PASS/FAIL, date, decided/signed off).
+- **Changes in plain words**: each change is a card such as "Change 1 of 2 · middle left of the page · large block", with Before/After crops, a likely cause, and a two-way link to its numbered box on the screenshot. Pixel numbers are only under Details.
+- **Decisions explained**: Expected (meant to change), Regression (a defect; blocks sign-off), Noise (not a real change). Nothing is pre-selected; "Not sure? Choose Regression and add a note."
+- **Alignment**: a page shifted by a few pixels is lined up first ("The After screenshot was 3 pixels lower; the inspector lined them up automatically").
+- **Ignore zones**: hide clocks, user names and session IDs — draw one, type it, or one click on "Add suggested ignore zone". Zones are saved per page.
+- **Four views**: Outlined changes, Side by side, Slide to compare and Heat map.
+- **Evidence and sign-off**: test case ID, ticket, tool version, business unit, role and tester; sign-off is blocked while any change is a Regression; the baseline can be promoted only after sign-off. Export JSON/CSV or print a report.
+- **Reset app data** in Settings: deletes all pages, zones and runs after a confirmation (visible in DevTools → Application → IndexedDB).
+- **[How it works](how-it-works.html)** (including **Who built this** and **Try it with real PeopleSoft screenshots**) and **[Resources](resources.html)** pages.
 
 ## How it works
 
@@ -58,10 +61,10 @@ The site is static: no build step, no environment variables, no API keys. Netlif
 
 Because the publish directory is `.`, Netlify also serves `docs/`, `tools/` and `knowledge/`. They contain only fictional data, and `tools/privacy_audit.py` scans them.
 
-**Verify the live site.** The live deploy is not yet tested.
+**Verify the live site.** Checked on https://cvfinal-erp-inspector.netlify.app/ (headless Chromium): headers and CSP present, OpenCV ready in about 3 s inside `inspector.worker.js`, the Timesheet example FAILs with 2 changes, `erpinspector` (4 stores) survives a refresh, 0 requests to other sites.
 
 1. Headers: `curl -I https://<your-site>.netlify.app/`. Expect `Content-Security-Policy`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer` and `Permissions-Policy`.
-2. Open the site in Chrome. Click **Load sample**, then compare.
+2. Open the site in Chrome. Go to **Getting started**, pick an example and click **Open example**.
 3. DevTools → **Application** → **IndexedDB** → `erpinspector`. After a compare and a save, the stores should hold your data. Refresh the view to update it.
 4. DevTools → **Network**. After the page is ready, no new requests should appear. No network is needed after load.
 
@@ -106,7 +109,7 @@ The test commands from [CLAUDE.md](CLAUDE.md). The results are from the final QA
 
 ## The agent team
 
-The project was built by 17 AI subagents, coordinated by the orchestrator (Atlas). Each agent has a name, a model and a personality, set in `docs/agent-brains.md`. The full roster is in `docs/expert-roster.md`. The table below is built from [docs/handoff-log.md](docs/handoff-log.md), where the row numbers are given.
+The project was built by 17 AI subagents, coordinated by the orchestrator (Atlas). Honest note on how: in Step 9 the Claude Code session took the orchestrator role itself (Atlas), because subagents can't start other subagents, and launched each expert as a subagent with its own agent file, model and knowledge folder; in the later feedback rounds the experts ran as the project's own agent types (`.claude/agents/*`). Every handoff and review is logged either way. Each agent has a name, a model and a personality, set in `docs/agent-brains.md`. The full roster is in `docs/expert-roster.md`. The table below is built from [docs/handoff-log.md](docs/handoff-log.md), where the row numbers are given.
 
 | Agent | Name | Model | What they built | Review trail |
 |---|---|---|---|---|
@@ -136,6 +139,17 @@ The project was built by 17 AI subagents, coordinated by the orchestrator (Atlas
 - **Security finding to hosting** (rows 38 to 39): Volt found that OpenCV.js needs `'unsafe-eval'` in the CSP. It stayed in `netlify.toml`.
 - **Atlas's decisions:** region decisions are Expected, Regression or Noise (row 24). Load sample does not apply zones automatically (row 33). The 1.1x zoom sample is an expected FAIL, a capture-standard violation demo, rather than a loosened pipeline (rows 76 to 77).
 
+### Feedback rounds after the first deploy (handoff-log rows 104–148)
+
+After the owner tried the live app ("not user friendly … what does *Region 1 of 4: 105 by 154 pixels at 702, 338* mean to a user?"), Atlas ran three more rounds through the same team:
+
+| Round | Who | What changed |
+|---|---|---|
+| Plain language | Morgan (business analyst), Wren (UX) | Plain definitions, user stories US-17–US-22, the first-use design (purpose sentence, guided demo, change cards in words, decision help, next-step strip) |
+| Samples & PeopleBooks | Mason, Riley | Human sample names, stories and expectations; the PeopleSoft 9.2 page catalog (`js/ps-catalog.json`); a try-it-locally guide with public PeopleBooks links (no Oracle images committed) |
+| Build & polish | Juno (front end), Sable (UI) | Landing → Getting started tab, example and module dropdowns, My pages as a work list, card ↔ box link, crops, tour on phones, visual polish (contrast 440/440 pairs) |
+| Fixes found by QA | Quinn → Juno, Sable | "Try an example" failures (in-flight compare, old page names), tour off-screen on phones, Save result not shown at step 5, small a11y items. Final QA: READY (230/230 checks); smoke 98/98 |
+
 ## Docs and research
 
 - [docs/README.md](docs/README.md): index of every doc.
@@ -153,7 +167,7 @@ The project was built by 17 AI subagents, coordinated by the orchestrator (Atlas
 ## Known limits
 
 - **Browser:** tested only in Chromium (Playwright's bundled build 157, not branded Google Chrome). Safari and Firefox are untested.
-- **Live site:** the Netlify deploy and its headers are not yet verified. Only the local server (`tools/serve_netlify.py`) was tested.
+- **Live site:** verified (see above). Netlify injects its free-tier "Powered by Netlify" badge script into every page; our CSP blocks its inline code, which shows as console errors that are not from the app. Turn the badge off in Netlify (Project configuration → General) to remove them.
 - **Offline:** there is no offline start. A reload with no network fails, because there is no service worker. Once the page has loaded, no network is needed.
 - **Not run:** Lighthouse, the 200% zoom check, the reduced-motion check and the storage-quota case.
 - **Image size:** images over 16 MP are rejected with a message. The worker is recycled when its heap passes 512 MiB.
