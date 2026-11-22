@@ -1139,3 +1139,203 @@ Template `tpl-region` replacement (Juno builds from this; no inline style or han
 - **Dex:** confirm the shape cut-offs in 12.6 and keep the hint ids stable; review the plain cause sentences.
 - **Quinn:** update tests that match "changed region", "Region n marked" and "Aligned: shift" (D8, D11); add 12.13.
 - **Atlas:** supply the GitHub repo URL if the handoff log should link there (12.9).
+
+### 12.16 Whole-app first-use journey (owner: "i have no idea what in the world i'm suppose to do or why")
+
+Priority tags: **Must** = Juno builds first; **Should** = after the Musts. Everything here supersedes sections 1 to 10 where it conflicts (screen names, the empty Library, nav labels). The result-screen work in 12.3 to 12.8 stays (it is where the owner's earlier complaint lives).
+
+#### 12.16.1 First-use audit (every screen, as someone who has never heard of visual regression testing)
+
+**Method and limit.** Atlas asked for Playwright screenshots of every screen. **I could not take them: this session has no shell tool, so I cannot start the server or Playwright.** The audit below comes from the skeleton (section 8), `js/app.js`, `js/copy.js`, the owner's card screenshot and the owner's two quotes. Treat it as a code-reading audit; Quinn should confirm each row against the running app. **Unverified visually.**
+
+| Screen | Where a first-timer can't tell what this is for or what to do next | Fix (section) |
+|---|---|---|
+| Header, every screen | Six nav items shown at once ("Library", "Compare", "History", "Settings") on an empty app; two of them lead nowhere yet. The pill's first words are "Loading OpenCV (10 MB, first visit only)…", which means nothing to a tester. | 12.16.4, 12.16.7 |
+| Library (empty) | H1 "Library" says nothing about purpose. The panel says "Compare a page before and after a change" but never says what the tool shows you or why. Two buttons ("Load sample", "New page") and a dropdown "Sample pair" compete; "New page" asks for a name, a module and a baseline PNG before the user has seen any value. | 12.16.2, 12.16.3 |
+| Compare | "Baseline" is jargon. Ignore zones, "Add zone manually", a capture tip and Advanced (threshold T, kernel) all appear before the user has pressed Compare once. Three numbered panels but no sentence says "this will show what changed". The disabled Compare needs a hint to be understood. | 12.16.3, 12.16.5 |
+| Result | A red FAIL with no explanation; "Region 1 of 4 ... 702, 338"; three unexplained radios; SSIM and "Aligned: shift (0, 3)"; six buttons (Sign off, Promote to baseline, Print report ...) at once, some disabled. | 12.3 to 12.8, 12.16.5 |
+| Save run dialog | Nine fields, four required, jargon ("Tools version / PUM image") with no explanation of why they matter. | 12.16.5 |
+| History | Nine-column table, two export buttons, before any run is saved; "History" of what? | 12.16.4, 12.16.5 |
+| Settings | Storage figures and "persist status" mean little; the only action is a red destructive button. No sentence says what the screen is for. | 12.16.6 |
+| How it works | The best explanation in the app is the **last** nav item, in a long page, and a first-timer never goes there. | 12.16.2 (tour), 12.16.4 |
+
+#### 12.16.2 The landing state and the guided demo (Must)
+
+**Rule: in under 10 seconds the user reads why (one sentence) and sees what to do (one button).**
+
+Landing = the Library when it has no pages (route `#/library`, `#main[data-state="ready-empty"]`). It replaces `#library-empty`. Contents, top to bottom, nothing else above the fold:
+
+1. `h1#h-library`: **"Compare a page before and after a PeopleSoft update, and see exactly what changed on screen."** (the owner's sentence, word for word; `document.title` stays "My pages - ERP Visual Regression Inspector".)
+2. **One primary button** `#btn-load-sample` (keep this id so existing tests still find it): **"Try the demo (30 seconds)"**. Hint under it: "Uses a fictional Timesheet page. Nothing leaves your browser."
+3. **Secondary** text-style button `#btn-new-page`: **"Compare my own screenshots"** (opens New page, 12.16.3).
+4. `<details id="intro-card">` "What this tool does" (collapsed): Morgan's three sentences and the positioning line (12.11 `intro`). **Got it** is not needed on the landing; the details stays closed. (Morgan's `onboardingSeen` now means "has seen or skipped the tour", see below.)
+5. `<details id="more-samples">` "Try a different demo" holding `#sample-select` (**Should**; hides the dropdown).
+
+No sample dropdown, no module picker, no nav items except "My pages", "How it works", "Resources" (12.16.4).
+
+**Guided demo (the tour).** Pressing **Try the demo** loads the sample (existing logic, section 2), starts the comparison in the background, and opens the tour. The tour is a docked, non-modal panel `#tour` at the top of `#main` (the screenshots below it stay the hero; nothing is blocked or `inert`), plus a stage `#tour-stage` that shows the images for steps 1 to 3. One sentence per step. Buttons: **Next** (primary), **Back** (secondary, Should), and a **Skip tour** link-style button.
+
+| Step | Heading and sentence (exact) | Stage shows | Next button | Notes |
+|---|---|---|---|---|
+| 1 | "Step 1 of 5. This is the page before the update." | `#tour-before`: the baseline canvas, captioned "Before: Time & Labor – Timesheet (a fictional demo page)" | Next | Available as soon as the sample baseline is decoded (no need for OpenCV) |
+| 2 | "Step 2 of 5. This is the same page after the update." | `#tour-after`: the after-change canvas, caption "After" | Next | A **Flip between before and after** toggle button (Should) swaps the two so the eye catches the difference |
+| 3 | "Step 3 of 5. The inspector found {N} changes, highlighted in red." (N = 1: "found 1 change, highlighted in red.") | The real boxes canvas with numbered badges (`#canvas-boxes`) | Next, `aria-disabled` with hint "Still comparing, a moment." until the result exists | While waiting the sentence reads "Step 3 of 5. The inspector is comparing the two pages…" with the pill progress; on result it switches and the announcer says "Comparison finished. {N} changes found." once. If the comparison fails: "The demo comparison didn't finish. [Try again] [Skip tour]" (error panel rules, section 6) |
+| 4 | "Step 4 of 5. Decide what each change is." | The Result screen is shown, with change card 1 scrolled into view and its box highlighted | Next | Help line allowed under the sentence (one more sentence is the limit): "Expected means it was meant to change, Regression means it is a defect, Noise means it is harmless." Nothing is auto-decided |
+| 5 | "Step 5 of 5. Save it as evidence." | The Result screen with the primary action button outlined | **Finish** (not Next) | Under it: "Once every change is decided, Save run keeps the result and Sign off confirms it." If storage is blocked add: "Saving isn't available in this browser, but you can download the evidence." |
+
+Behaviour:
+- **Skip tour** works on every step. It closes the panel, sets `onboardingSeen`, and leaves the user on the Result screen once the comparison is ready (if it's still running, on the Compare screen with the working state). Esc inside the panel = Skip. It never loses the user's place: the demo page stays in **My pages**.
+- **Finish** closes the panel, sets `onboardingSeen`, announces "Tour finished. Decide each change, then save the run.", and moves focus to the first change card (`li.region`).
+- Each step change moves focus to the step heading (`#tour-title`, `tabindex="-1"`). The panel itself is not an `aria-live` region (D13); the focus move is what announces it. Step 3's "found N changes" is also sent once to `#announcer`, so don't repeat it elsewhere.
+- Refreshing during the tour ends it (no tour state is stored); the user lands on **My pages** with the demo page, where a one-line banner `#tour-again` says "Take the 30-second tour" (hidden once `onboardingSeen` is true, or when the user presses its **Dismiss**; plus a **Take the tour again** link in the page footer area on My pages, Should).
+- The tour uses the existing result data. It adds **no** new computation and **no** `cv.Mat` (the Mat rule is unaffected).
+- Reduced motion: no animated transitions between steps.
+
+#### 12.16.3 "Compare my own screenshots" (Must for the copy; Should for the field changes)
+
+Button opens the New page form, trimmed to what is needed (**Should**): **Page name** (suggested from the file name once a file is chosen) and **Before screenshot** (drop, paste or choose). **Module** moves into a `<details>` "More options" (default HCM, as today). Submit button: **"Create page and continue"**; then the Compare screen.
+
+Compare screen plain-language copy (**Must**, replaces the panel headings and hint of section 8; ids unchanged):
+- `p.screen-purpose` under the h1: "Add a screenshot taken after the update, then press Compare. The inspector shows what changed."
+- Panel 1 `h2`: "1. Before the update" with sub-line "This is your baseline: the approved screenshot every later one is checked against."
+- Panel 2 `h2`: "2. After the update" (drop text unchanged: "Drop the after-change screenshot here" becomes "Drop the screenshot taken after the update").
+- Panel 3 `h2`: "3. Compare". The primary action follows section 6 (Choose screenshot, then Compare).
+- The capture tip stays (fixed sentence, section 5), now under panel 2 as well as under the baseline only when a baseline was just added (unchanged rule).
+- **Ignore zones** (the zone list, the zone summary and **Add zone manually**) move into `<details id="zones-details">` with summary "Skip areas that always change (ignore zones)" (**Should**; collapsed until at least one zone exists, then open). The canvas drag-to-draw hint stays inside it.
+- **Advanced** stays collapsed (already). Label "Sensitivity (threshold T, 1–255)" stays in Advanced only.
+
+#### 12.16.4 Navigation: plain names and progressive reveal
+
+**Must (renames).** Nav labels and h1s: **My pages** (route `library`), **Compare**, **Past results** (route `history`; h1 "Past results", was "Run history"), **Settings**, **How it works**, **Resources**. Update `copy.screens` (`library: 'My pages'`, `history: 'Past results'`) and the `<title>`s. Route hashes and `data-route` values do not change.
+
+**Should (reveal).** Items are `hidden` (so not in the tab order) until relevant: **Compare** shown once at least one page exists; **Past results** once at least one run is saved. **My pages**, **Settings**, **How it works**, **Resources** are always shown. A direct hash to a hidden route still works and falls back as in section 1. The skeleton and `app-nav` markup are otherwise unchanged. **How it works** is also reachable from the landing details and from the tour's last step footer ("Learn more: How it works").
+
+#### 12.16.5 Progressive disclosure table
+
+| Thing | Shown when | Until then | Priority |
+|---|---|---|---|
+| Purpose sentence under every h1 (`p.screen-purpose`, 12.16.6) | Always | n/a | **Must** |
+| Landing: one primary button, one secondary | Library has no pages | n/a | **Must** |
+| Guided demo | First run, or "Take the tour again" | `onboardingSeen` true hides the banner | **Must** |
+| Advanced settings (threshold, kernel, minimum size, alignment) | User opens Advanced | Collapsed (already) | **Must** (keep) |
+| Region/change card extras: Not sure? rule, Details | Details collapsed, rule always visible | Details collapsed | **Must** (12.6) |
+| Ignore zone list and manual zone form | `#zones-details` opened, or a zone exists | Collapsed | Should |
+| New page "Module" | "More options" opened | Collapsed, default HCM | Should |
+| Evidence fields beyond the four required (Business unit, Role, Environment, Note, Role-based test) | User opens `<details>` "More details (optional)" in the Save run dialog; remembered per session | Collapsed. The four required fields stay visible with a one-line why: "These identify the test in your defect tracker and the audit record." | Should |
+| Sign off and Promote buttons | Each becomes the primary action in its turn (table 3a). Before that, the progress strip and `#result-next` carry the reason (e.g. "Sign-off is blocked while a change is marked Regression"). Both buttons are `hidden`, not just disabled | Hidden | Should (this supersedes D5 **only for these two buttons**; Save run and Compare keep `aria-disabled` + reason because users reach them early) |
+| Download evidence PNG, Print report, Compare again | In a `<details id="more-actions">` "More actions" under the primary button | Collapsed | Should |
+| Past results table | Table shows Date, Status, Changes, Test case, Sign-off, View; ticket, tester and tools version appear in the run's View and in exports | Fewer columns | Should |
+| Export CSV / JSON | In a `<details>` "Export" under the table | Collapsed | Should |
+| Empty Past results | "Nothing saved yet. Compare a page and press Save run, and it shows up here." plus a **Go to My pages** button | n/a | **Must** (copy) |
+
+One primary button per screen (`btn-primary`): My pages (landing): Try the demo; My pages (with pages): Compare on the first page card, others secondary; Compare: Choose screenshot, then Compare; Result: per table 3a; Past results: none (View per row is secondary); Settings: none.
+
+#### 12.16.6 Purpose line on every screen (Must)
+
+`<p class="screen-purpose">` directly under each `h1`, plain text, always visible:
+
+| Screen | Line |
+|---|---|
+| My pages (with pages) | "Each page keeps its own before screenshot (the approved baseline). Pick a page to compare it with a new screenshot." |
+| Compare | "Add a screenshot taken after the update, then press Compare. The inspector shows what changed." |
+| Result | `#result-summary` serves as the line (12.4) |
+| Past results | "Every saved result for a page, with its status and who signed it off." |
+| Settings | "Where your data is kept, and how to erase it. Everything stays on this device." |
+| How it works | The `lede` (unchanged): add as its first sentence "Compare a page before and after a PeopleSoft update, and see exactly what changed on screen." |
+
+#### 12.16.7 Status pill, first run (Should)
+
+First-visit pill text becomes "Getting ready: loading the comparison engine (about 10 MB, first visit only)…" (size is the project's existing figure; still **unverified**). Returning: "Starting the comparison engine…". Replaces the words "OpenCV" and "vision engine" for the user; error text uses "comparison engine" too ("The comparison engine didn't load"). Progress steps names are already plain.
+
+#### 12.16.8 States added
+
+| State | Where | On screen |
+|---|---|---|
+| `ready-empty` (landing) | `#main[data-state]` | 12.16.2 landing |
+| `tour-1` to `tour-5`, `tour-wait` (step 3 while comparing), `tour-error` | `#tour[data-step="1..5|wait|error"]`; `body[data-tour="on|off"]` | 12.16.2 table |
+| `ready` with `onboardingSeen` false and pages | My pages | `#tour-again` banner |
+| `storage-blocked` | Banner as section 6 | Tour still runs; step 5 sentence adds the download note |
+| `loading-opencv` during the tour | Pill | Step 3 shows "comparing" wait text; Steps 1 and 2 work without the engine |
+
+#### 12.16.9 Keyboard and screen readers for the tour and nav
+
+Panel first in DOM order inside `#main` while open (so Tab reaches Next first); **Next** is a real button (Enter/Space); **Skip tour** is a `<button class="link-btn">`; Esc skips; no single-key shortcuts. Heading `#tour-title` receives focus on each step. The stage images are canvases with `role="img"` and labels: "Before: Time & Labor – Timesheet, fictional demo page" / "After: ..." / the existing boxes label. Targets 44 x 44 px. Contrast per `tools/contrast_check.py`. **CSP:** no inline script or style; the tour highlights an element with a class (`.tour-focus`), never an inline style; any dynamic value via `style.setProperty`.
+
+#### 12.16.10 Copy for the whole-app work (`js/copy.js`)
+
+```js
+// UX-2 first-use clarity (docs/design/ux-flows.md 12.16). Fictional data only.
+screens: { library: 'My pages', compare: 'Compare', result: 'Result', history: 'Past results', settings: 'Settings' },
+nav: { library: 'My pages', compare: 'Compare', history: 'Past results', settings: 'Settings', how: 'How it works', resources: 'Resources' },
+landing: {
+  h1: 'Compare a page before and after a PeopleSoft update, and see exactly what changed on screen.',
+  primary: 'Try the demo (30 seconds)',
+  primaryHint: 'Uses a fictional Timesheet page. Nothing leaves your browser.',
+  secondary: 'Compare my own screenshots',
+  moreSamples: 'Try a different demo',
+  aboutSummary: 'What this tool does',   // body = intro.body + intro.positioning
+  tourAgain: 'Take the 30-second tour',
+  tourAgainDismiss: 'Dismiss',
+},
+tour: {
+  stepOf: i => `Step ${i} of 5.`,
+  s1: 'This is the page before the update.',
+  s2: 'This is the same page after the update.',
+  s3: n => n === 1 ? 'The inspector found 1 change, highlighted in red.' : `The inspector found ${n} changes, highlighted in red.`,
+  s3wait: 'The inspector is comparing the two pages…',
+  s3waitHint: 'Still comparing, a moment.',
+  s4: 'Decide what each change is.',
+  s4help: 'Expected means it was meant to change, Regression means it is a defect, Noise means it is harmless.',
+  s5: 'Save it as evidence.',
+  s5help: 'Once every change is decided, Save run keeps the result and Sign off confirms it.',
+  s5blocked: "Saving isn't available in this browser, but you can download the evidence.",
+  captionBefore: 'Before: Time & Labor – Timesheet (a fictional demo page)',
+  captionAfter: 'After',
+  next: 'Next', back: 'Back', finish: 'Finish', skip: 'Skip tour', flip: 'Flip between before and after',
+  learnMore: 'Learn more: How it works',
+  error: "The demo comparison didn't finish.", retry: 'Try again',
+  doneAnnounce: 'Tour finished. Decide each change, then save the run.',
+  foundAnnounce: n => `Comparison finished. ${n === 1 ? '1 change' : `${n} changes`} found.`,
+},
+purpose: {
+  pages: 'Each page keeps its own before screenshot (the approved baseline). Pick a page to compare it with a new screenshot.',
+  compare: 'Add a screenshot taken after the update, then press Compare. The inspector shows what changed.',
+  history: 'Every saved result for a page, with its status and who signed it off.',
+  settings: 'Where your data is kept, and how to erase it. Everything stays on this device.',
+},
+compare: {
+  baselineTitle: '1. Before the update',
+  baselineSub: 'This is your baseline: the approved screenshot every later one is checked against.',
+  afterTitle: '2. After the update',
+  dropAfter: 'Drop the screenshot taken after the update',
+  zonesSummary: 'Skip areas that always change (ignore zones)',
+  newPageSubmit: 'Create page and continue',
+  moreOptions: 'More options',
+},
+resultActions: { more: 'More actions', exportSummary: 'Export' },
+evidenceUi: { why: 'These identify the test in your defect tracker and the audit record.', moreSummary: 'More details (optional)' },
+historyUi: { empty: 'Nothing saved yet. Compare a page and press Save run, and it shows up here.', goPages: 'Go to My pages' },
+pillFirst: 'Getting ready: loading the comparison engine (about 10 MB, first visit only)…',
+pillSeen: 'Starting the comparison engine…',
+```
+
+#### 12.16.11 New ids and classes (Sable and Juno)
+
+Ids: `tour`, `tour-title`, `tour-stage`, `tour-before`, `tour-after`, `tour-next`, `tour-back`, `tour-skip`, `tour-flip`, `tour-again`, `more-samples`, `zones-details`, `more-actions`. Classes: `landing` (the hero block: big h1, generous spacing, one `btn-primary`), `link-btn` (button that looks like a link, with the focus ring), `screen-purpose`, `tour-panel`, `tour-step`, `tour-focus` (the outline on the target element). Data: `#tour[data-step]`, `body[data-tour]`. Sable: the landing is the one place the page may use larger type and calm space; keep the screenshots, not the chrome, as the hero in the tour.
+
+#### 12.16.12 Priority list for Juno
+
+**Must (build first):** landing + `btn-load-sample` relabel (12.16.2); the 5-step tour with Skip, Finish and `onboardingSeen`; nav and h1 renames (12.16.4); screen purpose lines (12.16.6); Compare panel headings and plain copy (12.16.3); empty Past results copy; the change card, decision help, two-way link, "What's happening" guide and `#result-next`, status wording ("changes", 12.6 to 12.8, 12.4); Who built this (`#team`) and the FAIL-rule fix on How it works; keep Advanced collapsed.
+**Should:** nav reveal rules; pill wording; ignore zones and New page "Module" collapsed; Save dialog optional fields collapsed with the "why" line; Sign off/Promote hidden until primary; "More actions"; fewer Past results columns and collapsed Export; Back and Flip in the tour; "Try a different demo" details; the "Where you see it" column; credit lines; sticky two-column result layout; locator canvas.
+
+#### 12.16.13 Before / after (owner's second message) and handoffs
+
+| Owner | Before | After |
+|---|---|---|
+| "i have no idea what in the world i'm suppose to do" | An empty page with two buttons and a dropdown | One sentence of purpose, one button "Try the demo (30 seconds)", a guided 5-step demo, and a purpose line plus a "what to do next" sentence on every screen |
+| "or why" | The purpose was only on How it works, the last nav item | The owner's purpose sentence is the landing h1; the tour shows before, after, the highlighted changes, deciding and saving; Who built this explains the team |
+| "absolutely terrible" (overall) | Advanced and rare controls all visible at once | Progressive disclosure: advanced and rare things stay collapsed or hidden until they are relevant; plain nav names |
+
+(Section 12.17 below replaces the sample dropdown and `#more-samples` with example cards, and adds the app-wide plain-words rules.)
+
+Handoffs: **Juno** builds 12.16 Musts first (then the earlier UX-2 Musts); **Sable** styles `landing`, `tour-panel`, `link-btn`, `tour-focus`, the collapsed `<details>` blocks; **Quinn** adds to 12.13: (a) fresh profile shows the landing with exactly one primary button and the owner's sentence, no nav items other than My pages, How it works, Resources; (b) tour: Next/Skip/Finish by keyboard only, Skip on each step, Esc skips, `onboardingSeen` persists, Reset app data brings the tour back, step 3 waits for the compare, N matches the result; (c) tests that click `#btn-load-sample` still work and the old "Load sample" text assertion changes; (d) 375 px layout of the landing and the tour; **Atlas:** decide whether to hold `introDismissed` (brief) or `onboardingSeen` (Morgan); I used `onboardingSeen`; **Morgan:** confirm the tour sentences and the purpose lines.
