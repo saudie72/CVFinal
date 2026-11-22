@@ -24,7 +24,7 @@ The canvas is RGBA, so red is `(R, G, B, A)`, not the BGR `(0, 0, 255)` from Pyt
 
 ## Heatmap
 
-`cv.applyColorMap` (e.g. `COLORMAP_JET`) is part of OpenCV's colormap module. Forum posts show people needing a **custom build** to get colormaps in opencv.js. So detect it, and otherwise use a 256-entry lookup table:
+`cv.applyColorMap` (e.g. `COLORMAP_JET`) is part of OpenCV's colormap module. Forum posts show people needing a **custom build** to get colormaps in opencv.js. Update (verified 2026-11-22): the opencv.js **4.13** build at docs.opencv.org **does** include `applyColorMap` (it returns a 3-channel image). So detect it, and otherwise use a 256-entry lookup table:
 
 ```js
 function heatmap(diffGray /* CV_8UC1 */) {

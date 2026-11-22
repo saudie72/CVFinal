@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Example 2 — glass status pill + PASS/FAIL badges (text + icon, never colour alone)</title>
+<link rel="stylesheet" href="ex1-tokens.css">
+<style>
+  body { font-family: var(--font); background: var(--canvas); color: var(--text); margin: 0; padding: 24px; }
+  .pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; min-height: 32px;
+          border-radius: 999px; font-size: 14px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #8e8e93; }
+  .pill[data-state="ready"] .dot { background: var(--pass-fg); }
+  .pill[data-state="working"] .dot { background: var(--accent); animation: pulse 1.2s ease-in-out infinite; }
+  .pill[data-state="error"] .dot { background: var(--fail-fg); }
+  @keyframes pulse { 50% { opacity: .35; } }
+  @media (prefers-reduced-motion: reduce) { .pill .dot { animation: none !important; } }
+  .badge { display: inline-flex; gap: 6px; align-items: center; font-weight: 600; padding: 4px 10px;
+           border-radius: 8px; background: var(--viewer); border: 1px solid currentColor; }
+  .badge.pass { color: var(--pass-fg); } .badge.fail { color: var(--fail-fg); }
+</style>
+<div class="glass pill" id="pill" role="status" aria-live="polite" data-state="loading">
+  <span class="dot" aria-hidden="true"></span><span id="pill-text">Loading OpenCV…</span>
+</div>
+<p><span class="badge pass"><span aria-hidden="true">✓</span>PASS — no unexpected changes</span>
+   <span class="badge fail"><span aria-hidden="true">✕</span>FAIL — 3 changed regions (0.8%)</span></p>
+<script type="module">
+const pill = document.getElementById('pill'), txt = document.getElementById('pill-text');
+export function setStatus(state, text) { pill.dataset.state = state; txt.textContent = text; }
+setStatus('working', 'Working… Aligning');
+const cs = getComputedStyle(pill);
+const r = {
+  role: pill.getAttribute('role'), ariaLive: pill.getAttribute('aria-live'),
+  textAnnounced: txt.textContent,
+  backdropFilterApplied: (cs.backdropFilter || cs.webkitBackdropFilter || 'none') !== 'none',
+  pillHeightPx: Math.round(pill.getBoundingClientRect().height),
+  badgesHaveText: [...document.querySelectorAll('.badge')].every(b => /PASS|FAIL/.test(b.textContent)),
+  dotAnimation: getComputedStyle(pill.querySelector('.dot')).animationName,
+};
+r.ok = r.role === 'status' && r.ariaLive === 'polite' && r.textAnnounced.startsWith('Working') &&
+       r.backdropFilterApplied && r.pillHeightPx >= 32 && r.badgesHaveText && r.dotAnimation === 'pulse';
+window.__result = r;
+</script>
+</html>

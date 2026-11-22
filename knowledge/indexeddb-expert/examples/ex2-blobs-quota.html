@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Example 2 — storing screenshot Blobs, reading them back, storage estimate</title>
+<pre id="out">running…</pre>
+<canvas id="c" width="320" height="200" hidden></canvas>
+<script type="module">
+import { openDB, tx, req, deleteDB } from './idb.js';
+const r = {};
+const NAME = 'erpinspector-example2';
+await deleteDB(NAME);
+const db = await openDB(NAME, 1, d => d.createObjectStore('pages', { keyPath: 'id', autoIncrement: true }));
+
+// make a PNG "baseline screenshot" on a canvas → Blob (never base64)
+const c = document.getElementById('c'), g = c.getContext('2d');
+g.fillStyle = '#f2f2f7'; g.fillRect(0, 0, 320, 200);
+g.fillStyle = '#0a84ff'; g.fillRect(20, 150, 90, 30);           // "Save" button
+const blob = await new Promise(res => c.toBlob(res, 'image/png'));
+r.blobType = blob.type; r.blobBytes = blob.size;
+
+const id = await tx(db, 'pages', 'readwrite', t => req(t.objectStore('pages').add({
+  name: 'HCM – Job Data', module: 'HCM', baseline: blob, width: 320, height: 200, createdAt: Date.now() })));
+
+// read it back: still a Blob; decode and check a pixel inside the button
+const rec = await tx(db, 'pages', 'readonly', t => req(t.objectStore('pages').get(id)));
+r.isBlobAfterRead = rec.baseline instanceof Blob;
+const bmp = await createImageBitmap(rec.baseline);
+const c2 = new OffscreenCanvas(bmp.width, bmp.height), g2 = c2.getContext('2d');
+g2.drawImage(bmp, 0, 0);
+r.pixelAtButton = [...g2.getImageData(50, 160, 1, 1).data];      // [10,132,255,255]
+
+// storage usage / quota for this origin
+const est = await navigator.storage.estimate();
+r.estimate = { usageBytes: est.usage, quotaMB: Math.round(est.quota / 1048576) };
+r.persistApiAvailable = typeof navigator.storage.persist === 'function';
+db.close();
+
+r.ok = r.blobType === 'image/png' && r.isBlobAfterRead && r.pixelAtButton.join() === '10,132,255,255' &&
+       typeof est.usage === 'number' && est.quota > 0;
+window.__result = r;
+document.getElementById('out').textContent = JSON.stringify(r, null, 2);
+</script>

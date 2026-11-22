@@ -23,5 +23,6 @@ Reference: `docs/08-indexeddb.md`.
 - `onblocked` → status "Close other tabs of this app, then reload". `db.onversionchange` → `db.close(); location.reload()`.
 - Store images as Blobs (`canvas.toBlob('image/png')`), never base64.
 - Don't await unrelated work inside a transaction.
+- In the transaction `onerror`, reject with `event.target.error`, because `tx.error` can still be `null` then (verified; see knowledge/indexeddb-expert/docs/03-transactions.md).
 - Catch `ConstraintError` on duplicate page names and show a friendly message.
 - Call `navigator.storage.persist()` once after the first baseline is saved.

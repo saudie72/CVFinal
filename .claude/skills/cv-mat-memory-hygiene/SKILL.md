@@ -16,6 +16,7 @@ try { const g = T(new cv.Mat()); /* ... */ }
 finally { for (const o of bag) try { o.delete(); } catch {} }
 ```
 - Never keep Mats between messages. Convert to `ImageData` or `ArrayBuffer` before returning.
+- **Deep copies:** `Mat.clone()` is **shallow in opencv.js 4.13** (verified: it shares pixels). Use `mat.mat_clone()` or `src.copyTo(dst)`. See knowledge/opencv-expert/examples/README.md.
 - In-place operations (`cv.threshold(bin, bin, …)`) are fine and save memory.
 
 ## Leak test (qa-tester / wasm-expert)

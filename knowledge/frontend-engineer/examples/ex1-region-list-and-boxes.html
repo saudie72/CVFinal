@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<link rel="icon" href="data:,">  <!-- no favicon request: QA smoke test caught a 404 for /favicon.ico -->
+<title>Example 1 — draw numbered region boxes on canvas + matching accessible list</title>
+<canvas id="view" width="400" height="240" role="img" aria-label=""></canvas>
+<ol id="regions"></ol>
+<div id="live" aria-live="polite"></div>
+<script type="module">
+// Input = the worker's result contract (skill opencvjs-diff-pipeline).
+const result = { status: 'FAIL', changedPct: 0.8, regions: [
+  { x: 40, y: 30, width: 120, height: 24 }, { x: 220, y: 150, width: 90, height: 40 }, { x: 30, y: 190, width: 60, height: 20 } ] };
+
+const cv = document.getElementById('view'), g = cv.getContext('2d');
+g.fillStyle = '#ffffff'; g.fillRect(0, 0, cv.width, cv.height);          // stand-in screenshot
+g.fillStyle = '#e5e5ea'; g.fillRect(20, 20, 360, 200);
+
+export function drawRegions(ctx, regions, color = '#e9152d') {
+  ctx.save(); ctx.lineWidth = 3; ctx.strokeStyle = color; ctx.fillStyle = color;
+  ctx.font = '600 13px system-ui, sans-serif'; ctx.textBaseline = 'bottom';
+  regions.forEach((r, i) => {
+    ctx.strokeRect(r.x + 1.5, r.y + 1.5, r.width - 3, r.height - 3);       // inside the box, crisp
+    ctx.fillText(String(i + 1), r.x, Math.max(14, r.y - 2));
+  });
+  ctx.restore();
+}
+export function renderRegionList(ol, regions) {
+  ol.replaceChildren(...regions.map((r, i) => {
+    const li = document.createElement('li'); li.tabIndex = 0;
+    li.textContent = `Region ${i + 1} of ${regions.length} — ${r.width}×${r.height} px at (${r.x}, ${r.y})`;
+    return li;
+  }));
+}
+drawRegions(g, result.regions);
+renderRegionList(document.getElementById('regions'), result.regions);
+const summary = `${result.status} — ${result.regions.length} changed regions (${result.changedPct}% of page)`;
+cv.setAttribute('aria-label', `Candidate screenshot with ${result.regions.length} regions marked`);
+document.getElementById('live').textContent = summary;
+
+const px = (x, y) => [...g.getImageData(x, y, 1, 1).data];
+const r = {
+  strokePixel: px(41, 40),            // left edge of region 1 → red
+  insidePixel: px(100, 42),           // inside region 1 → untouched grey
+  listItems: [...document.querySelectorAll('#regions li')].map(li => li.textContent),
+  live: document.getElementById('live').textContent,
+  canvasLabel: cv.getAttribute('aria-label'),
+};
+r.ok = r.strokePixel.join() === '233,21,45,255' && r.insidePixel.join() === '229,229,234,255' &&
+       r.listItems.length === 3 && r.listItems[1].startsWith('Region 2 of 3 — 90×40 px') &&
+       r.live.startsWith('FAIL — 3 changed regions');
+window.__result = r;
+</script>
+</html>

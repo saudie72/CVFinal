@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Example 2 — WebAssembly.Memory pages, grow() and buffer detachment</title>
+<pre id="out">running…</pre>
+<script>
+// Why this matters for OpenCV.js: every cv.Mat lives in this kind of linear memory (the
+// Emscripten heap). When the heap grows, OLD typed-array views over it become detached
+// (length 0). Always re-read mat.data after operations that may allocate.
+const PAGE = 64 * 1024;
+const mem = new WebAssembly.Memory({ initial: 1, maximum: 10 });
+const r = {};
+r.initialPages = mem.buffer.byteLength / PAGE;               // 1
+const oldView = new Uint8Array(mem.buffer);
+oldView[0] = 42;
+r.growReturnsPreviousPages = mem.grow(1);                     // 1 (previous size)
+r.pagesAfterGrow = mem.buffer.byteLength / PAGE;              // 2
+r.oldViewLengthAfterGrow = oldView.length;                    // 0 → detached!
+r.dataSurvived = new Uint8Array(mem.buffer)[0];               // 42 (fresh view)
+try { mem.grow(100); r.overMax = 'no error'; } catch (e) { r.overMax = e.name; } // RangeError
+r.ok = r.initialPages === 1 && r.growReturnsPreviousPages === 1 && r.pagesAfterGrow === 2 &&
+       r.oldViewLengthAfterGrow === 0 && r.dataSurvived === 42 && r.overMax === 'RangeError';
+window.__result = r;
+document.getElementById('out').textContent = JSON.stringify(r, null, 2);
+</script>

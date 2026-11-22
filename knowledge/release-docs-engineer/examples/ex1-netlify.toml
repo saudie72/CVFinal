@@ -1,0 +1,24 @@
+# Example 1 — netlify.toml for a static, no-build site (validated by validate_examples.py)
+[build]
+  publish = "."
+  command = ""
+
+# Big, versioned OpenCV file: cache for a year (rename the file when upgrading)
+[[headers]]
+  for = "/vendor/opencv/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# App + worker code: always revalidate so fixes appear on next load
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Security headers for every path
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+    X-Frame-Options = "DENY"

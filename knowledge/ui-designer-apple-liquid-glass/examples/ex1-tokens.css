@@ -1,0 +1,45 @@
+/* Example 1 — design tokens for the inspector (Liquid Glass-inspired, web).
+   Contrast of every text/background pair is checked by contrast_check.py. */
+:root {
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, system-ui, sans-serif;
+  --radius-lg: 22px; --radius-md: 14px; --radius-sm: 10px;
+
+  /* surfaces */
+  --canvas: #f2f2f7;               /* app background (content layer, opaque) */
+  --viewer: #ffffff;               /* screenshots sit here — never on glass */
+  --glass-bg: rgba(255,255,255,.85);   /* .62 failed AA in the worst case — see contrast_check.py */
+  --glass-border: rgba(255,255,255,.7);
+  --glass-blur: saturate(180%) blur(20px);
+  --shadow: 0 8px 30px rgba(0,0,0,.12);
+
+  /* text */
+  --text: #1d1d1f;                 /* primary label */
+  --text-2: #5c5c62;               /* secondary label (darker than #6e6e73 to pass on glass) */
+
+  /* semantic */
+  --accent: #0066cc;               /* links / focus / primary button bg (white text) */
+  --pass-fg: #007a33;              /* PASS text on light (accessible green) */
+  --fail-fg: #c4142b;              /* FAIL text on light (accessible red) */
+  --region: #e9152d;               /* region box stroke on screenshots (non-text, ≥3:1 on white) */
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: #000000; --viewer: #1c1c1e;
+    --glass-bg: rgba(28,28,30,.85); --glass-border: rgba(255,255,255,.14);
+    --text: #f5f5f7; --text-2: #aeaeb2;
+    --accent: #4da3ff; --pass-fg: #4ad968; --fail-fg: #ff6165; --region: #ff6165;
+  }
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  :root { --glass-bg: rgba(255,255,255,.96); --glass-blur: none; }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root { --glass-bg: rgba(255,255,255,.94); }
+}
+
+.glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border); border-radius: var(--radius-lg); box-shadow: var(--shadow);
+}
+.viewer { background: var(--viewer); border-radius: var(--radius-md); } /* opaque content layer */

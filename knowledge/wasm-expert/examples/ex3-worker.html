@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Example 3 — Wasm in a Web Worker: transferables, progress, watchdog restart</title>
+<pre id="out">running…</pre>
+<script>
+// The pattern inspector.worker.js uses:
+//  • the worker loads the Wasm module ONCE and posts {type:'ready'}
+//  • the page sends a big ArrayBuffer with a transfer list (zero-copy; sender's copy becomes 0 bytes)
+//  • the worker posts progress, then the result (also transferred back)
+//  • a watchdog terminates a hung worker and spawns a fresh one
+(async () => {
+  const r = {};
+  const spawn = () => new Worker('ex3-worker.js');
+  let worker = spawn();
+  const nextMsg = (w, type) => new Promise(res => w.addEventListener('message', function h(e) {
+    if (e.data.type === type) { w.removeEventListener('message', h); res(e.data); }
+  }));
+
+  r.ready = (await nextMsg(worker, 'ready')).add;             // worker proved Wasm works: add(2,3)=5
+
+  const pixels = new Uint8Array(1366 * 900 * 4).fill(7);      // ~4.9 MB "screenshot"
+  const progress = [];
+  worker.addEventListener('message', e => { if (e.data.type === 'progress') progress.push(e.data.step); });
+  const t0 = performance.now();
+  worker.postMessage({ type: 'sum', id: 1, buf: pixels.buffer }, [pixels.buffer]);
+  r.senderBytesAfterTransfer = pixels.byteLength;             // 0 → ownership moved
+  const res = await nextMsg(worker, 'result');
+  r.sum = res.sum;                                            // 1366*900*4*7
+  r.returnedBytes = res.buf.byteLength;                       // buffer came back
+  r.progress = progress;
+  r.ms = Math.round(performance.now() - t0);
+
+  // watchdog: ask the worker to hang, then terminate + respawn after 500 ms
+  worker.postMessage({ type: 'hang' });
+  const timedOut = await new Promise(res => {
+    const timer = setTimeout(() => { worker.terminate(); res(true); }, 500);
+    worker.addEventListener('message', () => { clearTimeout(timer); res(false); }, { once: true });
+  });
+  r.watchdogFired = timedOut;
+  worker = spawn();
+  r.respawnedReady = (await nextMsg(worker, 'ready')).add;
+
+  r.ok = r.ready === 5 && r.senderBytesAfterTransfer === 0 && r.sum === 1366 * 900 * 4 * 7 &&
+         r.returnedBytes === 1366 * 900 * 4 && r.watchdogFired && r.respawnedReady === 5 &&
+         r.progress.join() === 'received,summing';
+  window.__result = r;
+  document.getElementById('out').textContent = JSON.stringify(r, null, 2);
+})().catch(e => { window.__result = { ok: false, error: String(e) }; });
+</script>

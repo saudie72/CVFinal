@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Example 1 — WebAssembly.instantiateStreaming and the application/wasm MIME type</title>
+<pre id="out">running…</pre>
+<script>
+// add.wasm is a 41-byte module exporting add(i32, i32) -> i32 (bytes listed in README.md).
+// 1) Correct server: Content-Type: application/wasm → instantiateStreaming works.
+// 2) Wrong MIME (application/octet-stream) → instantiateStreaming rejects with TypeError,
+//    exactly as the WebAssembly Web API spec says. Fallback: arrayBuffer() + instantiate().
+(async () => {
+  const result = {};
+  const ok = await WebAssembly.instantiateStreaming(fetch('add.wasm'));
+  result.streamingAdd = ok.instance.exports.add(2, 3);                    // 5
+
+  try {
+    await WebAssembly.instantiateStreaming(fetch('wrong-mime/add.wasm'));
+    result.wrongMime = 'unexpectedly succeeded';
+  } catch (e) { result.wrongMime = e.name; }                               // TypeError
+
+  // robust loader: stream when possible, fall back to bytes
+  async function loadWasm(url, imports = {}) {
+    try { return await WebAssembly.instantiateStreaming(fetch(url), imports); }
+    catch (e) {
+      if (!(e instanceof TypeError)) throw e;
+      const bytes = await (await fetch(url)).arrayBuffer();
+      return WebAssembly.instantiate(bytes, imports);
+    }
+  }
+  result.fallbackAdd = (await loadWasm('wrong-mime/add.wasm')).instance.exports.add(40, 2); // 42
+
+  // a compiled Module is stateless and structured-cloneable (can be posted to a worker)
+  result.moduleExports = WebAssembly.Module.exports(ok.module).map(e => `${e.name}:${e.kind}`);
+  result.ok = result.streamingAdd === 5 && result.wrongMime === 'TypeError' && result.fallbackAdd === 42;
+  window.__result = result;
+  document.getElementById('out').textContent = JSON.stringify(result, null, 2);
+})().catch(e => { window.__result = { ok: false, error: String(e) }; });
+</script>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Example 1 — open, onupgradeneeded (v1 → v2 migration), object stores, indexes, transactions</title>
+<pre id="out">running…</pre>
+<script type="module">
+import { openDB, tx, req, deleteDB } from './idb.js';
+const r = {};
+const NAME = 'erpinspector-example1';
+await deleteDB(NAME);
+
+// v1: the real schema shape (pages + runs), created ONLY inside onupgradeneeded
+// Each block runs only when moving PAST that version (oldVersion < N <= newVersion).
+function upgrade(db, oldVersion, newVersion) {
+  if (oldVersion < 1 && newVersion >= 1) {
+    const pages = db.createObjectStore('pages', { keyPath: 'id', autoIncrement: true });
+    pages.createIndex('name', 'name', { unique: true });
+    pages.createIndex('module', 'module');
+    const runs = db.createObjectStore('runs', { keyPath: 'id', autoIncrement: true });
+    runs.createIndex('pageId', 'pageId');
+    runs.createIndex('status', 'status');
+  }
+  if (oldVersion < 2 && newVersion >= 2) {                         // later migration: new store, old data untouched
+    db.createObjectStore('settings', { keyPath: 'key' });
+  }
+}
+let db = await openDB(NAME, 1, upgrade);
+r.v1Stores = [...db.objectStoreNames];
+
+// readwrite transaction: add 2 pages + 3 runs atomically
+const ids = await tx(db, ['pages', 'runs'], 'readwrite', async t => {
+  const p = t.objectStore('pages'), ru = t.objectStore('runs');
+  const job = await req(p.add({ name: 'HCM – Job Data', module: 'HCM' }));
+  const ts = await req(p.add({ name: 'T&L – Timesheet', module: 'Time & Labor' }));
+  ru.add({ pageId: ts, status: 'FAIL', changedPct: 0.8 });
+  ru.add({ pageId: ts, status: 'PASS', changedPct: 0.0 });
+  ru.add({ pageId: job, status: 'FAIL', changedPct: 1.9 });
+  return { job, ts };
+});
+r.autoIncrementIds = ids;                       // key generator starts at 1
+
+// unique index rejects a duplicate page name → ConstraintError, transaction aborts
+try {
+  await tx(db, 'pages', 'readwrite', t => { t.objectStore('pages').add({ name: 'HCM – Job Data', module: 'HCM' }); });
+  r.duplicate = 'no error';
+} catch (e) { r.duplicate = e.name; }
+
+// read via indexes (readonly)
+r.timesheetRuns = (await tx(db, 'runs', 'readonly', t => req(t.objectStore('runs').index('pageId').getAll(ids.ts)))).length;
+r.failCount = await tx(db, 'runs', 'readonly', t => req(t.objectStore('runs').index('status').count('FAIL')));
+r.byName = (await tx(db, 'pages', 'readonly', t => req(t.objectStore('pages').index('name').get('T&L – Timesheet')))).id;
+
+// upgrade to v2 (close first; this tab holds the only connection)
+db.close();
+db = await openDB(NAME, 2, upgrade);
+r.v2Stores = [...db.objectStoreNames].sort();
+r.pagesKeptAfterUpgrade = await tx(db, 'pages', 'readonly', t => req(t.objectStore('pages').count()));
+r.version = db.version;
+db.close();
+
+r.ok = r.v1Stores.length === 2 && ids.job === 1 && ids.ts === 2 && r.duplicate === 'ConstraintError' &&
+  r.timesheetRuns === 2 && r.failCount === 2 && r.byName === 2 &&
+  r.v2Stores.join() === 'pages,runs,settings' && r.pagesKeptAfterUpgrade === 2 && r.version === 2;
+window.__result = r;
+document.getElementById('out').textContent = JSON.stringify(r, null, 2);
+</script>

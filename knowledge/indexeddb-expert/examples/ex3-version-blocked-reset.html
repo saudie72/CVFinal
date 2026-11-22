@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Example 3 — versionchange / onblocked between "tabs", and Reset app data</title>
+<pre id="out">running…</pre>
+<script type="module">
+import { openDB, tx, req, deleteDB } from './idb.js';
+// Two connections in one page behave like two open tabs of the app.
+const r = { events: [] };
+const NAME = 'erpinspector-example3';
+await deleteDB(NAME);
+
+// "Old tab": v1 connection that does NOT handle versionchange → blocks upgrades
+const oldTab = await openDB(NAME, 1, d => d.createObjectStore('pages', { keyPath: 'id', autoIncrement: true }));
+await tx(oldTab, 'pages', 'readwrite', t => req(t.objectStore('pages').add({ name: 'FSCM – Voucher' })));
+
+// "New tab" asks for v2 → onblocked fires because oldTab is still open
+let releaseOld;
+const v2 = openDB(NAME, 2, d => { r.events.push('upgradeneeded'); d.createObjectStore('runs', { autoIncrement: true }); },
+  { onblocked: () => { r.events.push('blocked'); releaseOld(); } });
+// correct handling: the old connection closes when asked (in the app: db.onversionchange = () => { db.close(); location.reload(); })
+releaseOld = () => { oldTab.close(); r.events.push('old connection closed'); };
+const db2 = await v2;
+r.events.push('v2 open');
+r.versionAfter = db2.version;
+
+// Reset app data: close our connection, then deleteDatabase
+db2.close();
+await deleteDB(NAME, { onblocked: () => r.events.push('delete blocked') });
+const dbs = (await indexedDB.databases()).map(d => d.name);
+r.existsAfterReset = dbs.includes(NAME);
+
+r.ok = r.events.join(' → ') === 'blocked → old connection closed → upgradeneeded → v2 open' &&
+       r.versionAfter === 2 && r.existsAfterReset === false;
+r.sequence = r.events.join(' → ');
+window.__result = r;
+document.getElementById('out').textContent = JSON.stringify(r, null, 2);
+</script>

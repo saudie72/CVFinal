@@ -46,7 +46,7 @@ async function cvReady() {
 | From canvas pixels | `cv.matFromImageData(ctx.getImageData(0,0,w,h))` |
 | From `<img>`/canvas id | `cv.imread(elOrId)` (main thread only, needs the DOM) |
 | To canvas | `cv.imshow(canvasOrId, mat)` (main thread only) |
-| Deep copy | `mat.clone()` |
+| Deep copy | `mat.mat_clone()` or `src.copyTo(dst)`. **Verified in opencv.js 4.13: `mat.clone()` shares pixel data (shallow)** |
 | Masked copy | `src.copyTo(dst, mask)` |
 
 Pixel data is in `mat.data` (a `Uint8Array` for 8-bit Mats). `ucharPtr(row, col)` returns a typed view for one pixel. Check `mat.type()` when debugging, because many OpenCV.js errors come from the wrong data type.

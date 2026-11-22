@@ -47,3 +47,4 @@ There are 17 project subagents in `.claude/agents/`, with skills in `.claude/ski
 
 ## Local testing
 `python -m http.server 8080` → http://localhost:8080. Don't test from `file://`.
+Re-run every knowledge example and team check: `bash tools/verify-knowledge/run_all.sh` (results in `knowledge/VERIFICATION.md`).

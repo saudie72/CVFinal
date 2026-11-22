@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<link rel="icon" href="data:,">  <!-- no favicon request: QA smoke test caught a 404 for /favicon.ico -->
+<title>Example 2 — before/after overlay wipe with an accessible range slider</title>
+<style>
+  .overlay { position: relative; width: 300px; height: 150px; }
+  .overlay canvas { position: absolute; inset: 0; }
+  #after { clip-path: inset(0 0 0 var(--wipe, 50%)); }
+</style>
+<div class="overlay"><canvas id="before" width="300" height="150"></canvas><canvas id="after" width="300" height="150"></canvas></div>
+<label for="wipe">Compare before and after</label>
+<input id="wipe" type="range" min="0" max="100" step="5" value="50">
+<script type="module">
+const paint = (id, color) => { const g = document.getElementById(id).getContext('2d'); g.fillStyle = color; g.fillRect(0, 0, 300, 150); };
+paint('before', '#cccccc'); paint('after', '#0066cc');
+const slider = document.getElementById('wipe'), after = document.getElementById('after');
+function update() {
+  // CSS clip shows the AFTER image to the right of the handle; text value for screen readers
+  after.style.setProperty('--wipe', slider.value + '%');
+  slider.setAttribute('aria-valuetext', `Showing ${100 - slider.value}% after, ${slider.value}% before`);
+}
+slider.addEventListener('input', update); update();
+
+// simulate keyboard use: focus + ArrowRight twice (step 5) → 60
+slider.focus();
+for (let i = 0; i < 2; i++) { slider.stepUp(); slider.dispatchEvent(new Event('input')); }
+const r = {
+  value: slider.value, clip: getComputedStyle(after).clipPath, valueText: slider.getAttribute('aria-valuetext'),
+  labelled: slider.labels.length === 1, focused: document.activeElement === slider,
+};
+r.ok = r.value === '60' && r.clip.includes('60%') && r.valueText === 'Showing 40% after, 60% before' && r.labelled && r.focused;
+window.__result = r;
+</script>
+</html>
