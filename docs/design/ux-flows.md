@@ -96,7 +96,7 @@ Dialog behaviour: modal `<dialog>`; **Add zone** (submit) / **Cancel**; Enter in
 
 Zone list `#zone-list` (real HTML, one `<li>` each: "Timestamp, 220 by 18 pixels at 1100, 20" + **Remove** button). Removing: no dialog (easily reversible); `#undo-bar` offers **Undo** for 5 s; the delete is committed after 5 s (closing the tab in that window cancels it).
 Announcements (`#announcer`): "Zone 'Timestamp' added, 220 by 18 pixels." / "Zone 'Timestamp' removed. Undo is available for 5 seconds."
-Guardrail: if zones cover more than 15% of the baseline, `#zone-summary` shows "3 zones ignored (18.2% of page). Large ignored areas can hide real regressions." (warning text + icon, polite announce).
+Guardrail: if zones cover more than 15% of the baseline, JS sets `#zone-summary[data-level="warn"]` (prepend `<span class="icon" aria-hidden="true"></span>`; Sable styles it like `.badge-warn`) and the text shows "3 zones ignored (18.2% of page). Large ignored areas can hide real regressions." (warning text + icon, polite announce).
 Summary line always: "2 zones ignored (1.4% of page)" / "No ignore zones".
 
 ## 5. Capture tip, evidence form, sign-off dialog
@@ -131,7 +131,7 @@ Form-level validation on submit: focus the first empty required field, `aria-inv
 ## 6. State table (all states)
 
 Where each state lives (the `data-state` hooks):
-- `#status-pill[data-state]` = `loading | ready | working | error`
+- `#status-pill[data-state]` = `loading | ready | working | error`. `#status-progress` is visible only in `loading` (indeterminate) and `working` (determinate); JS sets `hidden` in `ready` and `error` so an empty bar does not sit there permanently.
 - `#main[data-state]` (the `<main>`) = `loading-opencv | ready-empty | ready | working | result-pass | result-fail | error-opencv | error-compare | error-timeout`
 - `#notice[data-state]` = `none | storage-blocked | storage-quota`
 - `#new-page-form[data-state]` = `idle | duplicate-page-name`
@@ -700,7 +700,7 @@ Intro line: "Links open the official documentation in a new tab. The app itself 
 
 - Header: brand left, nav in the middle, status pill right; under 720 px the nav wraps below, the pill stays visible. 16 px side gutter, no horizontal page scroll.
 - Compare `ol.steps` is a single column on phones; two columns (baseline | candidate) from ~960 px, with the Compare panel full width below.
-- Screenshots are the hero: canvases sit on an opaque `panel` and are never behind glass or blur. The overlay's clip is `clip-path: inset(0 0 0 calc(var(--split) * 1%))` on `#canvas-overlay-top` (JS sets `--split` via `style.setProperty`). Colour contrast: text 4.5:1, UI parts 3:1, including text on glass.
+- Screenshots are the hero: canvases sit on an opaque `panel` and are never behind glass or blur. The overlay's clip is `clip-path: inset(0 0 0 calc(var(--split) * 1%))` on `#canvas-overlay-top` (JS sets `--split` via `style.setProperty`). **Mapping (settled in C-REV-UI):** `#canvas-overlay-top` is the after-change image; the clip hides its left `--split`% so the after image shows on the right. The slider value is the percent of *after* shown (0 = all before, 100 = all after), so JS sets `--split = 100 - value`. `aria-valuetext` is "Showing {value}% after, {100-value}% before". Colour contrast: text 4.5:1, UI parts 3:1, including text on glass.
 - Dialogs: max width ~34rem, scroll inside on small screens; `dialog::backdrop` dimmed, no blur on the panel content.
 
 ## 11. Verification checklist for Quinn

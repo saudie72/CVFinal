@@ -136,7 +136,7 @@ function normalizeEvidence(ev = {}) {
   for (const k of EVIDENCE_EXTRAS) if (ev[k] != null) out[k] = String(ev[k]);
   return out;
 }
-const normalizeRegions = rs => (rs || []).map(r => ({ ...r, decision: DECISIONS.includes(r.decision) ? r.decision : null }));
+const normalizeRegions = rs => (rs || []).map(r => ({ ...r, decision: DECISIONS.includes(r.decision) ? r.decision : null, note: r.note == null ? '' : String(r.note) }));
 const normalizeSignOff = (so = {}) => ({
   signedOff: !!so.signedOff, reviewer: so.reviewer == null ? '' : String(so.reviewer),
   signedOffAt: so.signedOffAt == null ? null : so.signedOffAt, baselinePromoted: !!so.baselinePromoted });
@@ -207,10 +207,12 @@ async function requestPersistOnce() {
 }
 
 // ---- reset ---------------------------------------------------------------------------------------
-/** Closes our connection, deletes the DB, clears 'erpinspector:*' localStorage keys. The app owns the
+/** Closes our connection, deletes the DB, clears 'erpinspector:*' localStorage keys, resolves {blocked}.
+ *  The DB is NOT reopened eagerly: the next API call (or openDB()) lazily recreates an empty v1. The app owns the
  *  confirm() dialog and the reload afterwards. If another tab blocks the delete, onBlocked fires and
  *  the promise stays pending until that tab closes (or reacts to versionchange). */
 export async function resetAppData() {
+  let blocked = false;
   if (dbPromise) { try { (await dbPromise).close(); } catch {} }
   dbPromise = null;
   persistChecked = false;
@@ -218,9 +220,10 @@ export async function resetAppData() {
     const r = indexedDB.deleteDatabase(DB_NAME);
     r.onsuccess = () => res();
     r.onerror = e => rej((e.target && e.target.error) || r.error);
-    r.onblocked = () => handlers.onBlocked && handlers.onBlocked('Close other tabs of this app to finish the reset.');
+    r.onblocked = () => { blocked = true; handlers.onBlocked && handlers.onBlocked('Close other tabs of this app to finish the reset.'); };
   });
   try {
     for (const k of Object.keys(localStorage)) if (k.startsWith(LS_PREFIX)) localStorage.removeItem(k);
   } catch { /* storage blocked: nothing to clear */ }
+  return { blocked };   // true if the delete was blocked at some point; no connection is open afterwards
 }

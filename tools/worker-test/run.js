@@ -84,6 +84,7 @@ async function mainSuite(browser, stub) {
       r.jobError = await call(page, 'jobError');
     } else {
       r.realResponsive = await call(page, 'realResponsive', 5);
+      r.sizeMismatch = await call(page, 'sizeMismatch');
     }
     r.heap = await call(page, 'heapRuns', 20, {});
     if (stub !== 'never') {

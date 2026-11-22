@@ -38,7 +38,7 @@ const dbNames = p => p.evaluate(async () => (await indexedDB.databases()).map(d 
     o.zoneUpdated = (await zones.forPage(pid)).find(z => z.id === z1).w;
     await zones.remove(z1); o.zonesAfterRemove = (await zones.forPage(pid)).length;
     const cand = await makeBlob('#ff3b30'), res = await makeBlob('#34c759');
-    const r1 = await runs.add({ pageId: pid, candidate: cand, result: res, regions: [{ x: 1, y: 1, w: 2, h: 2, decision: 'Regression' }], changedPct: 1.2, ssim: 0.97, status: 'FAIL', alignment: 'ecc', settings: { T: 25 }, evidence: { testCaseId: 'VR-TL-01', ticketId: 'CHG-0042', toolsVersion: 'PT 8.62.xx', tester: 'AB', environment: 'TEST-1', expectedDifference: 'new Save label' }, note: 'fictional', ms: 812, createdAt: 1000 });
+    const r1 = await runs.add({ pageId: pid, candidate: cand, result: res, regions: [{ x: 1, y: 1, w: 2, h: 2, decision: 'Regression', note: 'moved label' }], changedPct: 1.2, ssim: 0.97, status: 'FAIL', alignment: 'ecc', settings: { T: 25 }, evidence: { testCaseId: 'VR-TL-01', ticketId: 'CHG-0042', toolsVersion: 'PT 8.62.xx', tester: 'AB', environment: 'TEST-1', expectedDifference: 'new Save label' }, note: 'fictional', ms: 812, createdAt: 1000 });
     const r2 = await runs.add({ pageId: pid, candidate: cand, result: res, regions: [], changedPct: 0, ssim: 1, status: 'PASS', evidence: { testCaseId: 'VR-TL-02' }, createdAt: 2000 });
     const rr = await runs.get(r1);
     o.runBlobs = rr.candidate instanceof Blob && rr.result instanceof Blob;
@@ -69,7 +69,7 @@ const dbNames = p => p.evaluate(async () => (await indexedDB.databases()).map(d 
   check('runs: evidence object stored', crud.evidence.testCaseId === 'VR-TL-01' && crud.evidence.ticketId === 'CHG-0042' && crud.evidence.tester === 'AB' && crud.evidence.businessUnit === '', crud.evidence);
   check('runs: evidence normalised to full shape', crud.evidenceShape === 'testCaseId,ticketId,toolsVersion,businessUnit,role,tester', crud.evidenceShape);
   const d = crud.defaults, u = crud.upGet;
-  check('runs: extras kept only when given; ms stored; defaults for decision/signOff/reviewMs', crud.r1rec.evidence.environment === 'TEST-1' && crud.r1rec.evidence.expectedDifference === 'new Save label' && !('environment' in d.evidence) && crud.r1rec.ms === 812 && d.ms === null && d.reviewMs === null && d.signOff.signedOff === false && d.signOff.baselinePromoted === false && d.signOff.signedOffAt === null && crud.r1rec.regions[0].decision === 'Regression', { d: d.signOff, ev: Object.keys(d.evidence).length });
+  check('runs: extras kept only when given; ms stored; defaults for decision/signOff/reviewMs', crud.r1rec.evidence.environment === 'TEST-1' && crud.r1rec.evidence.expectedDifference === 'new Save label' && !('environment' in d.evidence) && crud.r1rec.ms === 812 && d.ms === null && d.reviewMs === null && d.signOff.signedOff === false && d.signOff.baselinePromoted === false && d.signOff.signedOffAt === null && crud.r1rec.regions[0].decision === 'Regression' && crud.r1rec.regions[0].note === 'moved label' && d.regions.length === 0, { d: d.signOff, ev: Object.keys(d.evidence).length });
   check('runs.update: decisions, signOff merge, reviewMs, evidence merge; id/pageId/createdAt immutable; bad decision -> null', u.regions[0].decision === 'Expected' && u.regions[1].decision === null && u.signOff.signedOff === true && u.signOff.reviewer === 'CD' && u.signOff.signedOffAt === 3000 && u.signOff.baselinePromoted === false && u.reviewMs === 45000 && u.evidence.note === 'reviewed' && u.evidence.testCaseId === 'VR-TL-01' && u.pageId === crud.r1rec.pageId && u.createdAt === 1000 && u.ms === 812 && crud.upd.reviewMs === 45000, u.signOff);
   check('runs.update on a missing run -> NotFoundError', crud.upMissing === 'NotFoundError', crud.upMissing);
   check('runs: forPage newest first', crud.runsNewestFirst.join() === [crud.r[1], crud.r[0]].join(), crud.runsNewestFirst);
@@ -143,9 +143,10 @@ const dbNames = p => p.evaluate(async () => (await indexedDB.databases()).map(d 
   });
   const D = await tab(ctx);                                         // second tab, real db.js connection
   check('5: tab D sees the data', await D.evaluate(async () => (await DB.pages.list()).length) === 1);
-  await A.evaluate(() => { window.events.length = 0; return DB.resetAppData(); });
+  await A.evaluate(() => { window.events.length = 0; return DB.resetAppData().then(r => { window.resetRes = r; }); });
   const evD = await D.evaluate(() => window.events);
   const ls = await A.evaluate(() => ({ a: localStorage.getItem('erpinspector:theme'), b: localStorage.getItem('erpinspector:lastPage'), keep: localStorage.getItem('other-app:keep') }));
+  check('5: resetAppData resolves {blocked:false}', JSON.stringify(await A.evaluate(() => window.resetRes)) === '{"blocked":false}');
   check('5: DB gone from indexedDB.databases()', !(await dbNames(A)).some(n => n.startsWith('erpinspector')), await dbNames(A));
   check('5: tab D closed itself on versionchange (deleting=true) and reset was not blocked', evD.length === 1 && evD[0].type === 'versionchange' && evD[0].deleting === true && !(await A.evaluate(() => window.events.some(e => e.type === 'blocked'))), evD);
   check("5: only 'erpinspector:' localStorage keys cleared", ls.a === null && ls.b === null && ls.keep === 'x', ls);
@@ -156,12 +157,14 @@ const dbNames = p => p.evaluate(async () => (await indexedDB.databases()).map(d 
   await D.evaluate(() => DB.pages.put({ name: 'Another (fictional)', module: 'FSCM' }));
   const E = await tab(ctx);
   await E.evaluate(() => new Promise(res => { const q = indexedDB.open('erpinspector', 1); q.onsuccess = () => { window.stubborn = q.result; res(); }; }));
-  await D.evaluate(() => { window.events.length = 0; window.resetP = DB.resetAppData().then(() => (window.resetDone = true)); });
+  await D.evaluate(() => { window.events.length = 0; window.resetP = DB.resetAppData().then(r => { window.resetRes = r; window.resetDone = true; }); });
   await D.waitForFunction(() => window.events.some(e => e.type === 'blocked'), null, { timeout: 5000 });
   const blockedMsg = await D.evaluate(() => ({ events: window.events.map(e => e.type + ': ' + e.m), done: !!window.resetDone }));
   check('5b: reset blocked by a stubborn tab -> onBlocked message, reset still pending', blockedMsg.events[0] === 'blocked: Close other tabs of this app to finish the reset.' && blockedMsg.done === false, blockedMsg);
   await E.evaluate(() => window.stubborn.close());
   await D.evaluate(() => window.resetP);
+  await D.evaluate(() => window.resetP);
+  check('5b: resolves {blocked:true}', JSON.stringify(await D.evaluate(() => window.resetRes)) === '{"blocked":true}');
   check('5b: after closing it the reset completes and the DB is gone', !(await dbNames(D)).some(n => n.startsWith('erpinspector')), await dbNames(D));
 
   await browser.close();

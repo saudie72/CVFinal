@@ -1,0 +1,169 @@
+[
+ {
+  "page": "syn-identical",
+  "module": "Synthetic",
+  "before": "tools/cv-test/fixtures/syn-identical_before.png",
+  "after": "tools/cv-test/fixtures/syn-identical_after.png",
+  "expected": {
+   "status": "PASS",
+   "minRegions": 0,
+   "maxRegions": 0
+  },
+  "ignoreZones": [],
+  "note": "no change",
+  "expectAlign": "none"
+ },
+ {
+  "page": "syn-two-changes",
+  "module": "Synthetic",
+  "before": "tools/cv-test/fixtures/syn-two-changes_before.png",
+  "after": "tools/cv-test/fixtures/syn-two-changes_after.png",
+  "expected": {
+   "status": "FAIL",
+   "minRegions": 2
+  },
+  "ignoreZones": [],
+  "note": "label text change + Pay Grade row removed (reflow below)"
+ },
+ {
+  "page": "syn-shift-3",
+  "module": "Synthetic",
+  "before": "tools/cv-test/fixtures/syn-shift-3_before.png",
+  "after": "tools/cv-test/fixtures/syn-shift-3_after.png",
+  "expected": {
+   "status": "PASS",
+   "minRegions": 0,
+   "maxRegions": 0
+  },
+  "ignoreZones": [],
+  "note": "whole page +3 px down",
+  "expectAlign": "translate"
+ },
+ {
+  "page": "syn-shift-xy",
+  "module": "Synthetic",
+  "before": "tools/cv-test/fixtures/syn-shift-xy_before.png",
+  "after": "tools/cv-test/fixtures/syn-shift-xy_after.png",
+  "expected": {
+   "status": "PASS",
+   "minRegions": 0,
+   "maxRegions": 0
+  },
+  "ignoreZones": [],
+  "note": "dx -5, dy +7",
+  "expectAlign": "translate"
+ },
+ {
+  "page": "syn-timestamp",
+  "module": "Synthetic",
+  "before": "tools/cv-test/fixtures/syn-timestamp_before.png",
+  "after": "tools/cv-test/fixtures/syn-timestamp_after.png",
+  "expected": {
+   "status": "FAIL",
+   "minRegions": 1
+  },
+  "ignoreZones": [],
+  "note": "only the timestamp changes"
+ },
+ {
+  "page": "syn-timestamp-zone",
+  "module": "Synthetic",
+  "before": "tools/cv-test/fixtures/syn-timestamp-zone_before.png",
+  "after": "tools/cv-test/fixtures/syn-timestamp-zone_after.png",
+  "expected": {
+   "status": "PASS",
+   "minRegions": 0,
+   "maxRegions": 0
+  },
+  "ignoreZones": [
+   {
+    "x": 970,
+    "y": 840,
+    "w": 380,
+    "h": 30,
+    "label": "Last updated"
+   }
+  ],
+  "note": "same with an ignore zone"
+ },
+ {
+  "page": "syn-link-colour",
+  "module": "Synthetic",
+  "before": "tools/cv-test/fixtures/syn-link-colour_before.png",
+  "after": "tools/cv-test/fixtures/syn-link-colour_after.png",
+  "expected": {
+   "status": "FAIL",
+   "minRegions": 1
+  },
+  "ignoreZones": [],
+  "note": "red -> green link, near-equal luminance"
+ },
+ {
+  "page": "syn-link-colour-gray",
+  "module": "Synthetic",
+  "before": "tools/cv-test/fixtures/syn-link-colour-gray_before.png",
+  "after": "tools/cv-test/fixtures/syn-link-colour-gray_after.png",
+  "expected": {
+   "status": "PASS",
+   "minRegions": 0,
+   "maxRegions": 0
+  },
+  "ignoreZones": [],
+  "note": "control: the gray diff (skill default) misses an equal-luminance colour change",
+  "settings": {
+   "diffMode": "gray"
+  }
+ },
+ {
+  "page": "syn-scale-110",
+  "module": "Synthetic",
+  "before": "tools/cv-test/fixtures/syn-scale-110_before.png",
+  "after": "tools/cv-test/fixtures/syn-scale-110_after.png",
+  "expected": {
+   "status": "PASS",
+   "minRegions": 0
+  },
+  "ignoreZones": [],
+  "note": "capture at 1.1x device scale",
+  "expectAlign": "resize"
+ },
+ {
+  "page": "syn-zoom-105-same-size",
+  "module": "Synthetic",
+  "before": "tools/cv-test/fixtures/syn-zoom-105-same-size_before.png",
+  "after": "tools/cv-test/fixtures/syn-zoom-105-same-size_after.png",
+  "expected": {
+   "status": "PASS",
+   "minRegions": 0
+  },
+  "ignoreZones": [],
+  "note": "content scaled 1.05 inside the same viewport (bitmap zoom)",
+  "expectAlign": "homography"
+ },
+ {
+  "page": "syn-taller-3",
+  "module": "Synthetic",
+  "before": "tools/cv-test/fixtures/syn-taller-3_before.png",
+  "after": "tools/cv-test/fixtures/syn-taller-3_after.png",
+  "expected": {
+   "status": "PASS",
+   "minRegions": 0,
+   "maxRegions": 0
+  },
+  "ignoreZones": [],
+  "note": "candidate 3 px taller (extra top margin)",
+  "expectAlign": "translate"
+ },
+ {
+  "page": "syn-unrelated",
+  "module": "Synthetic",
+  "before": "tools/cv-test/fixtures/syn-unrelated_before.png",
+  "after": "tools/cv-test/fixtures/syn-unrelated_after.png",
+  "expected": {
+   "status": "FAIL",
+   "minRegions": 1
+  },
+  "ignoreZones": [],
+  "note": "unrelated image: homography must be rejected, no crash"
+ }
+]

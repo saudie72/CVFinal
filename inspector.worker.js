@@ -182,7 +182,7 @@ function runCompare(m) {
     progress('Received');
     var base = toImage(m.base, 'base');
     var cand = toImage(m.cand, 'cand');
-    var res = self.ErpCV.compare(state.cv, base, cand, m.zones || [], m.settings || {}, { progress: progress });
+    var res = self.ErpCV.compare(state.cv, base, cand, m.zones || [], m.settings || {}, { onProgress: progress, progress: progress });
     if (!res || typeof res !== 'object') throw new Error('pipeline returned no result');
     progress('Packing');
     var transfer = [];

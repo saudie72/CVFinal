@@ -35,3 +35,23 @@ Kept by **Atlas (orchestrator)**. One row per handoff or review. Experts never c
 | 29 | A | Atlas | Ledger | Wren's follow-up: regions[].note, settings keys, resetAppData → {blocked} + re-open | js/db.js | routed |
 | 30 | B | Atlas | Sable | B-UI: css/app.css from Wren's class glossary + contrast check | css/app.css, tools/contrast_check.py | launched |
 | 31 | B | Atlas | Juno | B-APP: index/how-it-works/resources + js/* wiring db, worker client, hints, evidence, sign-off, reset | index.html, *.html, js/app.js … | launched |
+| 32 | A | Mason | Atlas | Demo ERP (8 pairs), 16 PNGs at 1366×900, manifest with titles + fscm-po zone (1207,74,146,20); cv2 self-check OK; region numbers for Dex | demo-erp/, samples/, tools/capture-samples.* | done |
+| 33 | A | Atlas | Juno, Iris | Samples ready. Decisions: Load sample doesn't auto-apply zones (an "Add suggested ignore zone" action instead); fixture names stay `<page>_<before|after>.png` (the manifest contract), and Hal's dated pattern is for real cycles | samples/manifest.json | routed |
+| 34 | A | Ledger | Atlas | Follow-up: regions[].note, resetAppData → {blocked}; 32/32 tests | js/db.js, docs/db-notes.md | done; skill update queued for Forge (wave E) |
+| 35 | A | Atlas | Juno | Ledger's final reset contract | js/db.js | routed |
+| 36 | B | Sable | Atlas | Liquid Glass css (glass on chrome only, opaque evidence), 208/208 AA contrast pairs, 375 px checked | css/app.css, tools/contrast_check.py | done |
+| 37 | B | Atlas | Juno | Sable's hooks. Decision: `--split = 100 − slider value` (keep the clip, match Wren's mapping); data-status on run rows; .is-dragover; hidden-only toggles; .table-wrap | js/views.js, js/app.js | routed |
+| 38 | A | Volt | Atlas | Worker + client: ready ≈0.5 s, compare ≈0.3 s, 60 fps main thread, heap flat over 20 runs, watchdog verified at 30 s; 'unsafe-eval' required | inspector.worker.js, js/worker-client.js, docs/worker-notes.md, tools/worker-test/ | needs review |
+| 39 | A | Atlas | Piper (via Atlas) | Volt's CSP finding applied to netlify.toml as a small integration fix (comment only; 'unsafe-eval' stays). Decision: the protocol lives in docs/worker-notes.md, and Forge fixes the agent file's docs/worker-protocol.md reference | netlify.toml | done |
+| 40 | A | Atlas | Juno | Volt's progress step names + "inputs are transferred" | js/app.js | routed |
+| 41 | C | Atlas | Wren | C-REV-UI: review Sable's css | css/app.css | REQUEST CHANGES (1 major: nav hides How it works/Resources at 375 px; 3 minor); overlay mapping confirmed |
+| 42 | C | Atlas | Sable, Juno | Wren's findings routed (nav wrap, focus rule, indeterminate progress, zone warn; Juno hides progress in ready/error) | css/app.css, js/app.js | routed |
+| 43 | C | Sable | Atlas | Fixed Wren's 4 findings + 2 optional; 208/208 contrast; 375 px nav shows How it works / Resources | css/app.css | done → re-review by Wren |
+| 44 | C | Wren | Atlas | Re-review of Sable's fixes | css/app.css | **APPROVE**; Juno to add .table-wrap (routed) |
+| 45 | B | Juno | Atlas | App built: index/how-it-works/resources + js/*; smoke 18/20 under real CSP (persist, reset, export VALID, 0 external requests, 0 console errors); 2 failures are pipeline results | index.html, how-it-works.html, resources.html, js/*, tools/app-smoke/ | needs review |
+| 46 | B | Atlas | Iris | Juno's 2 sample failures (tl-timesheet merged into 1 region; fscm-po 0.087% < 0.1 → PASS). Fix in defaults, not per sample | js/cv/* | routed |
+| 47 | B | Atlas | Sable | Fold print.css, style Juno's new hooks | css/app.css | routed |
+| 48 | C | Atlas | Ledger | C-REV-DB: review Juno's use of db.js | js/app.js | launched |
+| 49 | C | Atlas | Juno | C-REV-DB2: review Ledger's db.js as the consumer | js/db.js | launched |
+| 50 | C | Atlas | Riley | C-REV-FIX: review Mason's pages + manifest | demo-erp/, samples/ | launched |
+| 51 | C | Atlas | Tess | C-REV-EVID: review the evidence form, sign-off rules, export | js/app.js, js/report.js, js/db.js | launched |

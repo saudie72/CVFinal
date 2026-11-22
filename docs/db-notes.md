@@ -13,9 +13,13 @@ Owner: Ledger. Task A-IDB. Module: `js/db.js` (the only file that touches `index
 Run record details (from `uat-evidence-traceability` and Tess's `docs/erp/evidence-standard.md`, relayed by Atlas):
 - `evidence`: always the six fields `testCaseId, ticketId, toolsVersion, businessUnit, role, tester` (missing ones become `''`). Optional extras `environment`, `note`, `expectedDifference` are stored only when given. Which fields are required is a UI rule, not a DB rule.
 - `regions[].decision`: `'Expected' | 'Regression' | 'Noise' | null` (anything else becomes `null`).
+- `regions[].note`: free text, `''` by default.
 - `signOff`: `{signedOff, reviewer, signedOffAt, baselinePromoted}`, default `{false, '', null, false}`.
 - `ms` (compare time) and `reviewMs` (review duration): number or `null`.
 - All of this is inside v1. Stores are schemaless, so no version bump.
+
+## Settings keys in use
+`persistRequested` ({granted, at}, set by db.js), `engineSeen` and `lastEvidence` (set by the app: first-run engine notice flag; last-used evidence fields for pre-filling). Settings is a plain key/value store, so no schema change.
 
 ## API (all Promise-based)
 `openDB({onBlocked, onVersionChange})`, `setHandlers(...)`, `pages.{list,get,put,remove}`, `zones.{forPage,put,remove}`, `runs.{forPage,add,get,update,remove}`, `settings.{get,set}`, `storageEstimate()`, `resetAppData()`, plus `DB_NAME`, `DB_VERSION`, `LS_PREFIX`.
@@ -33,13 +37,13 @@ Each version gets its own block in `upgrade()`: `if (oldVersion < N && newVersio
 - A tab that holds a connection gets `versionchange` when another tab upgrades or deletes the DB. `db.js` closes the connection, forgets it and calls `onVersionChange({oldVersion, newVersion, deleting, message})`. The app decides whether to reload (the module never reloads).
 - The tab that asks for the upgrade gets `blocked` if a connection stays open. `db.js` calls `onBlocked('Close other tabs of this app, then reload.')`. The upgrade waits and completes when the other tab closes.
 - A page that is older than the stored version gets a friendly `VersionError` ("The library on this device is newer than this page. Reload ...").
-- `resetAppData()` closes our connection, calls `deleteDatabase`, then removes only localStorage keys starting `erpinspector:`. If another tab refuses to close, `onBlocked('Close other tabs of this app to finish the reset.')` fires and the promise waits. The module has no `confirm()` and no reload: the app asks for confirmation first and reloads afterwards (a small change from the skill's sample, which mixed UI into the data module).
+- `resetAppData()` resolves `{blocked}` (true if the delete was blocked at some point), leaves no connection open (the next call lazily recreates an empty v1), and closes our connection, calls `deleteDatabase`, then removes only localStorage keys starting `erpinspector:`. If another tab refuses to close, `onBlocked('Close other tabs of this app to finish the reset.')` fires and the promise waits. The module has no `confirm()` and no reload: the app asks for confirmation first and reloads afterwards (a small change from the skill's sample, which mixed UI into the data module).
 
 ## DevTools check (rubric)
 Application → IndexedDB → `erpinspector` (version 1) → click a store → Refresh (the view is not live). Create a page and a run in the app, reload, Refresh: rows are still there. Click **Reset app data**, then Refresh database: `erpinspector` is gone or comes back empty after the reload. Keys and values can't be edited in the panel (knowledge docs/06).
 
 ## Test results (`node tools/db-test/run.js`, Chromium via Playwright, server `python3 -m http.server 8103`)
-30/30 checks passed, 2026-11-22 run. Covered: Blob round trips with decoded pixel checks for pages, runs (candidate and result); CRUD on all four stores; evidence shape, extras, decisions, signOff, `ms`/`reviewMs`, `runs.update` and `NotFoundError`; cascade delete; persist record; `storageEstimate`; persistence across reload; duplicate-name error; blocked upgrade between tabs (test-only raw v2 open, shipped `DB_VERSION` stays 1) both with a cooperative tab and with a tab that ignores `versionchange`; friendly `VersionError`; `resetAppData` with another tab open (that tab closes itself, `localStorage` cleaned selectively, empty v1 recreated) and blocked by a stubborn tab (message, waits, then completes).
+32/32 checks passed, 2026-11-22 run. Covered: Blob round trips with decoded pixel checks for pages, runs (candidate and result); CRUD on all four stores; evidence shape, extras, decisions, signOff, `ms`/`reviewMs`, `runs.update` and `NotFoundError`; cascade delete; persist record; `storageEstimate`; persistence across reload; duplicate-name error; blocked upgrade between tabs (test-only raw v2 open, shipped `DB_VERSION` stays 1) both with a cooperative tab and with a tab that ignores `versionchange`; friendly `VersionError`; `resetAppData` with another tab open (that tab closes itself, `localStorage` cleaned selectively, empty v1 recreated) and blocked by a stubborn tab (message, waits, then completes).
 Not tested: the `onBlocked` callback on the *open* path (needs a shipped v2; the same wiring is tested via reset), quota-exceeded behaviour, Safari/Firefox. In headless Chromium `persist()` returned `false`, so the granted case is unverified.
 
 ## Sources

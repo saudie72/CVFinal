@@ -9,7 +9,7 @@ self.ErpCV.__leaked = self.ErpCV.__leaked || [];
 self.ErpCV.compare = function compare(cv, base, cand, zones, settings, hooks) {
   const t0 = performance.now();
   const s = settings || {};
-  const step = (hooks && hooks.progress) || (() => {});
+  const step = (hooks && (hooks.onProgress || hooks.progress)) || (() => {});
   const mode = String(s.__stub || '');
   if (mode === 'hang') { for (;;) {} }
   if (mode === 'throw') throw new Error('stub: deliberate failure');

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How it works - ERP Visual Regression Inspector</title>
+  <meta name="description" content="How the inspector compares ERP screenshots in your browser, and how to read a result.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="app-header">
+    <a class="brand" href="index.html#/library">ERP Visual Regression Inspector</a>
+    <nav class="app-nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html#/library">Library</a></li>
+        <li><a href="index.html#/compare">Compare</a></li>
+        <li><a href="index.html#/history">History</a></li>
+        <li><a href="index.html#/settings">Settings</a></li>
+        <li><a href="how-it-works.html" aria-current="page">How it works</a></li>
+        <li><a href="resources.html">Resources</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main" class="page prose" tabindex="-1">
+    <h1>How it works</h1>
+    <p class="lede">The inspector compares a screenshot taken before a change with one taken after it, and outlines what moved, appeared or disappeared. It runs entirely in your browser.</p>
+    <nav class="toc" aria-label="On this page"><ul>
+      <li><a href="#what">What it does</a></li><li><a href="#steps">The steps</a></li><li><a href="#pipeline">What happens when you press Compare</a></li>
+      <li><a href="#tech">The technology in plain words</a></li><li><a href="#capture">Capture standard</a></li><li><a href="#reading">Reading a result</a></li>
+      <li><a href="#zones">Ignore zones</a></li><li><a href="#storage">Your data and storage</a></li><li><a href="#limits">Limits</a></li>
+    </ul></nav>
+
+    <section id="what"><h2>What it does</h2>
+      <p>You give it a baseline (the page before an upgrade, patch or customization) and an after-change screenshot. It highlights unintended visual changes so a tester does not have to spot them by eye.</p>
+      <p>It is a supplemental quality-assurance tool for the visual-comparison part of testing, not a replacement for functional or security testing. A visual diff can show that a field or button appeared or disappeared for the tested role. It does <strong>not</strong> prove that authorization is correct.</p>
+    </section>
+
+    <section id="steps"><h2>The steps</h2>
+      <ol>
+        <li>Load a sample, or add your own baseline screenshot.</li>
+        <li>Add the after-change screenshot (drop it, paste it with Ctrl+V, or choose a file).</li>
+        <li>Press <strong>Compare</strong>.</li>
+        <li>Decide each changed region: Expected, Regression or Noise.</li>
+        <li>Press <strong>Save run</strong> and fill in the evidence form.</li>
+        <li>Sign off, then (optionally) promote the after screenshot to be the new baseline.</li>
+      </ol>
+    </section>
+
+    <section id="pipeline"><h2>What happens when you press Compare</h2>
+      <ol>
+        <li><strong>Align.</strong> If the after screenshot is shifted a few pixels or zoomed slightly, the tool lines it up first and tells you how ("Aligned: shift (0, 3)").</li>
+        <li><strong>Difference.</strong> It subtracts the two pictures pixel by pixel, after a light blur that ignores tiny rendering noise.</li>
+        <li><strong>Ignore zones.</strong> Areas you marked (such as a timestamp) are set to "no difference".</li>
+        <li><strong>Threshold.</strong> Small differences are dropped; larger ones are kept.</li>
+        <li><strong>Regions.</strong> Nearby changed pixels are merged into boxes, and tiny boxes are dropped.</li>
+        <li><strong>Similarity and heatmap.</strong> It also computes SSIM (a 0 to 1 similarity score) and a heatmap of where the picture changed most.</li>
+      </ol>
+      <p>The result is <strong>FAIL</strong> when there is at least one region and the changed share of the page is above the page's limit (0.1% by default). Otherwise it is <strong>PASS</strong>.</p>
+    </section>
+
+    <section id="tech"><h2>The technology in plain words</h2>
+      <dl>
+        <dt>OpenCV.js</dt><dd>OpenCV is a well-known library for working with images. OpenCV.js is the version that runs in a web browser. We use it to align, subtract, and find the changed areas. It is included with the app, so nothing is downloaded from another site.</dd>
+        <dt>WebAssembly</dt><dd>A compact, fast format that browsers can run next to JavaScript. OpenCV.js is compiled to WebAssembly, which is why comparing two full-page screenshots takes a fraction of a second.</dd>
+        <dt>Web Workers</dt><dd>A worker is a second thread in the browser. The heavy image work happens there, so the page stays responsive and the Cancel button always works. If a comparison takes longer than 30 seconds, the worker is restarted.</dd>
+        <dt>IndexedDB</dt><dd>A database built into the browser. It keeps your pages, baselines, ignore zones and saved runs on this device, so they are still there after a refresh. You can inspect it in Chrome DevTools under Application, IndexedDB, <code>erpinspector</code>.</dd>
+      </dl>
+    </section>
+
+    <section id="capture"><h2>Capture standard</h2>
+      <p>Capture the before and after pages with the same browser, 1366×900 viewport, 100% zoom, test user and data, then promote the after capture only after sign-off.</p>
+      <table class="table">
+        <caption>Capture rules</caption>
+        <thead><tr><th scope="col">Item</th><th scope="col">Standard</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Environment</th><td>The same test environment for before and after. Never production.</td></tr>
+          <tr><th scope="row">Browser</th><td>Google Chrome, the same major version for both captures.</td></tr>
+          <tr><th scope="row">Viewport</th><td>1366 × 900.</td></tr>
+          <tr><th scope="row">Zoom</th><td>100% browser zoom, with OS display scaling at 100%.</td></tr>
+          <tr><th scope="row">User and role</th><td>The same test user and role for both captures.</td></tr>
+          <tr><th scope="row">Business data</th><td>The same test record, business unit, effective date and period.</td></tr>
+          <tr><th scope="row">Theme</th><td>The same theme (Classic, Classic Plus or Fluid) throughout a cycle.</td></tr>
+          <tr><th scope="row">Page state</th><td>Fully loaded; no hover, tooltip, open prompt or focus ring.</td></tr>
+          <tr><th scope="row">Format</th><td>PNG, full page (Chrome DevTools, Capture full size screenshot). Never JPEG.</td></tr>
+        </tbody>
+      </table>
+      <p>File name: <code>&lt;module&gt;_&lt;page&gt;_&lt;before|after&gt;_&lt;YYYYMMDD&gt;.png</code>. The cycle: capture before, apply the change, capture after, compare, triage, sign off, promote.</p>
+    </section>
+
+    <section id="reading"><h2>Reading a result</h2>
+      <p>Four views show the same result: <strong>Boxes</strong> (numbered outlines on the after screenshot), <strong>Side-by-side</strong>, <strong>Overlay slider</strong> (0 is all before, 100 is all after) and <strong>Heatmap</strong> (blue means no change, red means strong change). The numbered list below the views carries the same information as text.</p>
+      <ul>
+        <li><strong>Expected</strong>: the change was intended.</li>
+        <li><strong>Regression</strong>: an unintended defect.</li>
+        <li><strong>Noise</strong>: a harmless difference, such as a timestamp or rendering.</li>
+      </ul>
+      <p>Every region of a FAIL run needs a decision before you can save it. You cannot sign off while any region is marked Regression: log a defect, attach the report, and retest after the fix. Promote the after screenshot to the baseline only after sign-off. The "Likely ..." text next to a region is a suggestion, never a verdict.</p>
+    </section>
+
+    <section id="zones"><h2>Ignore zones</h2>
+      <p>An ignore zone hides a rectangle (a timestamp, a user name) from the comparison. Zones belong to the page and are reused on every later comparison. If zones cover more than 15% of the page, the tool warns you that large ignored areas can hide real regressions.</p>
+      <p>You can add one three ways: drag on the baseline picture, choose <strong>Add ignore zone</strong> on a changed region, or use <strong>Add zone manually</strong> and type the X, Y, width and height (the keyboard route).</p>
+      <p>Ignore zones hide areas from the comparison. They are not a security control.</p>
+    </section>
+
+    <section id="storage"><h2>Your data and storage</h2>
+      <p>Everything is stored in this browser, in an IndexedDB database called <code>erpinspector</code>. There are no network calls after the page loads, and your screenshots never leave the device.</p>
+      <p>To wipe it, open Settings and choose <strong>Reset app data</strong>. If the app says storage is blocked, allow site data for this site in your browser settings, or leave the private window. You can still load a sample and compare, but nothing is kept when you close the tab.</p>
+    </section>
+
+    <section id="limits"><h2>Limits</h2>
+      <ul>
+        <li>It is a visual check only. It does not test behaviour, calculations or permissions.</li>
+        <li>It needs full-page PNG screenshots captured with the same settings.</li>
+        <li>The demo uses fictional data only ("Demo ERP (fictional)"). Do not load real production screenshots.</li>
+        <li>The time-saving figures in the business case (about 3 minutes by hand versus about 1 minute) are assumptions for a pilot, not measurements.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>Demo ERP (fictional) · Everything runs on this device. No data leaves your browser.</p>
+    <p class="disclaimer">A supplemental quality-assurance tool for the visual-comparison part of testing — not a replacement for functional or security testing.</p>
+  </footer>
+</body>
+</html>

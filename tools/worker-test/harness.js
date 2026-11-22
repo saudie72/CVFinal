@@ -132,6 +132,17 @@ const api = {
     }
     return { n, first: bytes[0], last: bytes[n - 1], max: Math.max(...bytes), growthAfterRun1: bytes[n - 1] - bytes[0], bytes };
   },
+  async sizeMismatch() {
+    // The worker/pipeline decides: the page only checks that each buffer is w*h*4 bytes.
+    const base = synth('base');
+    const tall = new OffscreenCanvas(W, 1000).getContext('2d');
+    tall.putImageData(synth('base'), 0, 0); tall.fillStyle = '#f4f5f7'; tall.fillRect(0, H, W, 100);
+    const r1 = await insp.compare(base, tall.getImageData(0, 0, W, 1000), [], {}).then(r => ({ status: r.status, alignment: r.alignment }), e => ({ error: e.message }));
+    const tiny = new OffscreenCanvas(300, 200).getContext('2d').getImageData(0, 0, 300, 200);
+    const r2 = await insp.compare(synth('base'), tiny, [], {}).then(r => ({ status: r.status }), e => ({ error: e.message }));
+    const after = await insp.compare(synth('base'), synth('cand'), [], {});
+    return { slightlyTaller: r1, tooSmall: r2, workerStillWorks: after.status };
+  },
   async restart() {
     const t0 = performance.now();
     await insp.restart();

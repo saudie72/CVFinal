@@ -220,6 +220,12 @@
       // 2. size ladder
       if (cand.cols !== W || cand.rows !== H) {
         var src = cand;
+        // size-mismatch cut-off: width ratio and height ratio must both be within [0.5, 2]
+        var rw = W / cand.cols, rh = H / cand.rows;
+        if (rw < 0.5 || rw > 2 || rh < 0.5 || rh > 2) {
+          throw new Error('Size mismatch: baseline ' + W + 'x' + H + ' vs candidate ' + cand.cols + 'x' + cand.rows +
+            ' (ratio outside 0.5-2). Capture both at the same viewport and zoom.');
+        }
         if (Math.abs(cand.cols - W) > 2) {
           var sx = W / cand.cols, nh = Math.max(1, Math.round(cand.rows * sx));
           var rs = L(new cv.Mat());
