@@ -123,3 +123,10 @@ Kept by **Atlas (orchestrator)**. One row per handoff or review. Experts never c
 | Quinn (qa-tester, sonnet) | docs/qa-report.md, tools/qa/ (95 checks) | READY |
 | Piper (release-docs, haiku) | netlify.toml, serve_netlify.py, link check, README | Atlas → APPROVE |
 | Forge (meta-agent, sonnet) | CLAUDE.md, skills and agent files in line with the build; TEAM OK | — |
+
+## Round 2: result clarity (user feedback after the live test)
+| # | Wave | From | To | Task | Files | Result |
+|---|---|---|---|---|---|---|
+| 104 | 0 | User | Atlas | Result screen isn't user friendly: "Region 1 of 4: 105 by 154 pixels at 702, 338" means nothing, there's no tie to the screenshot, Expected/Regression/Noise aren't explained, and it's unclear where the agent team (e.g. the business analyst) comes in | — | accepted |
+| 105 | A | Atlas | Morgan | UX-1: plain-language definitions, user stories US-17+, "Who built this" content | docs/erp/plain-language-results.md, docs/erp/user-stories.md | launched |
+| 106 | A | Atlas | Wren | UX-2: region card redesign (position in words, crops, two-way link to boxes), decision help, "what's happening" guide, onboarding, Who built this | docs/design/ux-flows.md | launched |
