@@ -1063,6 +1063,31 @@ dialog::backdrop { -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px
 #tour-stage figure.zoom-view canvas { flex: none; width: auto; height: auto; max-width: none; max-height: none; margin: 0; cursor: grab; }
 #tour-stage figure.zoom-view figcaption { color: var(--text-2); flex: none; }
 
+/* UX-9 zoom chrome (Sable). Children of the figure, pinned with position:fixed so they stay put while the figure scrolls.
+   Close = glass pill (chrome), hint = opaque chip (never glass over the screenshot). Both carry [hidden] when closed.
+   Pairs: --text on glass, --border-strong on glass, --text-2 on panel, --border-strong on viewer (tools/contrast_check.py). */
+#tour-stage figure.zoom-view .zoom-close,
+#tour-stage figure.zoom-view .zoom-hint { z-index: 2; margin: 0; box-sizing: border-box; }
+#tour-stage figure.zoom-view .zoom-close[hidden],
+#tour-stage figure.zoom-view .zoom-hint[hidden] { display: none; }
+#tour-stage figure.zoom-view .zoom-close {
+  position: fixed; top: max(.75rem, env(safe-area-inset-top)); right: max(.75rem, env(safe-area-inset-right));
+  display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+  min-width: var(--target); min-height: var(--target); padding: 0 1.1rem; border-radius: 999px;
+  background: var(--glass-bg); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-strong); box-shadow: var(--shadow);
+  color: var(--text); font: inherit; font-weight: 600; cursor: pointer;
+  transition: background var(--ease), box-shadow var(--ease);
+}
+#tour-stage figure.zoom-view .zoom-close:hover { background: var(--panel); }
+#tour-stage figure.zoom-view .zoom-close:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+#tour-stage figure.zoom-view .zoom-hint {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: max(.75rem, env(safe-area-inset-bottom));
+  max-width: calc(100vw - 2rem); padding: .4rem .9rem; border-radius: 999px; text-align: center;
+  background: var(--panel); color: var(--text-2); border: 1px solid var(--border-strong);
+  font-size: .85rem; line-height: 1.35; pointer-events: none;
+}
+
 /* U2 (landing): headline, hero card and the quiet link share ONE left edge */
 .landing h1 { align-self: stretch; text-align: left; max-width: 20em; }
 .landing > .hint, .landing .landing-hint { text-align: left; }
@@ -1106,6 +1131,35 @@ dialog::backdrop { -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px
   .tour-panel .btn-primary { min-width: 0; }
 }
 @media (max-width: 720px) and (max-height: 520px) { .tour-panel { max-height: 55dvh; } }
+
+/* UX-9 My pages: three calm stacked sections (Sable). Try an example / Compare my own / Your pages.
+   Surfaces: --panel card, description tray on --accent-soft, select on --field-bg. All pairs already in contrast_check.py
+   (text + secondary text on panel and accent-soft, border-strong on field). No new tokens. */
+.home-section {
+  display: flex; flex-direction: column; gap: .85rem; margin: 0 0 1.25rem;
+  padding: clamp(1.1rem, 3vw, 1.6rem); background: var(--panel); border: 1px solid var(--border);
+  border-radius: 20px; box-shadow: var(--shadow-sm);
+}
+.home-section > h2 { margin: 0; font-size: 1.25rem; font-weight: 700; letter-spacing: -.01em; line-height: 1.25; }
+.home-section > .hint { margin: 0; }
+.picker-row { display: flex; flex-direction: column; align-items: stretch; gap: .75rem; }
+.picker-row > select, .picker-row > .ps-select { width: 100%; min-width: 0; min-height: 3rem; font-size: 1rem; }
+.picker-row > .btn { width: 100%; min-height: 3rem; padding: 0 1.5rem; font-weight: 600; }
+.picker-row > .btn-primary { font-size: 1.05rem; }
+@media (min-width: 720px) {
+  .picker-row { flex-direction: row; align-items: center; gap: 1rem; }
+  .picker-row > select, .picker-row > .ps-select { flex: 1 1 auto; width: auto; }
+  .picker-row > .btn { flex: 0 0 auto; width: auto; white-space: nowrap; }
+}
+.picker-desc {
+  margin: 0; padding: .8rem 1rem; background: var(--accent-soft); color: var(--text);
+  border: 1px solid var(--border); border-radius: 14px; font-size: 1rem; line-height: 1.5;
+}
+.picker-desc:empty { display: none; }
+.picker-desc strong, .picker-desc .expect { color: var(--text); font-weight: 650; }
+.picker-desc .hint, .picker-desc small { color: var(--text-2); }
+/* legacy hero card: no longer in the markup; keep it quiet if it ever returns */
+.home-section ~ .sample-hero, .sample-hero:not(:first-child) { box-shadow: var(--shadow-sm); }
 
 /* ============================== 14. MOTION, PRINT, FORCED COLORS ============================== */
 @media (prefers-reduced-motion: reduce) {
