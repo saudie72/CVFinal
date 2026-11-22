@@ -6,7 +6,9 @@ This roster covers only what a **browser-only static app** needs. It has no back
 
 ---
 
-## Roles (11 agents)
+## Roles (17 agents)
+
+### Build team (11 agents)
 
 | # | Agent (file name) | Persona | Required? | One-line job description |
 |---|---|---|---|---|
@@ -22,7 +24,20 @@ This roster covers only what a **browser-only static app** needs. It has no back
 | 10 | `qa-tester` | — | Browser app need | Tests in real Chrome: runs every sample pair against its expected result, checks persistence after refresh, Reset app data, no network traffic after load, UI responsiveness, Mat leaks, and accessibility, then files defects back to the owners. |
 | 11 | `release-docs-engineer` | — | Static deploy need | Handles the small finishing jobs: `netlify.toml` (publish `.`, no build, cache and security headers), README with deploy steps, the Resources page link list, and keeping `docs/` tidy. |
 
-**Why there are no other roles:** a static site needs no backend, API or auth engineer, and no CI/CD specialist, because Netlify redeploys on every push to `main`. Privacy and security checks for a browser-only app (no network calls, no third-party scripts, no real data in the repo) are covered by `qa-tester` and `release-docs-engineer` as shared skills, not a separate agent.
+### ERP domain team (6 agents)
+
+These agents make the product **right for PeopleSoft**. They write requirements, test scenarios, realistic mock pages, the change catalogue and the evidence standards. They don't write the computer vision code. They work only from **public** PeopleSoft knowledge and the fictional Demo ERP, never from real INFORMS configurations, screenshots, roles or data.
+
+| # | Agent (file name) | One-line job description |
+|---|---|---|
+| 12 | `erp-business-analyst` | Owns the "why": keeps the app tied to `docs/business-case.md`, writes user stories and acceptance criteria, defines the pilot metrics (time per comparison, regressions caught, false positives), and checks the "supplemental QA tool, not a replacement" positioning. |
+| 13 | `erp-functional-analyst` | Owns the "what gets tested": HCM (Job Data, Personal Data), FSCM (Voucher, PO) and Time & Labor (Timesheet) test scenarios, the page and module catalogue, Business Unit/Constitutional Office comparison scenarios, and what a realistic page should look like. |
+| 14 | `peoplesoft-developer` | Owns the "what can change": a catalogue of the visual effects of real change types (PeopleCode, page/field/record changes in Application Designer, Fluid vs Classic, customizations, PUM fixes, PeopleTools UI updates), used to design planted regressions and to explain detected regions. |
+| 15 | `peoplesoft-admin-psa` | Owns the "how it fits the upgrade cycle": the PUM and PeopleTools upgrade workflow, test environments, the capture standards that keep screenshots comparable (browser, zoom, resolution, theme, same test user), and where the inspector fits before and after each migration. |
+| 16 | `erp-security-admin` | Owns roles and privacy: role and permission-list test scenarios (fields or buttons that should appear or disappear for a role), the warning that a visual diff **does not prove authorization**, PII handling rules, and a privacy/security audit of the app (no network calls after load, no third-party scripts, CSP, no real data in the repo). |
+| 17 | `erp-test-lead` | Owns the evidence: the UAT test-plan format, traceability fields on every run (test case ID, ticket/patch ID, PUM image or PeopleTools version, Business Unit, tested role, tester, date), the report layout for QA and audit, and sign-off criteria. |
+
+**Why there are no other roles:** a static site needs no backend, API or auth engineer, and no CI/CD specialist, because Netlify redeploys on every push to `main`. A separate change-manager/CAB role is covered by `erp-test-lead`, through evidence and sign-off, and by `peoplesoft-admin-psa`, through the upgrade cycle.
 
 ---
 
@@ -34,7 +49,7 @@ Each skill becomes `.claude/skills/<skill-name>/SKILL.md` (Step 6) and is wired 
 |---|---|---|
 | `team-orchestration` | Planning, parallel dispatch, peer-review pairing, the handoff-log format, definition of done | orchestrator, meta-agent |
 | `agent-authoring` | Claude Code subagent and skill file format, frontmatter (`name`, `description`, `tools`, `model`, `skills`), knowledge-folder conventions | meta-agent, orchestrator |
-| `knowledge-first` | "Before you answer": read `knowledge/<agent>/docs` and `examples`, cite sources, flag uncertainty instead of guessing | **all 11 agents** |
+| `knowledge-first` | "Before you answer": read `knowledge/<agent>/docs` and `examples`, cite sources, flag uncertainty instead of guessing | **all 17 agents** |
 | `opencvjs-diff-pipeline` | gray → blur → `absdiff` → threshold → dilate → `findContours` → boxes; % changed, SSIM, PASS/FAIL rules | opencv-expert, wasm-expert, qa-tester |
 | `screenshot-alignment` | resize, `matchTemplate` translation, ORB + `findHomography` + `warpPerspective`, fallbacks and pitfalls | opencv-expert, qa-tester |
 | `cv-mat-memory-hygiene` | `.delete()` every Mat, MatVector and `.get(i)` result; `try/finally`; leak detection | opencv-expert, wasm-expert, qa-tester |
@@ -47,7 +62,14 @@ Each skill becomes `.claude/skills/<skill-name>/SKILL.md` (Step 6) and is wired 
 | `apple-hig-ux` | HIG navigation, feedback, empty/loading/error states, clear PASS/FAIL language, progressive disclosure | ux-designer-apple-hig, ui-designer-apple-liquid-glass, frontend-engineer |
 | `accessibility-wcag` | Contrast, keyboard operation (overlay slider, zone drawing), focus, ARIA live status, not relying on colour alone | ux-designer-apple-hig, ui-designer-apple-liquid-glass, frontend-engineer, qa-tester |
 | `mock-erp-fixtures` | Fictional PeopleSoft-style pages, planted-regression catalogue, PNG capture rules, `manifest.json` expected results | mock-erp-builder, qa-tester, opencv-expert |
-| `privacy-no-real-data` | No real County screenshots, PII or Oracle/County logos in the repo; no network calls after load; no third-party scripts | mock-erp-builder, qa-tester, release-docs-engineer, orchestrator |
+| `privacy-no-real-data` | No real County screenshots, PII or Oracle/County logos in the repo; no network calls after load; no third-party scripts | mock-erp-builder, qa-tester, release-docs-engineer, orchestrator, erp-security-admin |
+| `erp-business-case-metrics` | Business-case alignment, user stories and acceptance criteria, pilot metrics and ROI framing, "supplemental tool" positioning | erp-business-analyst, erp-test-lead, orchestrator |
+| `peoplesoft-page-anatomy` | What Classic and Fluid PeopleSoft pages look like (header, breadcrumbs, tabs, grids, scroll areas, prompts, action buttons) and module conventions for HCM, FSCM and T&L | erp-functional-analyst, peoplesoft-developer, mock-erp-builder, ux-designer-apple-hig |
+| `erp-test-scenarios` | Page and module catalogue, Business Unit/Constitutional Office scenarios, test data rules (fictional only), and expected results | erp-functional-analyst, erp-test-lead, qa-tester, mock-erp-builder |
+| `peoplesoft-change-catalogue` | Change types (PUM, PeopleTools, customizations, configuration) and their visual effects, mapped to planted regressions and region explanations | peoplesoft-developer, peoplesoft-admin-psa, mock-erp-builder, opencv-expert |
+| `upgrade-cycle-capture-standards` | Where the inspector fits in PUM and PeopleTools cycles; capture rules (same browser, zoom, resolution, theme, test user) so screenshots are comparable | peoplesoft-admin-psa, erp-functional-analyst, erp-test-lead, ux-designer-apple-hig |
+| `role-based-security-testing` | Role and permission-list scenarios, the "appears/disappears for a role" check, the limits of visual evidence (does not prove authorization) | erp-security-admin, erp-functional-analyst, erp-test-lead |
+| `uat-evidence-traceability` | Run metadata fields, report layout, sign-off criteria, keeping evidence consistent for QA and audit | erp-test-lead, erp-business-analyst, frontend-engineer, indexeddb-expert |
 | `devtools-verification` | Application/IndexedDB, Network (offline proof), Performance (worker thread), Memory (leaks) checks | qa-tester, wasm-expert, indexeddb-expert |
 | `netlify-static-deploy` | Publish `.`, empty build command, `netlify.toml` headers and caching, local `http.server` testing | release-docs-engineer, wasm-expert |
 | `peer-review` | Review checklist, constructive findings, approve/request-changes, logging in the handoff log | **all experts** (orchestrator assigns pairs) |
@@ -69,13 +91,20 @@ Each skill becomes `.claude/skills/<skill-name>/SKILL.md` (Step 6) and is wired 
 | mock-erp-builder | mock-erp-fixtures, privacy-no-real-data, knowledge-first, peer-review |
 | qa-tester | devtools-verification, opencvjs-diff-pipeline, screenshot-alignment, cv-mat-memory-hygiene, indexeddb-library, reset-app-data, mock-erp-fixtures, accessibility-wcag, privacy-no-real-data, knowledge-first, peer-review |
 | release-docs-engineer | netlify-static-deploy, privacy-no-real-data, knowledge-first, peer-review |
+| erp-business-analyst | erp-business-case-metrics, uat-evidence-traceability, knowledge-first, peer-review |
+| erp-functional-analyst | peoplesoft-page-anatomy, erp-test-scenarios, upgrade-cycle-capture-standards, role-based-security-testing, knowledge-first, peer-review |
+| peoplesoft-developer | peoplesoft-change-catalogue, peoplesoft-page-anatomy, knowledge-first, peer-review |
+| peoplesoft-admin-psa | upgrade-cycle-capture-standards, peoplesoft-change-catalogue, knowledge-first, peer-review |
+| erp-security-admin | role-based-security-testing, privacy-no-real-data, knowledge-first, peer-review |
+| erp-test-lead | uat-evidence-traceability, erp-test-scenarios, erp-business-case-metrics, upgrade-cycle-capture-standards, role-based-security-testing, knowledge-first, peer-review |
 
 ---
 
 ## Working agreement
 
 - **Parallel where independent:** after the orchestrator's plan, `opencv-expert`, `indexeddb-expert`, `mock-erp-builder` and Wren can start at once. `wasm-expert` defines the worker message protocol early, so everyone builds against it.
-- **Peer-review pairs (proposed):** opencv ↔ wasm, indexeddb ↔ frontend, Sable ↔ Wren, mock-erp ↔ qa, release-docs ↔ orchestrator.
+- **ERP team goes first:** the business analyst, functional analyst, PeopleSoft developer and PSA produce the scenarios, the page catalogue, the change catalogue and the capture standards. `mock-erp-builder` builds from those, and `erp-test-lead` defines the run metadata that `indexeddb-expert` stores.
+- **Peer-review pairs (proposed):** opencv ↔ wasm, indexeddb ↔ frontend, Sable ↔ Wren, mock-erp ↔ qa, release-docs ↔ orchestrator. ERP pairs: functional analyst ↔ mock-erp-builder (page realism), PeopleSoft developer ↔ opencv-expert (change catalogue vs. detected regions), business analyst ↔ test lead (requirements vs. evidence), security admin ↔ qa-tester (privacy audit), PSA ↔ Wren (capture-standards UX).
 - **Definition of done:** every `samples/manifest.json` pair produces its expected PASS/FAIL. Data persists after refresh. Reset app data works and is visible in DevTools. Network is quiet after load. No Mat leak over 20 runs. The app is live on Netlify.
 - **Model choice and personalities** are set in Step 8 (`docs/agent-brains.md`).
 
