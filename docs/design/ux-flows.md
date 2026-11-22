@@ -720,7 +720,7 @@ Why this section exists: the project owner used the app and said it works but "d
 
 **What I looked at.** The region-card screenshot (`/tmp/claude-0/-home-user/823eeff0-8200-5655-b4dd-f330ac5a9614/images/1.png`), `js/app.js` (`renderStats`, `renderRegionList`, `setDecision`), `js/views.js` (`drawBoxes`), `js/copy.js`, `js/hints.js`, `js/region-hints.json`, and sections 1 to 11 above. **I could not run the app and take my own result-screen screenshot**: this session has no shell tool, so I could not start the server or Playwright. My critique of the full screen comes from the card screenshot plus the code and the skeleton, not from seeing the page. Quinn or Atlas should check section 12.13 against the running app (unverified visually).
 
-Source basis: Apple HIG Feedback and Accessibility (`knowledge/ux-designer-apple-hig/docs/01-feedback.md`, `03-accessibility-interaction.md`); `docs/erp/evidence-standard.md` (meanings of Expected / Regression / Noise, sign-off rules); `docs/erp/change-catalogue.md` and `js/hints.js` (cause rules, owner Dex). **`docs/erp/plain-language-results.md` (Morgan) did not exist when I wrote this.** The definitions below are my plain-words draft, consistent with `evidence-standard.md` line 37. Atlas: route Morgan's file to me (or Juno) to reconcile wording; where they differ, Morgan's definitions win and these strings in `js/copy.js` change, nothing else.
+Source basis: Apple HIG Feedback and Accessibility (`knowledge/ux-designer-apple-hig/docs/01-feedback.md`, `03-accessibility-interaction.md`); `docs/erp/evidence-standard.md` (meanings of Expected / Regression / Noise, sign-off rules); `docs/erp/change-catalogue.md` and `js/hints.js` (cause rules, owner Dex). **Aligned with Morgan's `docs/erp/plain-language-results.md` (section 4).** Her copy is the source for the definitions, the position and shape words, the hint rewrites, the decision help and the 10-state next-step guide; this section says where it goes on screen and how it behaves. Where my layout choice differs from hers I say so (D14 and the notes in 12.4, 12.8, 12.9). If her file changes, the strings in `js/copy.js` change and nothing else.
 
 ### 12.1 First-time-analyst critique (what is wrong today)
 
@@ -737,11 +737,13 @@ Source basis: Apple HIG Feedback and Accessibility (`knowledge/ux-designer-apple
 
 | # | Decision | Why |
 |---|---|---|
-| D8 | **User-facing word is "change", not "region".** "Region" stays in code, storage (`regions[]`), evidence JSON and the validator. Status line becomes "FAIL — 4 changes found (0.8% of page changed)"; one: "FAIL — 1 change found (...)"; under 0.1%: "(under 0.1% of page changed)". PASS stays "PASS — no unexpected changes". | The owner's complaint. One word everywhere. This **deviates from** the status copy in `knowledge/ux-designer-apple-hig/docs/01-feedback.md`/ex1 and the `apple-hig-ux` skill ("3 changed regions"); the owner's feedback is the newer source. **Quinn:** any test that greps "changed region" must be updated. The announcer sentence changes the same way. |
+| D8 | **User-facing word is "change", not "region".** "Region" stays in code, storage (`regions[]`), evidence JSON and the validator. Status line becomes "FAIL — 4 changes found (0.8% of the page)" (Morgan 4a); one: "FAIL — 1 change found (...)"; under 0.1%: "(under 0.1% of the page)". PASS stays "PASS — no unexpected changes". Also renamed per Morgan 4a: list heading "Changes to review", progress "2 of 3 changes decided", button "Review changes" (was "Review regions", `data-action="review"` unchanged), sign-off hints "Decide every change first (1 left).", "Sign off isn't available while a change is marked Regression. ...", save error "Decide every change before saving (2 left).", canvas label "...3 changes outlined and numbered." | The owner's complaint. One word everywhere. This **deviates from** the status copy in `knowledge/ux-designer-apple-hig/docs/01-feedback.md`/ex1 and the `apple-hig-ux` skill ("3 changed regions"); the owner's feedback is the newer source. **Quinn:** any test that greps "changed region" must be updated. The announcer sentence changes the same way. |
 | D9 | **Position and shape are computed, in words.** Raw pixels move to a collapsed "Details". | Owner's "what does 105 by 154 at 702, 338 mean". |
 | D10 | **Two-way link between card and box**, with a keyboard route that doesn't depend on the canvas. | Owner's "no tie in to the screenshot". WCAG 2.1.1: the canvas click is a convenience; the card list and **Show on screenshot** are the keyboard path (same principle as the ignore-zone form, section 4). |
 | D11 | **Alignment line reads in words** ("None needed", "Shifted 3 px down"), the raw "(0, 3)" goes to the help text. Supersedes D3's "Aligned: shift (dx, dy)". | Owner's feedback; Morgan's older stories used the technical form. **Quinn:** verification item 3 changes. The **sign of dy/dx (which image moved which way) is unverified**: Iris must confirm what `alignment` means before Juno writes "down"/"right" (see Handoffs). |
 | D12 | **When unsure, the tip says choose Regression** (it can be changed later and blocks sign-off, so it fails safe). | Matches "never silently PASS" (US-04) and the sign-off rule. Morgan to confirm. |
+| D14 | **Morgan's next-step guide is kept in full, shown as `#result-next` under the strip**, and the owner's one-line summary stays above it. Her decision-help, location and shape rules replace my earlier drafts. I do **not** add her "Switch to Boxes" button: **Show on screenshot** switches the tab itself (one click fewer). | Morgan 4c/4f. Atlas message. |
+| D15 | **The radios start with none checked** (`rad.checked = r.decision === rad.value`, and `decision` starts `null` in `showResult`, so the code is already right). The blue ring on Expected in the owner's screenshot is therefore most likely hover or focus, but **I could not run the app to confirm** (no shell tool here). Quinn: assert zero checked radios on arrival; if one is checked, it is a defect (a reviewer could approve by doing nothing). | Morgan flag 1; `docs/erp/evidence-standard.md`. Unverified visually. |
 | D13 | **The progress strip and summary are not live regions.** They are static text updated silently; the one-time result sentence still goes through `#announcer`, and decisions already announce "n of M decided". | Keeps the rule of three live regions and "never the same sentence twice" (section 7, D4). |
 
 ### 12.3 Result screen, new order
@@ -774,14 +776,31 @@ Source basis: Apple HIG Feedback and Accessibility (`knowledge/ux-designer-apple
 
 PASS: steps 1 and 2 are `done` with "Nothing to review" and "Nothing to decide"; step 3 is current. Signed-off runs with Promote still available show a fifth line under the strip, not a fifth step: "Next: Promote to baseline (optional)". The strip reflects `#result[data-review|data-saved|data-signoff]`, so Juno updates it from the same function that runs `updateActions()`.
 
+**Next-step sentence `#result-next`** (Morgan 4f, verbatim; a plain `<p>` under the strip, `data-step` mirrors the active step; announce only when the active step changes, through `#announcer`):
+
+| State | Sentence |
+|---|---|
+| FAIL, none decided | "The tool found 4 changes. Each is outlined on the screenshot. Next: click each change, then decide if it is Expected, Regression or Noise." |
+| FAIL, some decided | "2 of 4 changes decided. Next: decide the other 2." |
+| FAIL, all decided, Regression, unsaved | "Every change is decided, and at least one is a Regression. Next: save the run, then log a defect and attach the report. This page can't be signed off until the defect is fixed and retested." |
+| FAIL, all decided, Regression, saved | "Saved. Sign-off is blocked while a change is marked Regression. Next: log a defect, attach the report, and compare again after the fix." |
+| FAIL, all Expected/Noise, unsaved | "Every change is decided. Next: save the run (you will be asked for the test case, ticket, tools version and your initials)." |
+| FAIL, all Expected/Noise, saved | "Saved. Next: a reviewer signs off. After sign-off you can make this screenshot the new baseline." |
+| Signed off, FAIL | "Signed off. Next: promote the after-change screenshot to be the new baseline, or compare another page." |
+| PASS, unsaved | "No differences found. Next: save the run as evidence, then sign off." |
+| PASS, saved | "Saved. Next: sign off, then compare another page." |
+| Signed off, PASS | "Signed off. Next: compare another page." |
+
+So the two sentences don't repeat each other: `#result-summary` says **what was found** and `#result-next` says **what to do now**. Final rule: `#result-summary` is only the first sentence ("4 changes found between the before and after screenshots of Time & Labor – Timesheet." / PASS: "No unexpected changes found between the before and after screenshots of Time & Labor – Timesheet."), and the owner's "Review each change below and decide what it is." is covered by the first `#result-next` row. Both are always shown (never hidden on narrow screens). Under `#result-status`, one explain line (`#result-explain`, Morgan 4a): FAIL "FAIL means the tool found differences between the before and after screenshots. It does not mean something is broken. You decide that below." PASS "PASS means the tool found no differences. It checks how the page looks, not whether it works."
+
 ### 12.5 Plain stat labels
 
 The stats stay a `<dl>`. Each `dd` has a one-line **always-visible** caption (`<p class="stat-note">`, referenced by `aria-describedby`), so nobody has to hover. Under the list, a `<details id="stats-help">` "What do these numbers mean?" holds the longer text. No hover-only tooltips (touch and keyboard users would miss them).
 
 | `dt` (label) | `dd` value | Caption (always visible) |
 |---|---|---|
-| "Page changed" (`#stat-changed`) | "0.8%" | "How much of the screenshot looks different. This page fails above 0.1%." (the limit is the page's `thresholdPct`) |
-| "Similarity (1.0 = identical)" (`#stat-ssim`) | "0.962 out of 1.0" | "How alike the two screenshots look. For information only; PASS or FAIL comes from the percent changed." |
+| "Page changed" (`#stat-changed`) | "0.8% of the page" | "How much of the whole page looks different. A page also fails if it is above its limit (0.1% here)." (limit = the page's `thresholdPct`) |
+| "Similarity (1.0 = identical)" (`#stat-ssim`) | "0.962 out of 1.0" | "A supporting number: how alike the two screenshots look overall. It does not decide PASS or FAIL." (Morgan section 2; `pipeline.js` FAIL rule: any change exists **or** % above the limit) |
 | "Alignment" (`#stat-alignment`) | "None needed" or "Shifted 3 px down" | "None needed: the screenshots lined up. Shifted: the after screenshot was moved 3 px (down) to line it up before comparing, so a small scroll difference doesn't count as a change." |
 | "Ignored areas" (`#stat-ignored`) | "None" or "2 zones (1.4% of page)" | "Areas you chose to leave out of the comparison." |
 | "Comparison took" (`#stat-ms`) | "1.2 s" | none |
@@ -793,7 +812,9 @@ The stats stay a `<dl>`. Each `dd` has a one-line **always-visible** caption (`<
 
 #### Header words
 
-Header text: **"Change N of M · {position} · {shape}"**, for example "Change 1 of 4 · centre of the page · tall block". Screen readers read the `h3`, so the separator is a literal " · " in the visible text and the accessible name uses commas (see aria below).
+Header text: **"Change N of M · {position} · {shape}"**, for example "Change 1 of 4 · middle of the page · tall narrow block". Screen readers read the `h3`, so the separator is a literal " · " in the visible text and the accessible name uses commas (see aria below).
+
+**Superseded by Morgan 4b (use her wording and overrides, the code below is still the grid maths).** Final words: "top left of the page", "top of the page", "top right of the page", "middle left of the page", "middle of the page", "middle right of the page", "bottom left of the page", "bottom of the page", "bottom right of the page". Two overrides in order: (1) `changedPct > 30` or box covers at least 80% of the page area: "most of the page"; (2) box width at least two thirds of the page width: replace the horizontal word with "across the full width" ("top, across the full width"). Final shapes: H>=100 and W<300 "tall narrow block"; H>=100 and W>=300 "large block"; H<30 "thin strip"; W>=3H (H>=30) "wide strip"; else "small block" (Dex's thresholds, so words and hints agree). So the example (105 x 154 at 702, 338) reads **"Change 1 of 4 · middle of the page · tall narrow block"**. The two tables that follow are corrected to her words; `copy.position`, `copy.shape` and `copy.cause` in 12.11 are the strings to build from. Honest limit (Morgan): in a dense page several changes share one third, so words only orient; the highlight, badge and crops are the real tie-in.
 
 **Position** (from the box centre in a 3 x 3 grid of the whole image; use the result's `width`/`height`):
 
@@ -804,53 +825,52 @@ const row = Math.min(2, Math.floor(3 * (r.y + r.height / 2) / m.height)); // 0 t
 
 | | left | centre | right |
 |---|---|---|---|
-| top | top left | top centre | top right |
-| middle | middle left | **centre of the page** | middle right |
-| bottom | bottom left | bottom centre | bottom right |
+| top | top left of the page | top of the page | top right of the page |
+| middle | middle left of the page | **middle of the page** | middle right of the page |
+| bottom | bottom left of the page | bottom of the page | bottom right of the page |
 
-The three rows are thirds of the **whole image**, so on a tall full-page capture "top" means the top third of the capture. The example region (105 x 154 at 702, 338 on 1366 x 900) has centre (754, 415), so col 1, row 1: "centre of the page".
+The three rows are thirds of the **whole image**, so on a tall full-page capture "top" means the top third of the capture. The example region (105 x 154 at 702, 338 on 1366 x 900) has centre (754, 415), so col 1, row 1: "middle of the page".
 
-**Shape** (box W x H in baseline pixels; first match wins; the first two use the same thresholds as `js/hints.js` so shape and likely cause never disagree):
+**Shape** (box W x H in baseline pixels; first match wins; Morgan 4b, same thresholds as `js/hints.js` and `docs/erp/change-catalogue.md` section 4):
 
 | Test | Words |
 |---|---|
-| W >= 300 and H >= 100 | large area |
-| H >= 100 | tall block (I dropped "narrow": 105 px wide isn't narrow) |
-| W >= 3 x H | wide strip |
-| max(W, H) < 60 | small spot |
-| otherwise | medium area |
-
-These cut-offs are my proposal (only the first two come from Dex's rules); Dex to confirm via Atlas.
+| H >= 100 and W < 300 | tall narrow block |
+| H >= 100 and W >= 300 | large block |
+| H < 30 | thin strip |
+| W >= 3 x H (H >= 30) | wide strip |
+| otherwise | small block |
 
 #### Card contents, top to bottom
 
 1. **Header row:** number badge (`.region-badge`, same number and colour as the box badge on the canvas), `h3.region-title` with the header text, and **Show on screenshot** (`.region-show`).
 2. **Crops row** (`.region-crops`): two `<figure>`s side by side, each with a canvas and a visible `<figcaption>` "Before" / "After". Right of them, a small **locator** (`.region-locator`, `aria-hidden="true"`), a 72 x 48 canvas of the page outline with the box filled, so the user sees the position at a glance. The text header carries the same meaning, so the locator is decorative.
-3. **Likely cause** (`p.region-cause`): label "Likely cause" in bold, then the plain sentence from 12.11. Never italic grey; normal body text.
-4. **Decision** (`fieldset.decision`): legend "What is this change?" then three `label.choice` rows, each with the name and a one-line description (12.7). **No radio is pre-selected.**
-5. **Not sure?** (`details.region-help`): summary "Not sure?", short tip (12.7).
-6. **Note** (optional text field, as today) and **Add ignore zone** (as today; its meaning is explained by a hint: "Leave this area out of future comparisons").
-7. **Details** (`details.region-details`, collapsed): summary "Details (pixels)". Content `<dl>`: "From the left edge (x): 702 px", "From the top edge (y): 338 px", "Width: 105 px", "Height: 154 px", "Size: 1.2% of the page". All in baseline pixels (the original screenshot's pixels, not what's drawn on screen).
+   Between header and crops, one locate line (`p.region-locate`, Morgan 4c): "Outlined in red on the screenshot, badge 1."
+3. **Likely cause** (`div.region-cause`, Morgan 4d): bold lead-in "What this probably is:" + sentence, then "What to check:" + sentence (both from `copy.cause[hintId]`), then a small last line "This is a guess from the shape. You decide." Normal body text, not italic grey, and above the decision so the user reads it first.
+4. **Decision** (`fieldset.decision`): legend "Your decision for change 1", the visible line "Is this change OK? Compare it with your change ticket.", then three `label.choice` rows each with name and help (12.7). **No radio is pre-selected (D15).**
+5. **Not sure?** rule line under the group (12.7), always visible (no `<details>`: Morgan 4e).
+6. **Note** (optional; placeholder per 12.7) and **Add ignore zone** with its visible help line (12.7).
+7. **Details** (`details.region-details`, collapsed, Morgan 4b): summary "Details". Body one sentence: "105 × 154 pixels, top-left corner at x 702, y 338. Page size 1366 × 900." Pixels are in baseline pixels.
 
 **Crops, how.** Source for each crop is the already-loaded `m.baseline` and `m.candidate` (canvas or ImageBitmap). `drawImage(src, sx, sy, sw, sh, 0, 0, dw, dh)` with the crop box = region expanded by a margin of `max(16, round(0.25 * max(W, H)))` px each side, clamped to the image. Draw a dashed 2 px outline (red, with a dark under-stroke so it shows on any background) around the exact region inside both crops, so the eye finds what changed. Scale to fit at most 280 x 180 CSS px (set the canvas `width`/`height` attributes to the scaled pixel size, times `devicePixelRatio`, capped at 2; CSS `max-width: 100%; height: auto`). Draw lazily with an `IntersectionObserver` (plain `drawImage` if it is unavailable) so a run with 20 or more changes doesn't paint 40 canvases at once. Ignore zones are not drawn in crops. **This is Canvas 2D only; no `cv.Mat` is created**, so the Mat rule is unaffected. Release nothing on the main thread beyond the canvases being replaced on the next render.
 
-**ARIA.** Each crop canvas: `role="img"`, `aria-label` "Before: change 1 of 4, centre of the page, tall block" / "After: ...". The `li` keeps `tabindex="0"` and gets `aria-label` "Change 1 of 4, centre of the page, tall block, decision: not reviewed" (updated by `setDecision`, as today). Heading level: `h3` under the `h2` "Changes to review". Details and Not sure are native `<details>`.
+**ARIA.** Each crop canvas: `role="img"`, `aria-label` "Before: middle of the page, tall narrow block, change 1" / "After: ..." (Morgan 4c wording). The `li` keeps `tabindex="0"` and gets `aria-label` "Change 1 of 4, middle of the page, tall narrow block, decision: not reviewed" (updated by `setDecision`, as today). Heading level: `h3` under the `h2` "Changes to review". Details and Not sure are native `<details>`.
 
 **Card states** (`li.region[data-decision]` as today, plus `data-selected="true"` and `data-linked="true"`): not reviewed, Expected, Regression, Noise (decision shown by text in the radio and a small text tag in the header "Decided: Regression", not only by colour), selected (strong outline + the matching box drawn thick on the canvas), linked (the pointer is over the box on the canvas: light highlight on the card only).
 
 ### 12.7 Decision copy
 
-Legend: **"What is this change?"** Each option is `label.choice` containing `input[type=radio]`, `span.choice-name` and `span.choice-desc` (`aria-describedby` is not needed; the description is inside the label so it is read with the name).
+All copy is Morgan 4e, verbatim. Legend: **"Your decision for change {n}"**, with the line "Is this change OK? Compare it with your change ticket." Each option is `label.choice` containing `input[type=radio]`, `span.choice-name` and `span.choice-desc` (the description sits inside the label, so a screen reader reads it with the name; visible text, not a `title`).
 
-| Name | One-line description |
+| Name | Help text |
 |---|---|
-| Expected | "The update was meant to change this. It's fine." |
-| Regression | "Something broke, or changed when it shouldn't have. This is a defect, and it blocks sign-off." |
-| Noise | "A harmless difference, like a date, a time or a font being drawn slightly differently. Not a real change." |
+| Expected | "This change was supposed to happen. It is part of the patch or upgrade." |
+| Regression | "This change is a defect. Log it. The page can't be signed off until it is fixed." |
+| Noise | "Not a real change, for example a time stamp or rendering. Safe to ignore." |
 
-**Not sure?** (`details.region-help` body): "Compare the Before and After pictures, then check the change request: was this supposed to change? If yes, choose Expected. If it looks like a date or time that changes every time, choose Noise and consider adding an ignore zone. If you can't tell, choose Regression. You can change it later, and it keeps the run from being signed off until someone confirms."
+Rule line under the group (`p.region-rule`): "Not sure? Choose Regression and add a note. A reviewer can change it later." (D12; true because changing a decision after save clears sign-off, section 3a.) A **Noise** choice shows once under the group: "Will this change every time? Add an ignore zone so it stops showing up." (`p.region-noise-tip`, `hidden` unless Noise is checked.) Note placeholder: "For example: toolbar moved per CHG-0042"; when Regression is checked: "Say what is wrong, for example: Submit button missing". **Add ignore zone** help line: "Hides this area from every future comparison of this page. Use it for things that change every time, like a time stamp. It is not a security control."
 
-Sign-off rules are unchanged (section 3a). New hint above the list (`#regions-lede`): "Decide every change. You can't sign off while any change is marked Regression." The old `title` attributes on radios are removed (they duplicate the description and are hover-only).
+Sign-off rules are unchanged (section 3a). New hint above the list (`#regions-lede`): "Decide every change. You can't sign off while any change is marked Regression." The old `title` attributes on radios are removed.
 
 Announcements (`#announcer`): decision: "Change 2 marked Regression. 1 of 4 decided." (replaces "Region 2 marked ...").
 
@@ -876,7 +896,7 @@ Selecting a card marks it "looked at" for the progress strip.
 
 ### 12.9 First-run intro and "Who built this"
 
-**Intro card** (`#intro-card`, `role="region"`, `aria-labelledby="intro-title"`) shown at the top of the Library when there are no pages and `settings.introDismissed` isn't true. Exactly three sentences (copy in 12.11). Buttons: **Got it** (dismiss; `settingsDb.set('introDismissed', true)`; if storage is blocked, dismiss for this session only, no error) and a link "How it works". Dismiss moves focus to the **Load sample** button. The card isn't shown again unless the user presses **Reset app data** (which clears settings), which is correct: the library is empty again. It never covers the Load sample button; it sits above it. Under Load sample, a hint: "The sample is a fictional Timesheet page with a few deliberate changes."
+**Intro card** (`#intro-card`, `role="region"`, `aria-labelledby="intro-title"`) shown at the top of the Library on first visit. **Settings key is `onboardingSeen`** (Morgan 4g, Atlas; this replaces the `introDismissed` name in the task brief; no schema change, the `settings` store already holds `engineSeen`). Title "What this tool does"; exactly three sentences (Morgan 4g, copy in 12.11), then the positioning line in smaller text (not counted in the three). Buttons: **Load sample** (primary, the same action as the main button) and **Got it** (`settingsDb.set('onboardingSeen', true)`; if storage is blocked, show every visit, no error), plus a link "How it works". **Got it** moves focus to **Load sample**. A Library link "What does this tool do?" reopens it. **Reset app data** clears the flag, so it returns after a reset. It sits above, and never covers, the main Load sample button. Show it whenever `onboardingSeen` isn't true (empty or not); Morgan's rule, and a returning-but-never-dismissed user still benefits. Under Load sample, a hint: "The sample is a fictional Timesheet page with a few deliberate changes."
 
 **Where the team shows up.** The AI agent team is not part of the running app, so the product only says so in three quiet places:
 1. `how-it-works.html#who` (section below).
