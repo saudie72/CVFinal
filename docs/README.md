@@ -26,4 +26,4 @@ This folder holds the Step 4 research for the CAI 2840 final project. The inspec
 - **IndexedDB** database `erpinspector` v1 stores baseline and candidate screenshots as Blobs.
 - **Demo data is entirely fictional.** There are no real County screenshots and no Oracle or County logos.
 
-Next step (Step 5): the expert roster, `docs/expert-roster.md`.
+Team roster (Step 5): [expert-roster.md](expert-roster.md).
