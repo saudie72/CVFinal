@@ -84,12 +84,12 @@ Each skill becomes `.claude/skills/<skill-name>/SKILL.md` (Step 6) and is wired 
 | meta-agent | agent-authoring, team-orchestration, knowledge-first |
 | opencv-expert | opencvjs-diff-pipeline, screenshot-alignment, cv-mat-memory-hygiene, ignore-zones-masking, wasm-worker-runtime, canvas-comparison-views, mock-erp-fixtures, knowledge-first, peer-review |
 | wasm-expert | wasm-worker-runtime, cv-mat-memory-hygiene, opencvjs-diff-pipeline, devtools-verification, netlify-static-deploy, knowledge-first, peer-review |
-| indexeddb-expert | indexeddb-library, reset-app-data, ignore-zones-masking, devtools-verification, knowledge-first, peer-review |
+| indexeddb-expert | indexeddb-library, reset-app-data, ignore-zones-masking, devtools-verification, uat-evidence-traceability, knowledge-first, peer-review |
 | ui-designer-apple-liquid-glass (Sable) | apple-liquid-glass-styling, apple-hig-ux, accessibility-wcag, canvas-comparison-views, knowledge-first, peer-review |
-| ux-designer-apple-hig (Wren) | apple-hig-ux, accessibility-wcag, ignore-zones-masking, knowledge-first, peer-review |
-| frontend-engineer | canvas-comparison-views, wasm-worker-runtime, indexeddb-library, reset-app-data, ignore-zones-masking, apple-liquid-glass-styling, apple-hig-ux, accessibility-wcag, knowledge-first, peer-review |
-| mock-erp-builder | mock-erp-fixtures, privacy-no-real-data, knowledge-first, peer-review |
-| qa-tester | devtools-verification, opencvjs-diff-pipeline, screenshot-alignment, cv-mat-memory-hygiene, indexeddb-library, reset-app-data, mock-erp-fixtures, accessibility-wcag, privacy-no-real-data, knowledge-first, peer-review |
+| ux-designer-apple-hig (Wren) | apple-hig-ux, accessibility-wcag, ignore-zones-masking, peoplesoft-page-anatomy, upgrade-cycle-capture-standards, knowledge-first, peer-review |
+| frontend-engineer | canvas-comparison-views, wasm-worker-runtime, indexeddb-library, reset-app-data, ignore-zones-masking, apple-liquid-glass-styling, apple-hig-ux, accessibility-wcag, uat-evidence-traceability, knowledge-first, peer-review |
+| mock-erp-builder | mock-erp-fixtures, privacy-no-real-data, peoplesoft-page-anatomy, peoplesoft-change-catalogue, erp-test-scenarios, knowledge-first, peer-review |
+| qa-tester | devtools-verification, opencvjs-diff-pipeline, screenshot-alignment, cv-mat-memory-hygiene, indexeddb-library, reset-app-data, mock-erp-fixtures, accessibility-wcag, privacy-no-real-data, erp-test-scenarios, knowledge-first, peer-review |
 | release-docs-engineer | netlify-static-deploy, privacy-no-real-data, knowledge-first, peer-review |
 | erp-business-analyst | erp-business-case-metrics, uat-evidence-traceability, knowledge-first, peer-review |
 | erp-functional-analyst | peoplesoft-page-anatomy, erp-test-scenarios, upgrade-cycle-capture-standards, role-based-security-testing, knowledge-first, peer-review |
