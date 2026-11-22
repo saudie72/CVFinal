@@ -14,9 +14,9 @@
     <a class="brand" href="index.html#/library">ERP Visual Regression Inspector</a>
     <nav class="app-nav" aria-label="Main">
       <ul>
-        <li><a href="index.html#/library">Library</a></li>
+        <li><a href="index.html#/library">My pages</a></li>
         <li><a href="index.html#/compare">Compare</a></li>
-        <li><a href="index.html#/history">History</a></li>
+        <li><a href="index.html#/history">Past results</a></li>
         <li><a href="index.html#/settings">Settings</a></li>
         <li><a href="how-it-works.html" aria-current="page">How it works</a></li>
         <li><a href="resources.html">Resources</a></li>
@@ -26,39 +26,40 @@
 
   <main id="main" class="page prose" tabindex="-1">
     <h1>How it works</h1>
-    <p class="lede">The inspector compares a screenshot taken before a change with one taken after it, and outlines what moved, appeared or disappeared. It runs entirely in your browser.</p>
+    <p class="lede">Compare a page before and after a PeopleSoft update, and see exactly what changed on screen. The inspector compares a screenshot taken before a change with one taken after it, and outlines what moved, appeared or disappeared. It runs entirely in your browser.</p>
     <nav class="toc" aria-label="On this page"><ul>
       <li><a href="#what">What it does</a></li><li><a href="#steps">The steps</a></li><li><a href="#pipeline">What happens when you press Compare</a></li>
       <li><a href="#tech">The technology in plain words</a></li><li><a href="#capture">Capture standard</a></li><li><a href="#reading">Reading a result</a></li>
       <li><a href="#zones">Ignore zones</a></li><li><a href="#storage">Your data and storage</a></li><li><a href="#limits">Limits</a></li>
+      <li><a href="#try-real">Try it with real PeopleSoft screenshots</a></li><li><a href="#team">Who built this</a></li>
     </ul></nav>
 
     <section id="what"><h2>What it does</h2>
-      <p>You give it a baseline (the page before an upgrade, patch or customization) and an after-change screenshot. It highlights unintended visual changes so a tester does not have to spot them by eye.</p>
+      <p>You give it a Before screenshot (the page before an upgrade, patch or customization; also called the baseline) and an After screenshot. It highlights unintended visual changes so a tester does not have to spot them by eye.</p>
       <p>It is a supplemental quality-assurance tool for the visual-comparison part of testing, not a replacement for functional or security testing. A visual diff can show that a field or button appeared or disappeared for the tested role. It does <strong>not</strong> prove that authorization is correct.</p>
     </section>
 
     <section id="steps"><h2>The steps</h2>
       <ol>
-        <li>Load a sample, or add your own baseline screenshot.</li>
-        <li>Add the after-change screenshot (drop it, paste it with Ctrl+V, or choose a file).</li>
+        <li>Press <strong>Try the demo (30 seconds)</strong>, or choose <strong>Compare my own screenshots</strong> and add your own Before screenshot.</li>
+        <li>Add the After screenshot (drop it, paste it with Ctrl+V, or choose a file).</li>
         <li>Press <strong>Compare</strong>.</li>
-        <li>Decide each changed region: Expected, Regression or Noise.</li>
-        <li>Press <strong>Save run</strong> and fill in the evidence form.</li>
-        <li>Sign off, then (optionally) promote the after screenshot to be the new baseline.</li>
+        <li>Decide each change: Expected, Regression or Noise.</li>
+        <li>Press <strong>Save result</strong> and fill in the evidence form.</li>
+        <li>Sign off, then (optionally) use the After screenshot as the new Before screenshot.</li>
       </ol>
     </section>
 
     <section id="pipeline"><h2>What happens when you press Compare</h2>
       <ol>
-        <li><strong>Align.</strong> If the after screenshot is shifted a few pixels or zoomed slightly, the tool lines it up first and tells you how ("Aligned: shift (0, 3)").</li>
+        <li><strong>Line up.</strong> If the After screenshot is a few pixels lower, higher or zoomed slightly, the tool lines it up first and tells you how ("The After screenshot was 3 pixels lower; the inspector lined them up automatically").</li>
         <li><strong>Difference.</strong> It subtracts the two pictures pixel by pixel, after a light blur that ignores tiny rendering noise.</li>
         <li><strong>Ignore zones.</strong> Areas you marked (such as a timestamp) are set to "no difference".</li>
         <li><strong>Threshold.</strong> Small differences are dropped; larger ones are kept.</li>
-        <li><strong>Regions.</strong> Nearby changed pixels are merged into boxes, and tiny boxes are dropped.</li>
-        <li><strong>Similarity and heatmap.</strong> It also computes SSIM (a 0 to 1 similarity score) and a heatmap of where the picture changed most.</li>
+        <li><strong>Changes.</strong> Nearby changed pixels are merged into boxes, and tiny boxes are dropped.</li>
+        <li><strong>Similarity and heat map.</strong> It also computes a similarity score (SSIM, 0 to 1) and a heat map of where the picture changed most.</li>
       </ol>
-      <p>The result is <strong>FAIL</strong> when there is at least one region and the changed share of the page is above the page's limit (0.1% by default). Otherwise it is <strong>PASS</strong>.</p>
+      <p>The result is <strong>FAIL</strong> when any change is found <strong>or</strong> the changed share of the page is above the page's limit (0.1% by default). Otherwise it is <strong>PASS</strong>. The similarity score is shown for information only; it does not decide PASS or FAIL.</p>
     </section>
 
     <section id="tech"><h2>The technology in plain words</h2>
@@ -93,24 +94,28 @@
     </section>
 
     <section id="reading"><h2>Reading a result</h2>
-      <p>Four views show the same result: <strong>Boxes</strong> (numbered outlines on the after screenshot), <strong>Side-by-side</strong>, <strong>Overlay slider</strong> (0 is all before, 100 is all after) and <strong>Heatmap</strong> (blue means no change, red means strong change). The numbered list below the views carries the same information as text.</p>
-      <ul>
-        <li><strong>Expected</strong>: the change was intended.</li>
-        <li><strong>Regression</strong>: an unintended defect.</li>
-        <li><strong>Noise</strong>: a harmless difference, such as a timestamp or rendering.</li>
-      </ul>
-      <p>Every region of a FAIL run needs a decision before you can save it. You cannot sign off while any region is marked Regression: log a defect, attach the report, and retest after the fix. Promote the after screenshot to the baseline only after sign-off. The "Likely ..." text next to a region is a suggestion, never a verdict.</p>
+      <p>Four views show the same result: <strong>Outlined changes</strong> (numbered outlines on the After screenshot), <strong>Side by side</strong>, <strong>Slide to compare</strong> (0 is all before, 100 is all after) and <strong>Heat map</strong> (blue means no change, red means strong change). The cards below the views carry the same information as text, with a Before and After picture of each change. Click a card to highlight its numbered box, or click a box to jump to its card.</p>
+      <dl>
+        <dt>Change</dt><dd>One area of the page that looks different between the before and after screenshots.</dd>
+        <dt>Page changed</dt><dd>How much of the whole page looks different. "0.8% of the page" means a few small spots; 30% or more usually means a theme or layout change.</dd>
+        <dt>Similarity</dt><dd>A score from 0 to 1 for how alike the two screenshots look overall. A supporting number only.</dd>
+        <dt>Alignment</dt><dd>The tool first lines the screenshots up, so a page captured a few pixels lower is not reported as changed.</dd>
+        <dt>Expected</dt><dd>This change was supposed to happen. It is part of the patch or upgrade.</dd>
+        <dt>Regression</dt><dd>This change is a defect. Log it. The page can't be signed off until it is fixed.</dd>
+        <dt>Noise</dt><dd>Not a real change, for example a time stamp or rendering. Safe to ignore. Not sure? Choose Regression and add a note.</dd>
+      </dl>
+      <p>Every change of a FAIL result needs a decision before you can save it. You cannot sign off while any change is marked Regression: log a defect, attach the report, and compare again after the fix. Use the After screenshot as the new Before screenshot only after sign-off. The "What this probably is" text on a card is a guess from the shape, never a verdict.</p>
     </section>
 
     <section id="zones"><h2>Ignore zones</h2>
-      <p>An ignore zone hides a rectangle (a timestamp, a user name) from the comparison. Zones belong to the page and are reused on every later comparison. If zones cover more than 15% of the page, the tool warns you that large ignored areas can hide real regressions.</p>
-      <p>You can add one three ways: drag on the baseline picture, choose <strong>Add ignore zone</strong> on a changed region, or use <strong>Add zone manually</strong> and type the X, Y, width and height (the keyboard route).</p>
+      <p>An ignore zone hides a rectangle (a timestamp, a user name) from the comparison. Zones belong to the page and are reused on every later comparison. If zones cover more than 15% of the page, the tool warns you that large ignored areas can hide real defects.</p>
+      <p>You can add one three ways: drag on the Before screenshot, choose <strong>Add ignore zone</strong> on a change card, or use <strong>Add zone manually</strong> and type the X, Y, width and height (the keyboard route).</p>
       <p>Ignore zones hide areas from the comparison. They are not a security control.</p>
     </section>
 
     <section id="storage"><h2>Your data and storage</h2>
       <p>Everything is stored in this browser, in an IndexedDB database called <code>erpinspector</code>. There are no network calls after the page loads, and your screenshots never leave the device.</p>
-      <p>To wipe it, open Settings and choose <strong>Reset app data</strong>. If the app says storage is blocked, allow site data for this site in your browser settings, or leave the private window. You can still load a sample and compare, but nothing is kept when you close the tab.</p>
+      <p>To wipe it, open Settings and choose <strong>Reset app data</strong>. If the app says storage is blocked, allow site data for this site in your browser settings, or leave the private window. You can still try an example and compare, but nothing is kept when you close the tab.</p>
     </section>
 
     <section id="limits"><h2>Limits</h2>
@@ -121,10 +126,75 @@
         <li>The time-saving figures in the business case (about 3 minutes by hand versus about 1 minute) are assumptions for a pilot, not measurements.</li>
       </ul>
     </section>
+    <section id="try-real"><h2>Try it with real PeopleSoft screenshots</h2>
+      <p>Oracle publishes PeopleSoft's user guides (PeopleBooks) on the public web. Many topics include screenshots of real pages. You can load those images into the inspector in your own browser, so you see how it behaves on a genuine PeopleSoft page, not only on our fictional demo.</p>
+      <ol>
+        <li>Open one of the PeopleBooks links in the list below, in a new tab.</li>
+        <li>Scroll to the screenshot of the page (for example "Timesheet page" or "Work Location page").</li>
+        <li>Right-click the screenshot and choose <strong>Save image as...</strong>. Save it as a PNG, and keep the name <code>&lt;module&gt;_&lt;page&gt;_before_&lt;YYYYMMDD&gt;.png</code> so you can find it later.</li>
+        <li>In the inspector choose <strong>Compare my own screenshots</strong> (it reads <strong>Add a new page</strong> once you have pages) and pick that image as the <strong>Before screenshot</strong>.</li>
+        <li>On the Compare screen, add a second image as the <strong>After screenshot</strong>, then press <strong>Compare</strong>. Good After screenshots:
+          <ul>
+            <li>your own capture of the same page from a test system you are allowed to use (see the capture tip below);</li>
+            <li>the same screenshot after you change it in an image editor (move a button, delete a field, change a label). This is the easiest way to see the inspector flag a change;</li>
+            <li>the same topic from a different PeopleBooks release, if the screenshot really differs (see the note below).</li>
+          </ul></li>
+        <li>Read the outlined changes. Treat the result as a supplemental QA aid, not as functional or security testing.</li>
+      </ol>
+      <p><strong>Capture tip.</strong> The Before and After screenshots must be the same size and zoom: same browser, 1366 x 900 viewport, 100% zoom, PNG, never JPEG (the capture standard above). PeopleBooks screenshots come in many different sizes, so two PeopleBooks images of different sizes are not a fair pair. The line-up step only forgives small scroll and zoom differences.</p>
+      <p><strong>Why this site does not ship these images.</strong> The screenshots are Oracle's copyrighted material, so we do not copy, host or bundle them. This project uses fictional data only and carries no Oracle branding. When you save an image yourself, it goes to your own disk, and the inspector keeps it only in your browser (IndexedDB) on your device. Nothing is uploaded. "Reset app data" removes it. Check Oracle's terms of use before you share or publish any image you saved.</p>
+      <div class="table-wrap" tabindex="0" aria-label="PeopleBooks links">
+      <table class="table">
+        <caption>PeopleBooks pages with a screenshot (links open in a new tab, verified on 2026-11-22)</caption>
+        <thead><tr><th scope="col">What you want</th><th scope="col">Link</th><th scope="col">Screenshot on the page</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Time and Labor: Timesheet page (current 9.2 PeopleBooks)</th><td><a href="https://docs.oracle.com/en/applications/peoplesoft/human-capital-management/9.2.055/peoplesoft-time-and-labor/timesheet-page-3.html" target="_blank" rel="noopener noreferrer">Timesheet Page (docs.oracle.com)</a></td><td>Yes, one</td></tr>
+          <tr><th scope="row">Time and Labor: Reporting Time, with the Timesheet page (9.2 set)</th><td><a href="https://docs.oracle.com/cd/F13810_02/hcm92pbr29/eng/hcm/htlr/task_ReportingTime-e31c63.html" target="_blank" rel="noopener noreferrer">Reporting Time (docs.oracle.com)</a></td><td>Yes, one</td></tr>
+          <tr><th scope="row">HCM Job Data: Work Location and Job Information pages (9.2 set)</th><td><a href="https://docs.oracle.com/cd/F13810_02/hcm92pbr29/eng/hcm/hhaw/task_AddingOrganizationalInstancesforEmployeesContingentWorkersandPOIs-647cb9.html" target="_blank" rel="noopener noreferrer">Adding Organizational Instances (docs.oracle.com)</a></td><td>Yes: Work Location (2), Job Information (4)</td></tr>
+          <tr><th scope="row">HCM Personal Data: Biographical Details and Contact Information pages (9.2 set)</th><td><a href="https://docs.oracle.com/cd/F13810_02/hcm92pbr29/eng/hcm/hhaw/task_AddingaPerson-647cea.html" target="_blank" rel="noopener noreferrer">Adding a Person (docs.oracle.com)</a></td><td>Yes: Biographical Details (1), Contact Information (1)</td></tr>
+          <tr><th scope="row">FSCM Payables: Voucher, Invoice Information page</th><td><a href="https://docs.oracle.com/cd/G17334_01/fscm92pbr52/eng/fscm/fapy/EnteringInvoiceInformationforOnlineVouchers-9f71ca.html" target="_blank" rel="noopener noreferrer">Entering Invoice Information for Online Vouchers (docs.oracle.com)</a></td><td>Yes, one</td></tr>
+          <tr><th scope="row">FSCM Purchasing: Maintain Purchase Order, Purchase Order page</th><td><a href="https://docs.oracle.com/en/applications/peoplesoft/financials-and-supply-chain-management/9.2.056/peoplesoft-purchasing/creating-purchase-order-headers.html" target="_blank" rel="noopener noreferrer">Creating Purchase Order Headers (docs.oracle.com)</a></td><td>Yes, one</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Every link points to an Oracle page. Oracle may move or retire pages, so a link can stop working without notice.</p>
+    </section>
+
+    <section id="team"><h2>Who built this</h2>
+      <p>This app was designed, built, reviewed and tested by a team of 17 AI assistants, each given a name and a job, such as business analyst, designer, developer or tester. They worked like a small project team: one of them (Atlas, the coordinator) planned the work and handed tasks to the others, and the others checked each other's work before anything was finished. The team is <strong>not part of the app you are using</strong>. Nothing here talks to an AI while you work: the comparison runs entirely in your browser, and no data leaves your device. The team's notes, test results and decisions are public in the project's <code>docs/</code> folder, and the table below says what each member contributed and where you see it in the app. Where a number in the project is an estimate (for example, the time the tool might save), the business analyst labelled it as an estimate until a pilot measures it.</p>
+      <div class="table-wrap" tabindex="0" aria-label="The team">
+      <table class="table">
+        <caption>The team (17 AI assistants; names are team names, not people)</caption>
+        <thead><tr><th scope="col">Name</th><th scope="col">Role</th><th scope="col">What they did for this app</th><th scope="col">Model (size tier)</th><th scope="col">Where you see it in the app</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Atlas</th><td>Coordinator</td><td>Planned the work, handed tasks to the others, settled disagreements, and released the app</td><td>Opus (largest)</td><td>nowhere in the app</td></tr>
+          <tr><th scope="row">Morgan</th><td>Business analyst</td><td>Wrote the user stories and acceptance checks, the 3-minute demo script, the pilot measurement plan (what to time, what to count), and the exact wording of "a supplemental tool, not a replacement"; wrote the plain-language wording for this results screen</td><td>Sonnet (mid-size)</td><td>the wording of results, PASS/FAIL and the three decisions</td></tr>
+          <tr><th scope="row">Riley</th><td>Functional analyst</td><td>Wrote realistic test scenarios and the list of ERP pages to test, and reviewed the fictional demo pages to check they feel real</td><td>Sonnet</td><td>the sample pages</td></tr>
+          <tr><th scope="row">Dex</th><td>PeopleSoft developer</td><td>Wrote the catalogue of PeopleSoft changes and the rules behind the "what this probably is" hints</td><td>Sonnet</td><td>the "What this probably is" lines</td></tr>
+          <tr><th scope="row">Hal</th><td>PeopleSoft administrator</td><td>Wrote the capture standard: how to take the before and after screenshots, and the tip shown in the app</td><td>Haiku (small, fast)</td><td>the capture tip</td></tr>
+          <tr><th scope="row">Vera</th><td>Security administrator</td><td>Wrote the security test scenarios, built the privacy check that scans the project for real data or logos, and keeps the point that a screenshot never proves access is correct</td><td>Sonnet</td><td>the "not a security control" lines</td></tr>
+          <tr><th scope="row">Tess</th><td>Test lead</td><td>Defined the evidence fields, the sign-off rules and the checker that validates saved evidence; blocked a release-stopping flaw in sign-off until it was fixed</td><td>Sonnet</td><td>Expected / Regression / Noise, the Save result form, sign-off</td></tr>
+          <tr><th scope="row">Iris</th><td>Computer-vision expert</td><td>Built the comparison engine: lining screenshots up, finding differences, outlining changes, the similarity score and the heat map</td><td>Opus</td><td>the comparison</td></tr>
+          <tr><th scope="row">Volt</th><td>WebAssembly expert</td><td>Made the comparison run fast in the background so the page never freezes, and added the safety limits (timeout, memory)</td><td>Opus</td><td>the comparison's speed</td></tr>
+          <tr><th scope="row">Ledger</th><td>Browser-storage expert</td><td>Built the storage that keeps your pages, Before screenshots and results on your device, and the Reset app data button</td><td>Sonnet</td><td>My pages, Past results, Reset app data</td></tr>
+          <tr><th scope="row">Wren</th><td>UX designer</td><td>Designed the screens, states and wording, and reviewed the visual design</td><td>Sonnet</td><td>every screen</td></tr>
+          <tr><th scope="row">Sable</th><td>Visual designer</td><td>Created the look: colours, spacing, glass effect on the controls, and checked every text colour for readability</td><td>Sonnet</td><td>every screen</td></tr>
+          <tr><th scope="row">Juno</th><td>Front-end engineer</td><td>Built the pages and the app logic that connects everything</td><td>Sonnet</td><td>every screen</td></tr>
+          <tr><th scope="row">Mason</th><td>Mock-page builder</td><td>Built the fictional "Demo ERP" pages and the before/after sample screenshots, with known planted changes</td><td>Sonnet</td><td>the Demo ERP and the examples</td></tr>
+          <tr><th scope="row">Quinn</th><td>QA tester</td><td>Tested the finished app in a real browser, including that nothing is sent over the network and nothing leaks memory</td><td>Sonnet</td><td>the checks behind the release</td></tr>
+          <tr><th scope="row">Piper</th><td>Release engineer</td><td>Set up the website hosting, wrote the README and checked every link</td><td>Haiku</td><td>the README</td></tr>
+          <tr><th scope="row">Forge</th><td>Team toolsmith</td><td>Kept the team's instructions and project rules consistent with each other</td><td>Sonnet</td><td>nowhere in the app</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>These are AI assistants working from written instructions and public documentation, so their work was checked by running tests, not just by trusting it. Their research notes and worked examples are listed on the <a href="resources.html">Resources</a> page. The app is a supplemental quality-assurance tool for the visual-comparison part of testing — not a replacement for functional or security testing.</p>
+      <p>Read the log: <a href="https://github.com/saudie72/CVFinal/blob/main/docs/handoff-log.md" target="_blank" rel="noopener noreferrer">docs/handoff-log.md on GitHub</a>.</p>
+    </section>
   </main>
 
   <footer class="app-footer">
     <p>Demo ERP (fictional) · Everything runs on this device. No data leaves your browser.</p>
+    <p class="credit">Built and reviewed by a team of AI agents. <a href="how-it-works.html#team">Who built this</a>.</p>
     <p class="disclaimer">A supplemental quality-assurance tool for the visual-comparison part of testing — not a replacement for functional or security testing.</p>
   </footer>
 </body>

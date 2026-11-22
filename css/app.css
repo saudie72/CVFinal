@@ -25,6 +25,7 @@
   --text-2: #5c5c62;
   --accent: #005bb5;
   --accent-bg: #0066cc;
+  --accent-soft: #e8f1fb;
   --on-accent: #ffffff;
   --focus: #005bb5;
   --pass: #007a33;
@@ -78,6 +79,7 @@
     --text-2: #aeaeb2;
     --accent: #69b3ff;
     --accent-bg: #4da3ff;
+    --accent-soft: #0f2a47;
     --on-accent: #001a33;
     --focus: #6cb4ff;
     --pass: #4ad968;
@@ -500,6 +502,271 @@ dialog .field input, dialog .field select, dialog .field textarea { background: 
   .status { grid-column: 1; order: 2; max-width: none; }
   .app-nav { order: 3; }
   .brand { font-size: .95rem; }
+}
+
+/* ============================== 13b. FIRST-USE CLARITY (UX-2, docs/design/ux-flows.md 12.3-12.17) ==============================
+   Content (landing, example cards, change cards, guide strip, stage) is OPAQUE. Glass stays on chrome only.
+   New tokens: --accent-soft (selected / current tint). Every pair is in tools/contrast_check.py.
+   Stacking: header 20, undo bar 30, .tour-focus 40, .tour-panel 50. */
+:root {
+  --header-h: 4.5rem;
+  --ic-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='black' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --ic-ring: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='8' fill='none' stroke='black' stroke-width='2.8'/%3E%3C/svg%3E");
+  --ic-lock: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='5' y='10.5' width='14' height='10' rx='2.5' fill='black'/%3E%3Cpath d='M8 10.5V8a4 4 0 0 1 8 0v2.5' fill='none' stroke='black' stroke-width='2.4'/%3E%3C/svg%3E");
+  --ic-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12h13M13 6.5l5.5 5.5-5.5 5.5' fill='none' stroke='black' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* --- disclosure: every <details> shows a chevron, so "collapsed" is visible (display:flex had removed the marker) --- */
+details > summary { list-style: none; gap: .6rem; border-radius: var(--radius-sm); }
+details > summary::-webkit-details-marker { display: none; }
+details > summary::after {
+  content: ""; margin-left: auto; flex: none; width: 1.1em; height: 1.1em; background-color: var(--text-2);
+  -webkit-mask: var(--ic-chevron) center / contain no-repeat; mask: var(--ic-chevron) center / contain no-repeat;
+  transition: transform var(--ease);
+}
+details[open] > summary::after { transform: rotate(180deg); }
+details > summary:hover { background: var(--hover); }
+/* boxed disclosure: the collapsed groups on the landing, Compare and Result */
+.landing details, #intro-card, #examples, #examples-more, #examples-tricky, #more-actions, #zones-details, #stats-help {
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0 1rem; margin: 0 0 .75rem;
+}
+.landing details[open], #examples[open], #examples-more[open], #examples-tricky[open], #more-actions[open], #zones-details[open], #stats-help[open] { padding-bottom: .9rem; }
+#more-actions > .actions { margin-top: .25rem; }
+
+/* --- link-btn: a button that reads as a link (Skip tour, Dismiss, Take the tour again) --- */
+.link-btn {
+  display: inline-flex; align-items: center; min-height: var(--target); padding: 0 .35rem; margin: 0;
+  background: none; border: 0; border-radius: 6px; font: inherit; font-weight: 600; color: var(--accent);
+  text-decoration: underline; text-underline-offset: .18em; cursor: pointer;
+}
+.link-btn:hover { text-decoration-thickness: 2px; background: var(--hover); }
+.btn-quiet, .landing #btn-new-page {
+  background: transparent; border-color: transparent; color: var(--accent); text-decoration: underline; text-underline-offset: .18em;
+}
+.btn-quiet:hover, .landing #btn-new-page:hover { background: var(--hover); border-color: transparent; }
+
+/* --- screen purpose line under each h1 --- */
+.screen-purpose { color: var(--text-2); font-size: 1.05rem; max-width: 42rem; margin: 0 0 1.25rem; }
+.screen > h1 + .screen-purpose { margin-top: -.5rem; }
+
+/* --- landing: one sentence of why, one big button, one quiet alternative --- */
+.landing {
+  display: flex; flex-direction: column; align-items: stretch; gap: 1.1rem;
+  max-width: 48rem; margin: 0 auto; padding: clamp(1rem, 4vw, 2.5rem) clamp(.5rem, 3vw, 1.5rem) 1rem;
+  border-radius: var(--radius-lg);
+  background: radial-gradient(48rem 18rem at 15% 0, var(--accent-soft), transparent 70%);
+}
+.landing h1 {
+  margin: 0; max-width: 22em; font-size: clamp(1.7rem, 1.1rem + 3vw, 2.7rem); line-height: 1.12; letter-spacing: -.025em; font-weight: 750;
+}
+.landing > .hint, .landing .landing-hint { margin: 0; }
+
+/* --- example cards: title > story > what to expect --- */
+.sample-hero {
+  display: flex; flex-direction: column; align-items: flex-start; gap: .55rem;
+  background: var(--panel); border: 2px solid var(--accent); border-radius: var(--radius-lg);
+  padding: clamp(1.1rem, 3vw, 1.75rem); box-shadow: var(--shadow); min-width: 0;
+}
+.sample-hero h2 { margin: 0; font-size: clamp(1.35rem, 1.1rem + 1.2vw, 1.8rem); letter-spacing: -.02em; font-weight: 750; }
+.sample-hero .sample-story { font-size: 1.1rem; }
+.sample-hero .btn-primary { min-height: 3.25rem; padding: 0 1.75rem; font-size: 1.1rem; margin-top: .35rem; }
+.sample-hero .hint { margin: 0; }
+.sample-card {
+  display: flex; flex-direction: column; align-items: flex-start; gap: .45rem; min-width: 0;
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem 1.1rem;
+}
+.sample-card .sample-title, .sample-card h4 { margin: 0; font-size: 1.05rem; font-weight: 700; }
+.sample-story { margin: 0; }
+.sample-expect {
+  margin: 0; color: var(--text-2); font-size: .93rem; border-left: 3px solid var(--border-strong); padding-left: .7rem;
+}
+.sample-expect strong { color: var(--text); }
+.sample-area {
+  display: inline-flex; width: fit-content; max-width: 100%; padding: .1rem .65rem; border-radius: 999px;
+  background: var(--panel-2); border: 1px solid var(--border); color: var(--text-2); font-size: .8rem; font-weight: 600; line-height: 1.4;
+}
+.sample-card .sample-open { margin-top: auto; align-self: flex-start; }
+.sample-group { margin: 0 0 1rem; }
+.sample-group > h3 { font-size: 1rem; margin: .25rem 0 .6rem; }
+.sample-group > .sample-card { margin-bottom: .75rem; }
+.sample-grid { display: grid; gap: .75rem; grid-template-columns: minmax(0, 1fr); margin: 0 0 .75rem; padding: 0; list-style: none; }
+.sample-grid > .sample-card { margin: 0; }
+@media (min-width: 960px) { .sample-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* --- guided tour: a docked bubble, not a modal. The screenshots stay the hero. --- */
+.tour-panel {
+  --n: 1;
+  position: sticky; top: calc(var(--header-h) + .5rem); z-index: 50; margin: 0 0 1.5rem; padding: 1.25rem 1.35rem 1rem;
+  /* opaque on purpose: a coach mark must stay legible over the dimmed page, and the caret has to match its fill */
+  background: linear-gradient(var(--accent), var(--accent)) 0 0 / calc(var(--n) * 20%) 5px no-repeat,
+              linear-gradient(var(--border), var(--border)) 0 0 / 100% 5px no-repeat, var(--panel);
+  color: var(--text); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); box-shadow: var(--shadow);
+}
+.tour-panel[data-step="2"] { --n: 2; }
+.tour-panel[data-step="3"], .tour-panel[data-step="wait"], .tour-panel[data-step="error"] { --n: 3; }
+.tour-panel[data-step="4"] { --n: 4; }
+.tour-panel[data-step="5"] { --n: 5; }
+.tour-panel::after {  /* the caret points at the highlighted thing below the bubble */
+  content: ""; position: absolute; left: 2.5rem; bottom: -9px; width: 16px; height: 16px; background: var(--panel);
+  border-right: 1px solid var(--border-strong); border-bottom: 1px solid var(--border-strong); transform: rotate(45deg);
+}
+.tour-panel[data-pointer="up"]::after { bottom: auto; top: -9px; transform: rotate(225deg); }
+.tour-panel[data-pointer="none"]::after { display: none; }
+.tour-panel h2, .tour-panel #tour-title { margin: 0 0 .35rem; font-size: clamp(1.15rem, 1rem + .8vw, 1.45rem); line-height: 1.25; }
+#tour-title:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; border-radius: 6px; }
+.tour-step { margin: 0 0 .75rem; color: var(--text-2); font-size: .92rem; }
+.tour-panel p { max-width: 44rem; }
+.tour-panel .actions { align-items: center; margin-top: .9rem; }
+.tour-panel .link-btn { margin-left: auto; }
+#tour-stage {
+  margin: .9rem 0 0; padding: .75rem; background: var(--viewer); border: 1px solid var(--border); border-radius: var(--radius-md);
+}
+#tour-stage figure { margin: 0; }
+#tour-stage figcaption { margin-top: .4rem; color: var(--text-2); font-size: .9rem; }
+#tour-before, #tour-after, #tour-stage canvas {
+  display: block; width: 100%; height: auto; max-height: min(55vh, 32rem); object-fit: contain; object-position: left top;
+  background: var(--viewer); border: 1px solid var(--border); border-radius: var(--radius-sm);
+}
+/* the highlighted element: a clear ring on a dimmed page. Put .tour-focus on the element itself (not on a canvas inside a scroller). */
+.tour-focus {
+  position: relative; z-index: 40; border-radius: var(--radius-md);
+  box-shadow: 0 0 0 4px var(--panel), 0 0 0 7px var(--accent), 0 0 0 100vmax var(--scrim);
+}
+.result-layout > :has(.tour-focus) { z-index: 40; }  /* sticky columns trap z-index; lift the column that holds the focus */
+#tour-again {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .25rem 1rem; margin: 0 0 1rem; padding: .35rem .6rem .35rem 1rem;
+  background: var(--accent-soft); border: 1px solid var(--border); border-left: 6px solid var(--accent); border-radius: var(--radius-md);
+}
+#tour-again p { margin: 0; flex: 1 1 14rem; font-weight: 600; }
+
+/* --- "What's happening": guide, 4-step strip, next sentence --- */
+.guide h2 { font-size: 1.05rem; color: var(--text-2); margin-bottom: .5rem; }
+#result-summary { font-size: 1.15rem; font-weight: 650; margin: 0 0 .9rem; }
+.strip { list-style: none; margin: 0 0 .9rem; padding: 0; display: grid; gap: .6rem; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.strip-step {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .15rem .5rem; min-width: 0; padding: .6rem .8rem;
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-md); font-weight: 650; line-height: 1.25;
+}
+.strip-step .icon { order: -1; width: 1.25em; height: 1.25em; vertical-align: 0; }
+.strip-status { order: 9; flex: 1 1 100%; color: var(--text-2); font-size: .85rem; font-weight: 400; }
+/* state = icon shape + border style + status words (colour is only a hint) */
+.strip-step[data-status="done"] .icon { --ic: var(--ic-check); color: var(--pass); }
+.strip-step[data-status="current"] {
+  background: var(--accent-soft); border: 2px solid var(--accent); padding: calc(.6rem - 1px) calc(.8rem - 1px);
+}
+.strip-step[data-status="current"] .icon { --ic: var(--ic-dot); color: var(--accent); }
+.strip-step[data-status="todo"] { background: var(--panel-2); border-style: dashed; border-color: var(--border-strong); font-weight: 500; }
+.strip-step[data-status="todo"] .icon { --ic: var(--ic-ring); color: var(--text-2); }
+.strip-step[data-status="blocked"] { background: var(--panel-2); border-style: dotted; border-color: var(--border-strong); font-weight: 500; }
+.strip-step[data-status="blocked"] .icon { --ic: var(--ic-lock); color: var(--text-2); }
+#result-next {
+  display: flex; align-items: flex-start; gap: .6rem; margin: 0 0 .75rem; padding: .75rem 1rem;
+  background: var(--accent-soft); border: 1px solid var(--border); border-left: 6px solid var(--accent); border-radius: var(--radius-md);
+  font-size: 1.05rem; font-weight: 600;
+}
+#result-next::before {
+  content: ""; flex: none; width: 1.2em; height: 1.2em; margin-top: .2em; background-color: var(--accent);
+  -webkit-mask: var(--ic-arrow) center / contain no-repeat; mask: var(--ic-arrow) center / contain no-repeat;
+}
+#result-explain { color: var(--text-2); font-size: .93rem; margin: 0 0 .9rem; }
+.stats { grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
+.stat-note { margin: .2rem 0 0; color: var(--text-2); font-size: .82rem; font-weight: 400; line-height: 1.35; }
+.credit { color: var(--text-2); font-size: .85rem; font-style: normal; margin: .5rem 0 0; }
+#boxes-hint { margin: .5rem 0 0; }
+#btn-back-to-card { margin-top: .5rem; }
+#regions-lede { margin: 0 0 .75rem; }
+.canvas-wrap.is-over-box canvas { cursor: pointer; }
+
+/* --- result layout: screenshot left (sticky), changes right, from 1100 px --- */
+main.app[data-screen="result"] { max-width: 90rem; }
+@media (min-width: 1100px) {
+  .result-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(26rem, 1fr); gap: 1.5rem; align-items: start; }
+  .result-layout > :first-child {
+    position: sticky; top: calc(var(--header-h) + .75rem); align-self: start;
+    max-height: calc(100vh - var(--header-h) - 1.5rem); overflow-y: auto; min-width: 0;
+  }
+  .result-layout .canvas-wrap { max-height: calc(100vh - var(--header-h) - 14rem); min-height: 12rem; }
+  .result-layout .tabs { margin-bottom: .75rem; }
+  .result-layout #regions { min-width: 0; }
+}
+
+/* --- the change card --- */
+.region { padding: 1rem 1.1rem; }
+.region-head { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .7rem; margin: 0 0 .6rem; }
+.region-head .region-title { flex: 1 1 11rem; margin: 0; font-size: 1.02rem; line-height: 1.3; }
+.region-badge {
+  display: inline-grid; place-items: center; flex: none; width: 2rem; height: 2rem; border-radius: 50%;
+  background: var(--region); color: var(--on-region); font-weight: 750; font-size: .95rem; line-height: 1;
+}
+.region-show { min-height: 2.5rem; padding: 0 .9rem; font-size: .9rem; }
+@media (pointer: coarse) { .region-show { min-height: var(--target); } }
+.region-locate { margin: 0 0 .5rem; color: var(--text-2); font-size: .9rem; }
+.region-crops { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .75rem; margin: 0 0 .75rem; }
+.region-crop { flex: 1 1 8.5rem; max-width: 280px; min-width: 0; margin: 0; }
+.region-crop canvas {
+  display: block; width: 100%; height: auto; background: var(--viewer); border: 1px solid var(--border); border-radius: var(--radius-sm);
+}
+.region-crop figcaption { margin-top: .25rem; text-align: center; font-size: .85rem; font-weight: 700; }
+.region-locator {
+  flex: none; align-self: center; width: 72px; height: 48px; margin-left: auto;
+  background: var(--viewer); border: 1px solid var(--border); border-radius: 6px;
+}
+.region-cause { margin: 0 0 .8rem; padding: .6rem .8rem; background: var(--panel-2); border-radius: var(--radius-sm); font-size: .95rem; }
+.region-cause p { margin: 0 0 .3rem; }
+.region-cause > :last-child { margin-bottom: 0; }
+.decision { display: grid; gap: .5rem; margin: 0 0 .5rem; }
+.decision legend { padding: 0; margin: 0 0 .25rem; font-size: .98rem; font-weight: 700; }
+.decision .choice {
+  display: grid; grid-template-columns: auto 1fr; column-gap: .75rem; row-gap: .1rem; align-items: start;
+  min-height: var(--target); padding: .6rem .8rem; cursor: pointer;
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-sm);
+}
+.decision .choice input { grid-row: 1 / span 2; margin-top: .15rem; }
+.choice-name { font-weight: 700; }
+.choice-desc { grid-column: 2; color: var(--text-2); font-size: .88rem; line-height: 1.35; }
+.decision .choice:hover { border-color: var(--border-strong); }
+.decision .choice:has(input:checked) { background: var(--accent-soft); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.decision .choice:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+.region-rule { margin: .25rem 0 .6rem; color: var(--text-2); font-size: .9rem; }
+.region-noise-tip {
+  display: flex; gap: .5rem; margin: 0 0 .6rem; padding: .5rem .75rem; font-size: .9rem;
+  background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: var(--radius-sm);
+}
+.region-help > summary, .region-details > summary { min-height: 2.5rem; font-size: .93rem; }
+.region-help > summary::before {
+  content: ""; flex: none; width: 1.1em; height: 1.1em; background-color: var(--accent);
+  -webkit-mask: var(--ic-info) center / contain no-repeat; mask: var(--ic-info) center / contain no-repeat;
+}
+.region-dl { display: grid; grid-template-columns: auto 1fr; gap: .2rem .9rem; margin: 0 0 .5rem; font-size: .9rem; }
+.region-dl dt { color: var(--text-2); }
+.region-dl dd { margin: 0; }
+/* selected = thick outline + ringed badge + tint; the matching canvas box is drawn thick in the same accent (--accent).
+   Linked (pointer over the box) = dashed outline. Shape and thickness carry it, not colour alone. */
+.region[data-linked="true"] { background: var(--accent-soft); outline: 2px dashed var(--accent); outline-offset: 1px; }
+.region[data-selected="true"] { background: var(--accent-soft); outline: 3px solid var(--accent); outline-offset: 1px; }
+.region[data-selected="true"] .region-badge { box-shadow: 0 0 0 3px var(--panel), 0 0 0 6px var(--accent); }
+.region[data-decision="Regression"][data-selected="true"], .region[data-decision="Regression"][data-linked="true"] { background: var(--fail-bg); }
+
+/* --- narrow screens --- */
+@media (max-width: 960px) { .strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 720px) {
+  .tour-panel { position: static; padding: 1.1rem 1rem .9rem; }
+  .tour-panel .actions .btn { flex: 1 1 auto; }
+  .tour-panel .link-btn { margin-left: 0; flex: 1 1 100%; justify-content: center; }
+  .sample-hero .btn-primary, .sample-card .sample-open { width: 100%; align-self: stretch; }
+  .landing #btn-new-page { align-self: stretch; }
+  .canvas-wrap { max-height: 70vh; }
+  .region-locator { margin-left: 0; }
+}
+@media (max-width: 480px) { .strip { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-contrast: more) {
+  .strip-step, .sample-card, .region, .decision .choice { border-color: var(--border-strong); }
+}
+@media (forced-colors: active) {
+  details > summary::after, .region-help > summary::before, #result-next::before { background-color: CanvasText; }
+  .tour-focus { outline: 3px solid Highlight; outline-offset: 4px; box-shadow: none; }
+  .region[data-selected="true"] { outline-color: Highlight; }
+  .strip-step[data-status="current"] { border-color: Highlight; }
 }
 
 /* ============================== 14. MOTION, PRINT, FORCED COLORS ============================== */

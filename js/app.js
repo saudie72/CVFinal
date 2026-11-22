@@ -5,18 +5,20 @@ import { createInspector, TIMEOUT_MESSAGE } from './worker-client.js';
 import { copy } from './copy.js';
 import { $, announce, setPill, setDisabled, isDisabled, openDialog, confirmDialog, undoable, flushUndo,
          fmtPct, fmtMs, fmtDuration, fmtDate, alignmentText, plural, download } from './ui.js';
-import { renderViews, redrawBoxes, initTabs, setOverlay } from './views.js';
+import { renderViews, redrawBoxes, initTabs, setOverlay, drawCrop, drawLocator, hitBox, revealBox } from './views.js';
 import { initZones } from './zones-ui.js';
 import { buildReport, runsToCsv, evidencePng, printReport } from './report.js';
-import { loadHints, classify, hintFor } from './hints.js';
+import { classify } from './hints.js';
+import { position, shape, areaName } from './plain.js';
 
 const DEFAULTS = { T: 25, minArea: 64, kernel: 5, thresholdPct: 0.1, alignment: 'auto' };
 const ROUTES = ['library', 'compare', 'result', 'history', 'settings'];
 const S = {
-  screen: 'library', dbOK: true, engineReady: false, everReady: false, engineSeen: false,
+  screen: 'library', dbOK: true, engineReady: false, everReady: false, engineSeen: false, onboardingSeen: false, hasRuns: false, tour: null,
   working: false, cancelled: false, error: null,
   pages: [], page: null, base: null, cand: null, candUrl: null,
   result: null, runId: null, signOff: { signedOff: false, reviewer: '', signedOffAt: null, baselinePromoted: false },
+  selected: -1, hover: -1, looked: new Set(), lastStep: null,
   evidence: null, runNote: '', reviewStart: 0, reviewMs: null, zoneAdded: null,
   settings: { ...DEFAULTS }, samples: [], thumbUrls: [], notice: 'none', historyPage: null, runsCache: [],
 };
@@ -68,8 +70,7 @@ function syncMain() {
   updateSampleButton();
 }
 function updateSampleButton() {
-  const b = $('btn-load-sample');
-  if (S.samples.length === 0) setDisabled(b, true); else setDisabled(b, false);
+  setDisabled($('btn-load-sample'), !heroSample());
 }
 function pillReady() { setPill('ready', copy.pill.ready); }
 function pillLoading() { setPill('loading', S.engineSeen ? copy.pill.loadingSeen : copy.pill.loading); }
@@ -130,22 +131,28 @@ async function route() {
   if (location.hash !== '#/' + r) history.replaceState(null, '', '#/' + r);
   if (S.error && S.error.kind !== 'error-opencv') clearError();
   S.screen = r;
-  document.querySelectorAll('.screen').forEach((s) => { s.hidden = s.dataset.screen !== r; });
+  if (S.tour && r !== 'compare' && r !== 'result') endTour('skip');
+  document.querySelectorAll('.screen').forEach((s) => { s.hidden = tourHides() || s.dataset.screen !== r; });
   document.querySelectorAll('.app-nav a[data-route]').forEach((a) => {
     const on = a.dataset.route === (r === 'result' ? 'compare' : r);
     if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
   document.title = `${copy.screens[r]} - ${copy.title}`;
+  updateNav();
   syncMain();
   if (r === 'library') await renderLibrary();
   else if (r === 'compare') renderCompare();
   else if (r === 'history') await renderHistory();
   else if (r === 'settings') await renderSettings();
-  if (!firstRoute) {
+  if (!firstRoute && !S.tour) {
     const target = r === 'result' ? $('result-status') : $('screen-' + r).querySelector('h1');
     if (target) target.focus();
   }
   firstRoute = false;
+}
+function updateNav() {
+  const set = (k, show) => { const li = document.querySelector(`.app-nav li[data-nav="${k}"]`); if (li) li.hidden = !show; };
+  set('compare', S.pages.length > 0 || !!S.page); set('history', S.hasRuns || S.screen === 'history');
 }
 const go = (r) => { if (location.hash === '#/' + r) route(); else location.hash = '#/' + r; };
 
@@ -154,28 +161,41 @@ async function refreshPages() {
   if (!S.dbOK) { S.pages = []; return; }
   try { S.pages = (await pagesDb.list()).sort((a, b) => a.name.localeCompare(b.name)); }
   catch (e) { console.error(e); S.pages = []; }
+  if (!S.hasRuns) {
+    try { for (const p of S.pages) { if ((await runsDb.forPage(p.id)).length) { S.hasRuns = true; break; } } } catch { /* nav only */ }
+  }
+  updateNav();
 }
 async function renderLibrary() {
   await refreshPages();
   S.thumbUrls.forEach((u) => URL.revokeObjectURL(u)); S.thumbUrls = [];
   const has = S.pages.length > 0;
-  const t = has ? copy.states['ready-pages'] : copy.states['ready-empty'];
-  document.querySelector('#library-empty h2').textContent = t.title;
-  document.querySelector('#library-empty > p').textContent = t.body;
+  $('h-library').textContent = has ? copy.screens.library : copy.landing.h1;
+  $('library-purpose').textContent = copy.purpose.pages; $('library-purpose').hidden = !has;
+  $('library-empty').hidden = has;
+  $('your-pages').hidden = !has;
+  $('btn-new-page').textContent = has ? copy.landing.secondaryWithPages : copy.landing.secondary;
+  $('tour-again').hidden = !(has && !S.onboardingSeen && !S.tour && heroSample());
+  $('tour-again').querySelector('p').textContent = copy.landing.tourAgain;
+  $('intro-title').textContent = copy.intro.title; $('intro-body').textContent = copy.intro.body;
+  $('intro-positioning').textContent = copy.intro.positioning; $('intro-more').textContent = copy.intro.more;
   const ul = $('page-list'), tpl = $('tpl-page');
-  ul.replaceChildren(...S.pages.map((p) => {
+  ul.replaceChildren(...S.pages.map((p, idx) => {
     const li = tpl.content.firstElementChild.cloneNode(true);
     li.dataset.pageId = p.id;
     const img = li.querySelector('.card-thumb');
     const url = URL.createObjectURL(p.baseline); S.thumbUrls.push(url);
-    img.src = url; img.alt = `Baseline of ${p.name}`;
+    img.src = url; img.alt = `Before screenshot of ${p.name}`;
     li.querySelector('.card-title').textContent = p.name;
-    li.querySelector('.card-meta').textContent = `${p.module} · ${p.width} by ${p.height} pixels · added ${fmtDate(p.createdAt)}`;
-    li.querySelector('.page-open').addEventListener('click', () => openPage(p).then(() => go('compare')));
+    li.querySelector('.card-meta').textContent = `${areaName(p.module)} · Before screenshot added ${fmtDate(p.createdAt)}`;
+    const open = li.querySelector('.page-open');
+    if (idx > 0) open.classList.remove('btn-primary');
+    open.addEventListener('click', () => openPage(p).then(() => go('compare')));
     li.querySelector('.page-history').addEventListener('click', () => { S.historyPage = p.id; go('history'); });
     li.querySelector('.page-delete').addEventListener('click', (e) => deletePage(p, e.currentTarget));
     return li;
   }));
+  renderExamples();
   syncMain();
 }
 async function deletePage(p, opener) {
@@ -225,7 +245,7 @@ async function createPage(e) {
   if (!name) return pageNameError('Enter a page name.', false);
   const dupe = S.pages.find((p) => p.name.toLowerCase() === name.toLowerCase());
   if (dupe) { S.dupePage = dupe; return pageNameError(copy.duplicate(name), true); }
-  if (!newPageFile) return pageNameError('Choose a baseline PNG first.', false);
+  if (!newPageFile) return pageNameError('Choose a Before screenshot (PNG) first.', false);
   try {
     checkPng(newPageFile);
     const base = await decode(newPageFile);
@@ -245,32 +265,75 @@ async function createPage(e) {
 }
 
 // ============================== samples ==============================
+const sampleName = (s) => s.title || `${s.module} – ${s.page}`;
+const sortedSamples = () => S.samples.map((x, i) => ({ x, i })).sort((a, b) => (a.x.order ?? a.i) - (b.x.order ?? b.i)).map((o) => o.x);
+const heroSample = () => { const l = sortedSamples(); return l.find((x) => x.group === copy.samples.groupOrder[0]) || l[0] || null; };
 async function loadManifest() {
   try {
     const r = await fetch('samples/manifest.json');
     if (!r.ok) throw new Error('manifest ' + r.status);
     S.samples = await r.json();
   } catch (e) { console.error(e); S.samples = []; }
-  const sel = $('sample-select');
-  sel.replaceChildren(...S.samples.map((s, i) => {
-    const o = document.createElement('option'); o.value = String(i);
-    o.textContent = s.title || `${s.module} – ${s.page}`;
-    return o;
-  }));
   syncMain();
 }
-const sampleName = (s) => s.title || `${s.module} – ${s.page}`;
+function fillSampleCard(el, s) {
+  el.querySelector('.sample-title').textContent = sampleName(s);
+  el.querySelector('.sample-area').textContent = areaName(s.module);
+  el.querySelector('.sample-story').textContent = s.story || '';
+  const ex = el.querySelector('.sample-expect'); ex.replaceChildren();
+  const t = s.whatToExpect || '';
+  if (t) {
+    const b = document.createElement('strong'); b.textContent = copy.samples.expectLead;
+    ex.append(b, document.createTextNode(' ' + t.replace(/^Expect:\s*/i, '')));
+  }
+}
+function renderExamples() {
+  const list = sortedSamples(), order = copy.samples.groupOrder;
+  const hero = heroSample(), has = S.pages.length > 0;
+  const heroEl = $('sample-hero');
+  heroEl.hidden = !hero || has;
+  if (hero) fillSampleCard(heroEl, hero);
+  const err = $('examples-error');
+  err.hidden = list.length > 0; err.textContent = list.length ? '' : copy.samples.loadError;
+  const mk = (s) => {
+    const el = $('tpl-sample').content.firstElementChild.cloneNode(true);
+    fillSampleCard(el, s);
+    const btn = el.querySelector('.sample-open'); btn.dataset.sampleId = s.page;
+    btn.addEventListener('click', () => loadSample(s, { btn }));
+    if (S.pages.some((p) => p.name.toLowerCase() === sampleName(s).toLowerCase())) {
+      const tag = document.createElement('span'); tag.className = 'sample-tag'; tag.textContent = copy.samples.inLibrary;
+      el.querySelector('.sample-area').after(tag);
+    }
+    return el;
+  };
+  const group = (g, items) => {
+    const sec = document.createElement('div'); sec.className = 'sample-group';
+    const h = document.createElement('h3'); h.textContent = g;
+    const grid = document.createElement('div'); grid.className = 'sample-grid'; grid.append(...items.map(mk));
+    sec.append(h, grid); return sec;
+  };
+  const fill = (box, groups) => { box.querySelectorAll('.sample-group').forEach((e) => e.remove()); box.append(...groups); };
+  const grp = (g) => list.filter((x) => x.group === g);
+  const more = grp(order[1]), tricky = grp(order[2]);
+  const dm = $('examples-more'), dt = $('examples-tricky'), da = $('examples');
+  dm.hidden = has || !more.length; dt.hidden = has || !tricky.length; da.hidden = !has || !list.length;
+  dm.querySelector('summary').textContent = copy.samples.moreSummary(more.length);
+  dt.querySelector('summary').textContent = copy.samples.trickySummary(tricky.length);
+  fill(dm, [group(order[1], more)]); fill(dt, [group(order[2], tricky)]);
+  da.querySelector('summary').textContent = copy.samples.tryExample;
+  fill(da, order.map((g) => [g, grp(g)]).filter(([, it]) => it.length).map(([g, it]) => group(g, it)));
+}
 async function fetchBlob(url) {
   const r = await fetch(url);
   if (!r.ok) throw new Error(`Could not load ${url}`);
   return r.blob();
 }
-async function loadSample() {
-  const btn = $('btn-load-sample');
-  if (isDisabled(btn) || btn.getAttribute('aria-busy') === 'true') return;
-  const s = S.samples[Number($('sample-select').value)];
-  if (!s) return;
+async function loadSample(s, { tour = false, btn = null } = {}) {
+  btn = btn || $('btn-load-sample');
+  if (!s || isDisabled(btn) || btn.getAttribute('aria-busy') === 'true' || S.opening) return;
+  S.opening = true;
   btn.setAttribute('aria-busy', 'true');
+  announce(copy.samples.opening(sampleName(s)));
   try {
     clearError();
     const [before, after] = await Promise.all([fetchBlob(s.before), fetchBlob(s.after)]);
@@ -287,15 +350,17 @@ async function loadSample() {
           page.id = null; showNotice('storage-quota', copy.notice.quota);   // compare in memory; saving is refused
         }
       } else page.id = null;
-      S.tip = true;
+      S.tip = !tour;
     }
     await openPage(page, after);
+    S.opening = false;
+    if (tour) startTour();
     go('compare');
     await doCompare();               // queues until the engine is ready
   } catch (e) {
     console.error(e);
     showError('error-compare', e instanceof UserError ? e.message : `${e.message || e}`, 'raw');
-  } finally { btn.removeAttribute('aria-busy'); }
+  } finally { S.opening = false; btn.removeAttribute('aria-busy'); }
 }
 function suggestedZones() {
   if (!S.page) return [];
@@ -318,7 +383,7 @@ async function applyCandidate(blob, announceIt) {
   S.result = null; S.runId = null; S.zoneAdded = null;     // a new screenshot invalidates the old result
   S.cand = c; S.candUrl = URL.createObjectURL(blob);
   const t = $('candidate-thumb'); t.src = S.candUrl; t.hidden = false;
-  if (announceIt) announce(`After-change screenshot added, ${c.width} by ${c.height} pixels.`);
+  if (announceIt) announce(`After screenshot added.`);
   updateCompareControls();
 }
 async function setCandidateFromFile(file) {
@@ -326,7 +391,8 @@ async function setCandidateFromFile(file) {
   catch (e) { if (e instanceof UserError) showError('error-compare', e.message, 'raw'); else console.error(e); }
 }
 function renderCompare() {
-  $('compare-page-name').textContent = S.page ? `${S.page.name} (${S.page.module})` : '';
+  $('compare-page-name').textContent = S.page ? `${S.page.name} · ${areaName(S.page.module)}` : '';
+  $('zones-details').open = zonesUI.zones.length > 0 || $('zones-details').open;
   $('capture-tip').hidden = !S.tip;
   zonesUI.redraw();
   updateCompareControls();
@@ -377,7 +443,8 @@ async function doCompare() {
     S.working = false; pillReady();
     const msg = String((e && e.message) || e);
     if (S.cancelled) { S.cancelled = false; announce('Comparison cancelled. Your screenshots are still here.'); syncMain(); $('btn-compare').focus(); return; }
-    if (msg === TIMEOUT_MESSAGE) showError('error-timeout');
+    if (S.tour) { S.tour.error = true; renderTour(); }
+    else if (msg === TIMEOUT_MESSAGE) showError('error-timeout');
     else if (e instanceof RangeError || /\bMP\b|megapixel/i.test(msg)) showError('error-compare', copy.errors.tooLarge, 'raw');
     else if (/Size mismatch/i.test(msg)) showError('error-compare', copy.errors.sizes(`${S.base.width}×${S.base.height}`, `${S.cand.width}×${S.cand.height}`), 'raw');
     else if (/align/i.test(msg)) showError('error-compare', copy.errors.alignment, 'raw');
@@ -411,13 +478,16 @@ async function showResult(res, zs) {
   S.reviewStart = Date.now();
   renderResultAll();
   pillReady();
-  go('result');
-  announce(m.status === 'PASS' ? 'Comparison finished. PASS, no unexpected changes.'
-    : `Comparison finished. FAIL, ${plural(m.regions.length, 'changed region', 'changed regions')}, ${Math.round(m.changedPct * 10) / 10} percent of page.`);
+  if (S.tour) tourResultReady(); else go('result');
+  if (!S.tour) announce(m.status === 'PASS' ? copy.result.announcePass : copy.result.announceFail(m.regions.length, Math.round(m.changedPct * 10) / 10));
 }
 
 function renderResultAll() {
   const m = S.result;
+  m.regions.forEach((r) => { r.pos = position(r, m.width, m.height, m.changedPct); r.shp = shape(r); });
+  S.selected = -1; S.hover = -1; S.lastStep = null;
+  S.looked = new Set(m.regions.map((r, i) => (r.decision ? i : -1)).filter((i) => i >= 0));
+  $('btn-back-to-card').hidden = true;
   renderViews(m, -1);
   m.boxesFinal = $('canvas-boxes');
   tabs.select('boxes');
@@ -426,70 +496,170 @@ function renderResultAll() {
   renderRegionList();
   updateActions();
 }
+function alignInfo(al) {
+  const t = copy.stats.alignment;
+  const dx = Math.round((al && al.dx) || 0), dy = Math.round((al && al.dy) || 0);
+  const scaled = !!(al && al.scale && Math.abs(al.scale - 1) > 0.005);
+  if (!al || al.method === 'none' || (!dx && !dy && !scaled)) return { value: t.none, note: t.noteNone };
+  return { value: t.lined, note: t.noteShift(dx, dy, scaled) };
+}
 function renderStats() {
-  const m = S.result, n = m.regions.length;
-  $('result-text').textContent = m.status === 'PASS' ? 'PASS — no unexpected changes'
-    : `FAIL — ${plural(n, 'changed region', 'changed regions')} (${fmtPct(m.changedPct)} of page)`;
-  $('stat-changed').textContent = `${fmtPct(m.changedPct)} of page`;
-  $('stat-ssim').textContent = `SSIM ${(+m.ssim).toFixed(3)}`;
-  $('stat-alignment').textContent = alignmentText(m.alignment);
-  $('stat-ignored').textContent = m.zones.length ? `${plural(m.zones.length, 'zone', 'zones')} (${m.ignoredPct}% of page)` : 'None';
+  const m = S.result, n = m.regions.length, st = copy.stats;
+  $('result-text').textContent = m.status === 'PASS' ? copy.result.statusPass : copy.result.statusFail(n, fmtPct(m.changedPct));
+  $('result-explain').textContent = m.status === 'PASS' ? copy.result.explainPass : copy.result.explainFail;
+  $('stat-changed').textContent = `${fmtPct(m.changedPct)} of the page`;
+  $('note-changed').textContent = st.changed.note(`${pageThreshold()}%`);
+  $('stat-ssim').textContent = st.ssim.value(m.ssim); $('note-ssim').textContent = st.ssim.note;
+  const al = alignInfo(m.alignment);
+  $('stat-alignment').textContent = al.value; $('note-alignment').textContent = al.note;
+  $('stat-ignored').textContent = m.zones.length ? `${plural(m.zones.length, 'zone', 'zones')} (${m.ignoredPct}% of page)` : st.ignored.none;
+  $('note-ignored').textContent = st.ignored.note;
   $('stat-ms').textContent = fmtMs(m.ms);
   $('stat-review').textContent = S.reviewMs != null ? fmtDuration(S.reviewMs) : '—';
   $('zones-disclaimer').hidden = m.zones.length === 0;
   $('regions').hidden = n === 0;
+  $('btn-back-to-card').hidden = true;
 }
-function regionLabel(r, i, n) {
-  return `Region ${i + 1} of ${n}, ${r.width} by ${r.height} pixels at ${r.x}, ${r.y}, decision: ${r.decision ? r.decision : 'not reviewed'}`;
+function fillStatsHelp() {
+  const dl = $('stats-help-list');
+  dl.replaceChildren(...copy.stats.help.flatMap(([k, v]) => { const dt = document.createElement('dt'), dd = document.createElement('dd'); dt.textContent = k; dd.textContent = v; return [dt, dd]; }));
 }
+const regionLabel = (r, i, n) => copy.card.aria(i + 1, n, r.pos, r.shp, r.decision);
+let cropObserver = null;
 function renderRegionList() {
   const m = S.result, n = m.regions.length, tpl = $('tpl-region');
+  if (cropObserver) cropObserver.disconnect();
+  const draw = (li) => {
+    if (li._drawn) return; li._drawn = true;
+    const r = li._r;
+    drawCrop(li.querySelector('.crop-before'), m.baseline, r, m);
+    drawCrop(li.querySelector('.crop-after'), m.candidate, r, m);
+    drawLocator(li.querySelector('.region-locator'), r, m);
+  };
+  cropObserver = typeof IntersectionObserver === 'function'
+    ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { draw(e.target); cropObserver.unobserve(e.target); } }), { rootMargin: '200px' }) : null;
   const items = m.regions.map((r, i) => {
     const li = tpl.content.firstElementChild.cloneNode(true);
+    li._r = r;
     li.dataset.region = String(i + 1); li.dataset.decision = r.decision || 'unreviewed';
     li.setAttribute('aria-label', regionLabel(r, i, n));
-    li.querySelectorAll('.region-num').forEach((e) => { e.textContent = i + 1; });
-    li.querySelector('.region-total').textContent = n;
-    li.querySelector('.region-size').textContent = `${r.width} by ${r.height} pixels`;
-    li.querySelector('.region-pos').textContent = `${r.x}, ${r.y}`;
-    const h = hintFor(r.hintId);
-    li.querySelector('.region-hint').textContent = h ? `Likely: ${h.label}. ${h.hint}` : '';
+    li.querySelector('.region-badge').textContent = i + 1;
+    const title = li.querySelector('.region-title'); title.id = `region-${i + 1}-title`;
+    title.textContent = copy.card.title(i + 1, n, r.pos, r.shp);
+    li.querySelector('.region-decided').textContent = r.decision ? copy.card.decided(r.decision) : '';
+    const show = li.querySelector('.region-show'); show.textContent = copy.card.show;
+    show.setAttribute('aria-label', `${copy.card.show}, change ${i + 1}`);
+    li.querySelector('.region-locate').textContent = copy.locate(i + 1);
+    for (const [cls, which] of [['crop-before', copy.card.before], ['crop-after', copy.card.after]]) {
+      const c = li.querySelector('.' + cls); c.id = `${cls.replace('crop-', 'crop-')}-${i + 1}`;
+      c.setAttribute('aria-label', copy.card.cropAria(which, i + 1, n, r.pos, r.shp));
+    }
+    li.querySelector('.region-locator').id = `locator-${i + 1}`;
+    const cz = copy.cause[r.hintId] || copy.cause.unclassified;
+    li.querySelector('.cause-lead').textContent = copy.cause.lead; li.querySelector('.cause-what').textContent = cz[0];
+    li.querySelector('.cause-check').textContent = copy.cause.check; li.querySelector('.cause-do').textContent = cz[1];
+    li.querySelector('.cause-guess').textContent = copy.cause.guess;
+    li.querySelector('.credit a').textContent = copy.card.causeCredit;
+    li.querySelector('legend').textContent = copy.decision.legend(i + 1);
+    li.querySelector('.decision-intro').textContent = copy.decision.intro;
+    const noiseTip = li.querySelector('.region-noise-tip'); noiseTip.textContent = copy.decision.noiseTip;
+    li.querySelector('.region-rule').textContent = copy.decision.rule;
+    const note = li.querySelector('.region-note');
+    const setPh = () => { note.placeholder = r.decision === 'Regression' ? copy.decision.notePhRegression : copy.decision.notePh; noiseTip.hidden = r.decision !== 'Noise'; };
     li.querySelectorAll('input[type=radio]').forEach((rad) => {
-      rad.name = `decision-${i + 1}`; rad.checked = r.decision === rad.value;
-      rad.addEventListener('change', () => setDecision(i, rad.value));
+      rad.name = `decision-${i + 1}`; rad.checked = r.decision === rad.value;          // none pre-selected (D15)
+      rad.closest('label').querySelector('.choice-desc').textContent = copy.decision[rad.value];
+      rad.addEventListener('change', () => { setDecision(i, rad.value); setPh(); });
     });
-    const note = li.querySelector('.region-note'); note.value = r.note || '';
+    note.value = r.note || ''; setPh();
     note.addEventListener('change', () => { if (S.signOff.baselinePromoted) { note.value = r.note || ''; return; } r.note = note.value; persistRegions(false); });
-    li.querySelector('.region-zone').addEventListener('click', (e) => zonesUI.fromRegion(r, e.currentTarget));
-    const on = () => redrawBoxes(m, i), off = () => redrawBoxes(m, -1);
-    li.addEventListener('focusin', on); li.addEventListener('focusout', off);
+    const zbtn = li.querySelector('.region-zone'); zbtn.textContent = copy.card.zoneBtn;
+    zbtn.addEventListener('click', (e) => zonesUI.fromRegion(r, e.currentTarget));
+    li.querySelector('.region-zone-hint').textContent = copy.decision.zoneHelp;
+    li.querySelector('summary').textContent = copy.detailsSummary;
+    li.querySelector('.region-details-line').textContent = copy.detailsLine(r.width, r.height, r.x, r.y, m.width, m.height);
+    // two-way link with the screenshot (12.8)
+    show.addEventListener('click', () => {
+      selectRegion(i, { announceIt: false });
+      tabs.select('boxes'); announce(copy.card.showAnnounce(i + 1));
+      revealBox(m, i);
+      const back = $('btn-back-to-card'); back.textContent = copy.result.backToCard(i + 1); back.dataset.region = String(i + 1); back.hidden = false;
+    });
+    li.addEventListener('click', () => { if (S.selected !== i) selectRegion(i, { announceIt: true }); });
+    li.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target === li) selectRegion(i, { announceIt: true }); });
+    const on = () => setHover(i), off = () => setHover(-1);
+    li.addEventListener('focusin', () => { setHover(i); markLooked(i); });
+    li.addEventListener('focusout', (e) => { if (!li.contains(e.relatedTarget)) off(); });
     li.addEventListener('mouseenter', on); li.addEventListener('mouseleave', off);
+    if (cropObserver) cropObserver.observe(li);
     return li;
   });
   $('region-list').replaceChildren(...items);
+  if (!cropObserver) items.forEach(draw);
+  $('regions-lede').textContent = copy.result.regionsLede;
   updateProgress();
+}
+function markLooked(i) { if (!S.looked.has(i)) { S.looked.add(i); if (S.result) updateActions(); } }
+function setHover(i) {
+  if (!S.result || S.hover === i) return;
+  S.hover = i;
+  $('region-list').querySelectorAll('li.region').forEach((li, j) => { if (j === i) li.dataset.linked = 'true'; else delete li.dataset.linked; });
+  redrawBoxes(S.result, S.hover >= 0 ? S.hover : S.selected);
+}
+function selectRegion(i, { announceIt = false } = {}) {
+  const m = S.result; if (!m) return;
+  S.selected = i;
+  $('region-list').querySelectorAll('li.region').forEach((li, j) => { if (j === i) li.dataset.selected = 'true'; else delete li.dataset.selected; });
+  redrawBoxes(m, S.hover >= 0 ? S.hover : S.selected);
+  markLooked(i);
+  if (announceIt) announce(copy.card.selectAnnounce(i + 1, m.regions.length, m.regions[i].pos, m.regions[i].shp));
+}
+function bindBoxesCanvas() {
+  const canvas = $('canvas-boxes'), wrap = canvas.parentElement;
+  canvas.addEventListener('pointermove', (e) => {
+    if (!S.result) return;
+    const i = hitBox(canvas, S.result, e);
+    wrap.classList.toggle('is-over-box', i >= 0);
+    setHover(i);
+  });
+  canvas.addEventListener('pointerleave', () => { wrap.classList.remove('is-over-box'); setHover(-1); });
+  canvas.addEventListener('click', (e) => {
+    if (!S.result) return;
+    const i = hitBox(canvas, S.result, e);
+    if (i < 0) return;
+    selectRegion(i, { announceIt: true });
+    const li = $('region-list').children[i];
+    li.scrollIntoView({ block: 'center', behavior: 'auto' });
+    li.focus({ preventScroll: true });
+  });
+  $('btn-back-to-card').addEventListener('click', (e) => {
+    const li = $('region-list').children[Number(e.currentTarget.dataset.region) - 1];
+    if (li) { li.scrollIntoView({ block: 'center', behavior: 'auto' }); li.focus({ preventScroll: true }); }
+    e.currentTarget.hidden = true;
+  });
 }
 const reviewedCount = () => S.result.regions.filter((r) => r.decision).length;
 function updateProgress() {
   const m = S.result;
-  $('regions-progress').textContent = `${reviewedCount()} of ${m.regions.length} reviewed`;
+  $('regions-progress').textContent = copy.result.progress(reviewedCount(), m.regions.length);
 }
 async function setDecision(i, value) {
   const m = S.result, r = m.regions[i];
   const li = $('region-list').children[i];
-  if (S.signOff.baselinePromoted) {              // promoted runs are read-only: never clear sign-off on them
+  if (S.signOff.baselinePromoted) {              // promoted results are read-only: never clear sign-off on them
     li.querySelectorAll('input[type=radio]').forEach((rad) => { rad.checked = r.decision === rad.value; });
     announce(copy.signoff.promotedLocked);
     return;
   }
-  r.decision = value;
+  r.decision = value; S.looked.add(i);
   li.dataset.decision = value; li.setAttribute('aria-label', regionLabel(r, i, m.regions.length));
+  li.querySelector('.region-decided').textContent = copy.card.decided(value);
   updateProgress();
-  announce(`Region ${i + 1} marked ${value}. ${reviewedCount()} of ${m.regions.length} reviewed.`);
   const cleared = S.runId != null && S.signOff.signedOff;
   const ok = await persistRegions(cleared);
   if (cleared && ok) S.signOff = { signedOff: false, reviewer: '', signedOffAt: null, baselinePromoted: false };
   updateActions();
+  announce(copy.card.marked(i + 1, value, reviewedCount(), m.regions.length) + (S.stepChanged ? ' ' + nextText() : ''));
   if (cleared && ok) $('signoff-hint').textContent = copy.signoff.cleared;
 }
 async function persistRegions(clearSignOff) {
@@ -508,6 +678,48 @@ function computeReview() {
   const hasReg = m.regions.some((r) => r.decision === 'Regression');
   return { fail, undecided, hasReg };
 }
+function nextText() {
+  const m = S.result, n = m.regions.length, N = copy.next, fail = m.status === 'FAIL';
+  const { undecided, hasReg } = computeReview();
+  const saved = S.runId != null, signed = S.signOff.signedOff;
+  if (signed) return fail && !S.signOff.baselinePromoted ? N.signedFail : N.signedPass;
+  if (!fail) return saved ? N.passSaved : N.passUnsaved;
+  if (undecided === n) return N.failNone(n);
+  if (undecided > 0) return N.failSome(n - undecided, n);
+  if (hasReg) return saved ? N.failRegSaved : N.failRegUnsaved;
+  return saved ? N.failOkSaved : N.failOkUnsaved;
+}
+function updateGuide() {
+  const m = S.result, n = m.regions.length, fail = m.status === 'FAIL', T = copy.steps;
+  const { undecided, hasReg } = computeReview();
+  const saved = S.runId != null, signed = S.signOff.signedOff;
+  const looked = Math.min(S.looked.size, n), decided = n - undecided;
+  const rows = {
+    review: { done: !fail || looked >= n, text: !fail ? T.reviewNone : looked >= n ? T.reviewDone(n) : T.reviewTodo(looked, n) },
+    decide: { done: !fail || undecided === 0, text: !fail ? T.decideNone : undecided === 0 ? T.decideDone(n) : T.decideTodo(decided, n) },
+    save: { done: saved, text: saved ? T.saveDone(S.runId) : (fail && undecided) ? T.saveWait(undecided) : T.saveTodo },
+    signoff: { done: signed, text: signed ? T.signDone(S.signOff.reviewer) : hasReg ? T.signBlocked : !saved ? T.signNeedSave : T.signTodo },
+  };
+  let current = null;
+  for (const li of $('result-steps').children) {
+    const k = li.dataset.step, r = rows[k];
+    let st = r.done ? 'done' : 'todo';
+    if (!r.done && !current) { current = k; st = 'current'; }
+    if (k === 'signoff' && !r.done && hasReg) st = 'blocked';
+    li.dataset.status = st;
+    li.querySelector('.strip-status').textContent = r.text;
+    if (k === current) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+  }
+  const next = $('result-next');
+  next.dataset.step = current || 'done'; next.textContent = nextText();
+  S.stepChanged = S.lastStep !== null && S.lastStep !== next.dataset.step;
+  S.lastStep = next.dataset.step;
+  const page = S.page ? S.page.name : '';
+  let sum = fail ? copy.result.summaryFail(n, page) : copy.result.summaryPass(page);
+  if (signed) sum += ' ' + copy.result.summarySigned(S.signOff.reviewer, fmtDate(S.signOff.signedOffAt));
+  else if (saved) sum += ' ' + copy.result.summarySaved(S.runId);
+  $('result-summary').textContent = sum;
+}
 function updateActions() {
   const m = S.result; if (!m) return;
   const { fail, undecided, hasReg } = computeReview();
@@ -516,6 +728,7 @@ function updateActions() {
   const r = $('result');
   r.dataset.state = fail ? 'result-fail' : 'result-pass'; r.dataset.review = review;
   r.dataset.saved = saved ? 'yes' : 'no'; r.dataset.signoff = signed ? 'yes' : 'no';
+  $('result-guide').dataset.state = r.dataset.state;
 
   let action;
   if (S.zoneAdded) action = 'compare-again';
@@ -526,14 +739,14 @@ function updateActions() {
   else if (!signed) action = 'signoff';
   else if (!promoted) action = 'promote';
   else action = 'library';
-  const labels = { save: 'Save run', review: 'Review regions', download: 'Download evidence PNG', signoff: 'Sign off', promote: 'Promote to baseline', library: 'Compare another page', 'compare-again': 'Compare again' };
   const prim = $('btn-result-primary');
-  prim.dataset.action = action; prim.textContent = labels[action];
+  prim.dataset.action = action; prim.textContent = copy.actions[action];
 
   const canSign = saved && !signed && (!fail || (undecided === 0 && !hasReg));
   const so = $('btn-signoff'), pr = $('btn-promote');
-  so.hidden = signed; setDisabled(so, !canSign);
-  pr.hidden = !fail || promoted || !S.dbOK; setDisabled(pr, !signed);
+  setDisabled(so, !canSign); setDisabled(pr, !signed);
+  so.hidden = !canSign || action === 'signoff';                         // the primary button carries it in its turn
+  pr.hidden = !fail || promoted || !S.dbOK || !signed || action === 'promote';
   let hint = '';
   if (signed) hint = copy.signoff.line(S.signOff.reviewer, fmtDate(S.signOff.signedOffAt));
   else if (fail && undecided) hint = copy.signoff.undecided(undecided);
@@ -544,7 +757,7 @@ function updateActions() {
   const storageBlocked = !S.dbOK && action === 'save';
   setDisabled(prim, storageBlocked);
   if (storageBlocked) $('signoff-hint').textContent = copy.notice.storageHint;
-  $('save-state').textContent = saved ? `Saved as run ${S.runId}` : 'Not saved yet';
+  $('save-state').textContent = saved ? copy.actions.saved(S.runId) : copy.actions.notSaved;
   const locked = promoted;
   $('region-list').querySelectorAll('input[type=radio], .region-note').forEach((el) => {
     if (locked) el.setAttribute('aria-disabled', 'true'); else el.removeAttribute('aria-disabled');
@@ -556,6 +769,7 @@ function updateActions() {
   const zn = $('zone-added-note');
   zn.hidden = !S.zoneAdded; zn.textContent = S.zoneAdded ? `Zone '${S.zoneAdded}' added. Compare again to apply it.` : '';
   $('stat-review').textContent = S.reviewMs != null ? fmtDuration(S.reviewMs) : '—';
+  updateGuide();
 }
 
 function focusFirstUndecided() {
@@ -590,7 +804,7 @@ const pageMeta = () => ({ name: S.page.name, module: S.page.module });
 async function openSave(opener) {
   const m = S.result;
   const { fail, undecided } = computeReview();
-  if (fail && undecided) { focusFirstUndecided(); announce(`Decide every changed region before saving (${undecided} left).`); return; }
+  if (fail && undecided) { focusFirstUndecided(); announce(`Decide every change before saving (${undecided} left).`); return; }
   const cur = S.evidence || {};
   const last = { ...(S.dbOK ? await settingsDb.get('lastEvidence', {}).catch(() => ({})) : {}), ...cur };
   const set = (id, v) => { $(id).value = v || ''; $(id).removeAttribute('aria-invalid'); };
@@ -606,7 +820,7 @@ async function openSave(opener) {
 async function submitEvidence(e) {
   if (!e.submitter || e.submitter.value !== 'save') return;
   e.preventDefault();
-  const req = [['ev-testcase', 'Test case ID'], ['ev-ticket', 'Ticket / change ID'], ['ev-tools', 'Tools version / PUM image'], ['ev-tester', 'Tester']];
+  const req = [['ev-testcase', 'Test case ID'], ['ev-ticket', 'Ticket / change ID'], ['ev-tools', 'PeopleSoft version or update image'], ['ev-tester', 'Tester']];
   const box = $('evidence-error');
   req.forEach(([id]) => $(id).removeAttribute('aria-invalid'));
   const miss = req.filter(([id]) => !$(id).value.trim());
@@ -616,7 +830,7 @@ async function submitEvidence(e) {
     $(miss[0][0]).focus(); return;
   }
   const { fail, undecided } = computeReview();
-  if (fail && undecided) { box.textContent = `Decide every changed region before saving (${undecided} left).`; box.hidden = false; return; }
+  if (fail && undecided) { box.textContent = `Decide every change before saving (${undecided} left).`; box.hidden = false; return; }
   const v = (id) => $(id).value.trim();
   const evidence = { testCaseId: v('ev-testcase'), ticketId: v('ev-ticket'), toolsVersion: v('ev-tools'), tester: v('ev-tester'),
     businessUnit: v('ev-bu'), role: v('ev-role') };
@@ -640,14 +854,15 @@ async function submitEvidence(e) {
       await runsDb.update(S.runId, { evidence, note: evidence.note || '', regions: storedRegions() });
     }
   } catch (err) {
-    if (err && err.name === 'QuotaExceededError') { showNotice('storage-quota', copy.notice.quota, [{ label: 'Download evidence PNG', run: downloadPng }, { label: 'Open History', run: () => go('history') }]); box.textContent = copy.notice.quota; box.hidden = false; return; }
+    if (err && err.name === 'QuotaExceededError') { showNotice('storage-quota', copy.notice.quota, [{ label: 'Download evidence PNG', run: downloadPng }, { label: 'Open Past results', run: () => go('history') }]); box.textContent = copy.notice.quota; box.hidden = false; return; }
     box.textContent = `${err.message || err}`; box.hidden = false; return;
   }
   S.evidence = evidence; S.runNote = evidence.note || '';
   try { await settingsDb.set('lastEvidence', { tester: evidence.tester, toolsVersion: evidence.toolsVersion }); } catch { /* convenience only */ }
   $('save-dialog').close('save');
   updateActions();
-  announce(`Run saved as run ${S.runId}.`);
+  S.hasRuns = true; updateNav();
+  announce(`${copy.actions.saved(S.runId)}. ${nextText()}`);
 }
 
 async function downloadPng() {
@@ -680,7 +895,7 @@ async function submitSignoff(e) {
   S.signOff = so;
   $('signoff-dialog').close('signoff');
   updateActions();
-  announce('Run signed off.');
+  announce(`Signed off. ${nextText()}`);
 }
 async function promote(opener) {
   if (isDisabled($('btn-promote')) || !S.signOff.signedOff) return;
@@ -693,13 +908,13 @@ async function promote(opener) {
     catch (e1) {
       console.error(e1); await sleep(300);
       try { await runsDb.update(S.runId, { signOff: { baselinePromoted: true } }); }
-      catch (e2) { showNotice('storage-quota', 'The baseline was replaced, but the run could not be marked as promoted. Reload and check History.'); throw e2; }
+      catch (e2) { showNotice('storage-quota', 'The baseline was replaced, but the run could not be marked as promoted. Reload and check Past results.'); throw e2; }
     }
     S.signOff = { ...S.signOff, baselinePromoted: true };
     S.page = rec; S.base = await decode(rec.baseline);
     zonesUI.load(rec, S.base, zonesUI.zones);
     updateActions();
-    announce(`Baseline replaced for ${S.page.name}.`);
+    announce(`Before screenshot replaced for ${S.page.name}.`);
   });
 }
 
@@ -719,7 +934,7 @@ async function loadRuns() {
 }
 function showRuns(list) {
   $('history-empty').textContent = copy.historyEmpty;
-  $('history-empty').hidden = list.length > 0; $('run-table-wrap').hidden = list.length === 0;
+  $('history-empty-wrap').hidden = list.length > 0; $('run-table-wrap').hidden = list.length === 0;
   const tpl = $('tpl-run');
   $('run-rows').replaceChildren(...list.map((r) => {
     const tr = tpl.content.firstElementChild.cloneNode(true);
@@ -727,18 +942,15 @@ function showRuns(list) {
     tr.querySelector('.run-date').textContent = fmtDate(r.createdAt);
     tr.querySelector('.run-status-text').textContent = r.status;
     tr.querySelector('.run-regions').textContent = r.regions.length;
-    tr.querySelector('.run-changed').textContent = fmtPct(r.changedPct);
     const ev = r.evidence || {};
     tr.querySelector('.run-testcase').textContent = ev.testCaseId || '';
-    tr.querySelector('.run-ticket').textContent = ev.ticketId || '';
-    tr.querySelector('.run-tester').textContent = ev.tester || '';
     const open = r.regions.some((x) => x.decision === 'Regression');
-    tr.querySelector('.run-signoff').textContent = r.signOff && r.signOff.signedOff ? `Signed off by ${r.signOff.reviewer}` : open ? 'Open regression' : 'Not signed off';
+    tr.querySelector('.run-signoff').textContent = r.signOff && r.signOff.signedOff ? copy.historyUi.signed(r.signOff.reviewer) : open ? copy.historyUi.openDefect : copy.historyUi.notSigned;
     tr.querySelector('.run-view').addEventListener('click', () => viewRun(r));
     tr.querySelector('.run-delete').addEventListener('click', () => {
       S.runsCache = S.runsCache.filter((q) => q.id !== r.id); showRuns(S.runsCache);
-      announce('Run deleted. Undo is available for 5 seconds.');
-      undoable('Run deleted.', () => runsDb.remove(r.id), () => { S.runsCache.push(r); S.runsCache.sort((a, b) => b.createdAt - a.createdAt); showRuns(S.runsCache); });
+      announce('Result deleted. Undo is available for 5 seconds.');
+      undoable('Result deleted.', () => runsDb.remove(r.id), () => { S.runsCache.push(r); S.runsCache.sort((a, b) => b.createdAt - a.createdAt); showRuns(S.runsCache); });
     });
     return tr;
   }));
@@ -796,7 +1008,7 @@ async function renderSettings() {
   const e = await storageEstimate().catch(() => ({}));
   $('storage-estimate').textContent = e.quota ? `This app uses ${mb(e.usage)} of about ${mb(e.quota)} available on this device (${e.percent.toFixed(2)}%).` : 'Storage figures are not available in this browser.';
   $('storage-estimate').dataset.level = e.percent >= 80 ? 'warn' : '';
-  if (e.percent >= 80) $('storage-estimate').textContent += ' Storage is almost full. Delete old runs in History or export them, then reset if needed.';
+  if (e.percent >= 80) $('storage-estimate').textContent += ' Storage is almost full. Delete old results in Past results or export them, then reset if needed.';
   $('persist-status').textContent = e.persisted === true ? 'Persistent storage: granted. The browser will not clear this data on its own.' : e.persisted === false ? 'Persistent storage: not granted. The browser may clear the data if the device runs low on space.' : '';
 }
 function resetUi(state) {
@@ -822,7 +1034,7 @@ async function doReset() {
   btn.setAttribute('aria-busy', 'true');
   try {
     const { blocked } = await resetAppData();   // waits while another tab blocks; onBlocked shows the message
-    S.pages = []; clearWork(true); S.engineSeen = false;
+    S.pages = []; clearWork(true); S.engineSeen = false; S.onboardingSeen = false; S.hasRuns = false;
     S.dbOK = true; showNotice('none');
     try { await openDB(); } catch (e) { S.dbOK = false; }
     $('reset-blocked').hidden = true;
@@ -837,14 +1049,22 @@ async function doReset() {
 
 // ============================== boot ==============================
 function bindEvents() {
-  $('btn-load-sample').addEventListener('click', loadSample);
+  $('tour-next').addEventListener('click', () => { if (S.tour && !isDisabled($('tour-next'))) { if (S.tour.step >= 5) endTour('finish'); else goStep(S.tour.step + 1); } });
+  $('tour-back').addEventListener('click', () => { if (S.tour && S.tour.step > 1) goStep(S.tour.step - 1); });
+  $('tour-skip').addEventListener('click', () => endTour('skip'));
+  $('tour-flip').addEventListener('click', () => { if (S.tour) { S.tour.flip = !S.tour.flip; renderTour(); } });
+  $('tour-retry').addEventListener('click', () => { if (S.tour) { S.tour.error = false; renderTour(); doCompare(); } });
+  $('tour').addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); endTour('skip'); } });
+  $('btn-tour-again').addEventListener('click', (e) => loadSample(heroSample(), { tour: true, btn: e.currentTarget }));
+  $('btn-tour-again-dismiss').addEventListener('click', () => { markOnboarded(); $('tour-again').hidden = true; });
+  $('btn-load-sample').addEventListener('click', () => loadSample(heroSample(), { tour: true }));
   $('btn-new-page').addEventListener('click', () => { if (isDisabled($('btn-new-page'))) return; showNewPageForm(true); });
   $('btn-new-page-cancel').addEventListener('click', () => { showNewPageForm(false); $('btn-new-page').focus(); });
   $('new-page-form').addEventListener('submit', createPage);
   $('btn-open-existing').addEventListener('click', async () => { const p = S.dupePage; if (p) { showNewPageForm(false); await openPage(p); go('compare'); } });
-  $('baseline-file').addEventListener('change', (e) => { newPageFile = e.target.files[0] || null; });
+  $('baseline-file').addEventListener('change', (e) => { newPageFile = e.target.files[0] || null; if (newPageFile && !$('page-name').value) $('page-name').value = newPageFile.name.replace(/\.png$/i, '').replace(/[_-]+/g, ' '); });
   bindDrop($('candidate-drop'), (f) => setCandidateFromFile(f));
-  bindDrop(document.querySelector('#new-page-form .drop'), (f) => { newPageFile = f; document.querySelector('#new-page-form .drop .hint').textContent = `Chosen: ${f.name}`; });
+  bindDrop(document.querySelector('#new-page-form .drop'), (f) => { newPageFile = f; document.querySelector('#new-page-form .drop .hint').textContent = `Chosen: ${f.name}`; if (!$('page-name').value) $('page-name').value = f.name.replace(/\.png$/i, '').replace(/[_-]+/g, ' '); });
   $('candidate-file').addEventListener('change', (e) => { if (e.target.files[0]) setCandidateFromFile(e.target.files[0]); e.target.value = ''; });
   document.addEventListener('paste', (e) => {
     if (S.screen !== 'compare' || S.working || !S.page) return;
@@ -863,7 +1083,7 @@ function bindEvents() {
       if (S.dbOK && rec.id != null) await pagesDb.put(rec);
       S.page = rec; S.base = base; S.tip = true; S.result = null;
       zonesUI.load(rec, base, zonesUI.zones); renderCompare();
-      announce(`Baseline replaced for ${rec.name}.`);
+      announce(`Before screenshot replaced for ${rec.name}.`);
     } catch (err) { if (err instanceof UserError) showError('error-compare', err.message, 'raw'); else guard(() => { throw err; }); }
   });
   $('btn-tip-dismiss').addEventListener('click', () => { S.tip = false; $('capture-tip').hidden = true; $('btn-compare').focus(); });
@@ -886,6 +1106,7 @@ function bindEvents() {
   $('signoff-dialog').querySelector('form').addEventListener('submit', (e) => { submitSignoff(e); });
 
   $('history-page').addEventListener('change', () => { S.historyPage = Number($('history-page').value); loadRuns(); });
+  $('btn-history-pages').addEventListener('click', () => go('library'));
   $('btn-export-json').addEventListener('click', () => exportRuns('json'));
   $('btn-export-csv').addEventListener('click', () => exportRuns('csv'));
 
@@ -917,7 +1138,7 @@ async function boot() {
     canStore: () => S.dbOK,
     onChange: (kind, z) => { if (S.screen === 'result' && kind === 'add') { S.zoneAdded = z.label; if (S.result) updateActions(); } },
   });
-  tabs = initTabs();
+  tabs = initTabs(); bindBoxesCanvas(); fillStatsHelp();
   insp = createInspector({ onStatus: onEngineStatus });
 
   try {
@@ -928,7 +1149,8 @@ async function boot() {
       },
       onVersionChange: (info) => { S.dbOK = false; showNotice('storage-blocked', info.message, [{ label: 'Reload', run: () => location.reload() }]); },
     });
-    const [cs, seen] = await Promise.all([settingsDb.get('compareSettings', null), settingsDb.get('engineSeen', false)]);
+    const [cs, seen, ob] = await Promise.all([settingsDb.get('compareSettings', null), settingsDb.get('engineSeen', false), settingsDb.get('onboardingSeen', false)]);
+    S.onboardingSeen = !!ob;
     if (cs) S.settings = { ...DEFAULTS, ...cs };
     S.engineSeen = !!seen;
     if (!S.engineReady) pillLoading();
@@ -938,9 +1160,89 @@ async function boot() {
     showNotice('storage-blocked', copy.notice.blocked, [{ label: copy.notice.blockedAction, run: () => { location.href = 'how-it-works.html#storage'; } }]);
   }
   updateStorageGates();
-  await Promise.all([loadManifest(), loadHints()]);
+  await loadManifest();
   if (!location.hash) history.replaceState(null, '', '#/library');
   await route();
   if (S.dbOK && S.pages.length && S.notice === 'none') { /* nothing else to announce */ }
 }
 boot().catch((e) => { console.error(e); showError('error-opencv'); });
+
+// ============================== guided demo (docs/design/ux-flows.md 12.16.2) ==============================
+// Docked, non-modal panel. Uses the real result; adds no computation and no cv.Mat. No tour state is stored.
+function markOnboarded() { S.onboardingSeen = true; if (S.dbOK) settingsDb.set('onboardingSeen', true).catch(() => {}); }
+function tourHides() {
+  const t = S.tour;
+  return !!t && (t.step < 3 || (t.step === 3 && (!S.result || t.error)));
+}
+function applyScreens() {
+  document.querySelectorAll('.screen').forEach((el) => { el.hidden = tourHides() || el.dataset.screen !== S.screen; });
+}
+function drawTourImages() {
+  for (const [id, bmp] of [['tour-before', S.base && S.base.bitmap], ['tour-after', S.cand && S.cand.bitmap]]) {
+    const c = $(id); if (!bmp) continue;
+    c.width = bmp.width; c.height = bmp.height; c.getContext('2d').drawImage(bmp, 0, 0);
+  }
+}
+function startTour() {
+  S.tour = { step: 1, flip: false, error: false, announced: false };
+  document.body.dataset.tour = 'on';
+  $('tour').hidden = false; $('tour-again').hidden = true;
+  drawTourImages();
+  renderTour(); focusTour();
+}
+const focusTour = () => $('tour-title').focus({ preventScroll: true });
+function goStep(n) { S.tour.step = Math.max(1, Math.min(5, n)); renderTour(); focusTour(); }
+function renderTour() {
+  const t = S.tour; if (!t) return;
+  const T = copy.tour, m = S.result, step = t.step;
+  const waiting = step === 3 && !m && !t.error;
+  $('tour').dataset.step = t.error && step === 3 ? 'error' : waiting ? 'wait' : String(step);
+  let sentence;
+  if (step === 1) sentence = T.s1; else if (step === 2) sentence = T.s2;
+  else if (step === 3) sentence = t.error ? T.error : m ? (m.regions.length ? T.s3(m.regions.length) : T.s3none) : T.s3wait;
+  else if (step === 4) sentence = T.s4; else sentence = T.s5;
+  $('tour-title').textContent = `${T.stepOf(step)} ${sentence}`;
+  const help = $('tour-help');
+  help.textContent = step === 4 ? T.s4help : step === 5 ? T.s5help + ((!S.dbOK || (S.page && S.page.id == null)) ? ' ' + T.s5blocked : '') : '';
+  help.hidden = !help.textContent;
+  // stage: before/after images for steps 1 and 2
+  $('tour-stage').hidden = step > 2;
+  const showBefore = step === 1 ? !t.flip : !!t.flip;
+  $('tour-before-fig').hidden = !showBefore; $('tour-after-fig').hidden = showBefore;
+  $('tour-before-cap').textContent = T.captionBefore; $('tour-after-cap').textContent = T.captionAfter;
+  $('tour-flip').hidden = step !== 2;
+  $('tour-wait').hidden = !waiting; $('tour-wait').textContent = T.s3waitHint;
+  $('tour-back').hidden = step === 1;
+  $('tour-next').textContent = step === 5 ? T.finish : T.next;
+  $('tour-next').hidden = !!(t.error && step === 3);
+  setDisabled($('tour-next'), waiting);
+  $('tour-retry').hidden = !(t.error && step === 3); $('tour-retry').textContent = T.retry;
+  $('tour-back').textContent = T.back; $('tour-skip').textContent = T.skip; $('tour-flip').textContent = T.flip;
+  applyScreens();
+  document.querySelectorAll('.tour-focus').forEach((e) => e.classList.remove('tour-focus'));
+  if (m && step === 3 && !t.announced) { t.announced = true; announce(T.foundAnnounce(m.regions.length)); }
+  if (m && step === 3) $('canvas-boxes').parentElement.scrollIntoView({ block: 'center', behavior: 'auto' });   // the panel is sticky, so the red boxes sit right below it
+  if (m && step === 4 && m.regions.length) {
+    const li = $('region-list').children[0];
+    if (li) { li.classList.add('tour-focus'); selectRegion(0); li.scrollIntoView({ block: 'center', behavior: 'auto' }); }
+  }
+  if (m && step === 5) $('btn-result-primary').classList.add('tour-focus');
+}
+function tourResultReady() {
+  go('result');
+  renderTour();
+  setTimeout(() => { if (S.tour && S.tour.step === 3 && S.result) $('canvas-boxes').parentElement.scrollIntoView({ block: 'center', behavior: 'auto' }); }, 150);
+}
+function endTour(kind) {
+  if (!S.tour) return;
+  S.tour = null; delete document.body.dataset.tour; document.body.dataset.tour = 'off';
+  $('tour').hidden = true;
+  document.querySelectorAll('.tour-focus').forEach((e) => e.classList.remove('tour-focus'));
+  markOnboarded();
+  applyScreens();
+  if (kind === 'finish') {
+    announce(copy.tour.doneAnnounce);
+    const li = S.result && $('region-list').children[0];
+    (li || $('btn-result-primary')).focus();
+  } else if (S.result && S.screen !== 'result') go('result');
+}

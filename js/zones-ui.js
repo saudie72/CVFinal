@@ -4,6 +4,7 @@
 import { zones as zonesDb } from './db.js';
 import { $, announce, openDialog, undoable, copy } from './ui.js';
 import { drawZones } from './views.js';
+import { position } from './plain.js';
 
 const MIN_DRAG = 8;
 
@@ -46,7 +47,7 @@ export function initZones({ onChange = () => {}, canStore = () => true } = {}) {
     ul.replaceChildren(...list.map((z) => {
       const li = tpl.content.firstElementChild.cloneNode(true);
       li.dataset.zoneId = z.id;
-      li.querySelector('.zone-text').textContent = `${z.label}, ${z.w} by ${z.h} pixels at ${z.x}, ${z.y}`;
+      li.querySelector('.zone-text').textContent = copy.zone.line(z.label, position(z, img.width, img.height));
       li.querySelector('.zone-remove').addEventListener('click', () => remove(z));
       return li;
     }));
@@ -77,7 +78,7 @@ export function initZones({ onChange = () => {}, canStore = () => true } = {}) {
     } else rec.id = memId--;
     list.push(rec);
     renderList(); onChange('add', rec);
-    announce(`Zone '${rec.label}' added, ${rec.w} by ${rec.h} pixels.`);
+    announce(copy.zone.added(rec.label, img ? position(rec, img.width, img.height) : 'on the page'));
     return rec;
   }
 

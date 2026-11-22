@@ -59,7 +59,7 @@ export function evidencePng(m, meta) {
   g.fillText(`${meta.pageName} (${meta.module})`, pad, 14);
   g.font = '600 20px system-ui, sans-serif';
   const regs = m.regions.length;
-  g.fillText(`${m.status} — ${regs} changed region${regs === 1 ? '' : 's'} · ${m.changedPct}% of page · SSIM ${m.ssim}`, pad, 52);
+  g.fillText(`${m.status} — ${regs} ${regs === 1 ? 'change' : 'changes'} · ${m.changedPct}% of page · SSIM ${m.ssim}`, pad, 52);
   g.font = '16px system-ui, sans-serif';
   g.fillText(`${fmtDate(meta.date)} · Test case: ${meta.testCaseId || 'not saved yet'} · Ticket: ${meta.ticketId || '-'} · Tester: ${meta.tester || '-'}`, pad, 88);
   g.fillText(copy.disclaimer, pad, 108);
@@ -84,20 +84,20 @@ export function printReport(m, rep) {
   const ev = rep.evidence;
   const dl = el('dl', null, 'report-evidence');
   const add = (k, v) => { const d = el('div'); d.append(el('dt', k), el('dd', v || '-')); dl.append(d); };
-  add('Test case ID', ev.testCaseId); add('Ticket / change ID', ev.ticketId); add('Tools version / PUM image', ev.toolsVersion);
+  add('Test case ID', ev.testCaseId); add('Ticket / change ID', ev.ticketId); add('PeopleSoft version or update image', ev.toolsVersion);
   add('Business unit', ev.businessUnit); add('Role', ev.role); add('Environment', ev.environment); add('Tester', ev.tester);
   add('Reviewer', rep.signOff.reviewer);
   add('Sign-off', rep.signOff.signedOff ? `Signed off ${fmtDate(rep.signOff.signedOffAt)}` : 'Not signed off');
   root.append(dl);
   const th = el('div', null, 'report-thumbs');
   const w = 320, h = Math.round(320 * m.height / m.width);
-  th.append(thumb(m.baseline, w, h, 'Baseline thumbnail'), thumb(m.candidate, w, h, 'After-change thumbnail'));
+  th.append(thumb(m.baseline, w, h, 'Before screenshot thumbnail'), thumb(m.candidate, w, h, 'After screenshot thumbnail'));
   root.append(th);
   const big = document.createElement('canvas'); big.width = m.width; big.height = m.height; big.className = 'report-boxes';
   big.setAttribute('role', 'img'); big.setAttribute('aria-label', 'Boxes view');
   big.getContext('2d').drawImage(m.boxesFinal || m.boxes, 0, 0);
   root.append(el('h2', 'Boxes view'), big);
-  root.append(el('h2', 'Changed regions'));
+  root.append(el('h2', 'Changes'));
   const t = el('table', null, 'report-table');
   t.innerHTML = '';
   const hr = t.createTHead().insertRow();
@@ -108,7 +108,7 @@ export function printReport(m, rep) {
     row.insertCell().textContent = r.n; row.insertCell().textContent = `${r.w} × ${r.h}`; row.insertCell().textContent = `${r.x}, ${r.y}`;
     row.insertCell().textContent = r.decision || 'NOT DECIDED (open)'; row.insertCell().textContent = r.note;
   });
-  if (!rep.regions.length) body.insertRow().insertCell().textContent = 'No changed regions.';
+  if (!rep.regions.length) body.insertRow().insertCell().textContent = 'No changes found.';
   root.append(t);
   root.append(el('h2', 'Ignore zones'));
   root.append(el('p', rep.ignoreZones.length
