@@ -1,0 +1,5 @@
+/* Planted changes: (1) the Unit Price column is 6 px wider, so the columns to its right shift 6 px;
+   (2) one Amount value (line 2, span.clip in after.html) is clipped. */
+col.c-price { width: 96px; }
+table.w-vo { width: 786px; }
+span.clip { display: inline-block; width: 30px; overflow: hidden; white-space: nowrap; vertical-align: bottom; }

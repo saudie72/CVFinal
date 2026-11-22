@@ -1,0 +1,14 @@
+[
+  {"id": "page-definition-field", "label": "Field added, removed or moved", "hint": "Likely a page definition change: a field is missing, added or moved. Check the page in Application Designer."},
+  {"id": "control-moved", "label": "Control moved", "hint": "A control moved (the same shape appears at an old and a new position). Check the toolbar or page layout change."},
+  {"id": "label-text", "label": "Label or text change", "hint": "Label or text changed. Likely a page field label or message catalog change."},
+  {"id": "peoplecode-visibility", "label": "Control hidden, shown or greyed out", "hint": "A control appeared, vanished or greyed out. Possibly PeopleCode (display-only or hide/unhide), a security or Business Unit setup difference. Not proof that authorization is right."},
+  {"id": "grid-layout", "label": "Grid layout changed", "hint": "Grid layout changed (column widths or rows). Check for truncated values; the whole grid may have reflowed."},
+  {"id": "reflow", "label": "Content shifted below a change", "hint": "One large region is usually content pushed down or sideways by a change above it. Find the first changed row at the top of the region."},
+  {"id": "style-branding", "label": "Colours, fonts or spacing changed", "hint": "Colours, fonts or spacing changed. Likely a style sheet or branding change, for example a PeopleTools upgrade."},
+  {"id": "dynamic-content", "label": "Possible dynamic content", "hint": "Possible dynamic content (date, time, user, ID). Consider an ignore zone."},
+  {"id": "whole-page", "label": "Whole-page change", "hint": "Whole-page change (theme or branding, or Classic to Fluid or Classic Plus). Consider capturing a new baseline."},
+  {"id": "configuration-values", "label": "Different values or defaults", "hint": "Values or defaults differ. Possibly a configuration or setup table difference (Business Unit, SetID) or different test data. Confirm both captures used the same test scenario."},
+  {"id": "capture-artifact", "label": "Capture or rendering artifact", "hint": "Possibly a capture difference (zoom, window size, scrollbar, font rendering), not an application change. Re-capture with the same settings."},
+  {"id": "unclassified", "label": "Visual change", "hint": "Visual change. Review it and decide Expected, Regression or Noise."}
+]

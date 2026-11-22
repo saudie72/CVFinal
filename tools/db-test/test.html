@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>db.js test harness (fictional data)</title>
+<canvas id="c" width="64" height="40" hidden></canvas>
+<script type="module">
+import * as DB from '/js/db.js';
+window.DB = DB;
+window.events = [];
+DB.setHandlers({
+  onBlocked: m => window.events.push({ type: 'blocked', m }),
+  onVersionChange: v => window.events.push({ type: 'versionchange', ...v }),
+});
+// real PNG Blob from a canvas, with one coloured pixel block we can verify after a round trip
+window.makeBlob = color => new Promise(res => {
+  const c = document.getElementById('c'), g = c.getContext('2d');
+  g.fillStyle = '#ffffff'; g.fillRect(0, 0, 64, 40); g.fillStyle = color; g.fillRect(10, 10, 20, 20);
+  c.toBlob(res, 'image/png');
+});
+window.pixel = async blob => {
+  const bmp = await createImageBitmap(blob);
+  const o = new OffscreenCanvas(bmp.width, bmp.height), g = o.getContext('2d');
+  g.drawImage(bmp, 0, 0);
+  return [...g.getImageData(15, 15, 1, 1).data];
+};
+window.ready = true;
+</script>

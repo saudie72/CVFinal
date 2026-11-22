@@ -1,0 +1,58 @@
+{
+  "pageName": "T&L – Timesheet",
+  "module": "Time & Labor",
+  "status": "FAIL",
+  "changedPct": 5.51,
+  "ssim": 0.962,
+  "alignment": {
+    "method": "none",
+    "dx": 0,
+    "dy": 0,
+    "scale": 1
+  },
+  "settings": {
+    "T": 25,
+    "kernel": 5,
+    "minArea": 64,
+    "thresholdPct": 0.1
+  },
+  "regions": [
+    {
+      "n": 1,
+      "x": 11,
+      "y": 147,
+      "w": 670,
+      "h": 172,
+      "decision": "Expected",
+      "note": "Submit moved below grid, as specified in CHG-0042"
+    },
+    {
+      "n": 2,
+      "x": 671,
+      "y": 241,
+      "w": 10,
+      "h": 11,
+      "decision": "Noise",
+      "note": "edge sliver from table reflow"
+    }
+  ],
+  "ignoreZones": [],
+  "evidence": {
+    "testCaseId": "VR-TL-01",
+    "ticketId": "CHG-0042",
+    "toolsVersion": "PI 50 (fictional)",
+    "businessUnit": "BU-NORTH",
+    "role": "TL_EMPLOYEE",
+    "tester": "SA",
+    "environment": "TEST"
+  },
+  "note": "",
+  "signOff": {
+    "signedOff": true,
+    "reviewer": "TL",
+    "signedOffAt": "2026-11-22T15:02:00Z",
+    "baselinePromoted": true
+  },
+  "createdAt": "2026-11-22T14:21:00Z",
+  "disclaimer": "Visual check only — not a replacement for functional or security testing."
+}

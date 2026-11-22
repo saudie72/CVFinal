@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-22T14:52:21.798Z",
+  "chrome": "153.0.8010.12",
+  "realCVFilesPresent": false,
+  "csp": {
+    "netlify": {
+      "pageCsp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "workerCsp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "ready": {
+        "ok": true,
+        "pageMs": 484,
+        "readyStyle": "promise"
+      },
+      "compare": {
+        "status": "FAIL",
+        "regions": 3
+      },
+      "cspConsole": [],
+      "pageErrors": []
+    },
+    "no-unsafe-eval": {
+      "pageCsp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' ; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "workerCsp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' ; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "ready": {
+        "ok": false,
+        "error": "OpenCV failed to load (opencv.js): Could not load vendor/opencv/4.13.0/opencv.js: Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: script-src 'self' 'wasm-unsafe-eval'\".\n",
+        "pageMs": 251
+      },
+      "compare": null,
+      "cspConsole": [
+        "error: [inspector.worker] fatal opencv.js EvalError: Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: script-src 'self' 'wasm-unsafe-eval'\".\n\n    at new Function (<anonymous>)\n    at createNamedFuncti"
+      ],
+      "pageErrors": []
+    },
+    "no-wasm-unsafe-eval": {
+      "pageCsp": "default-src 'self'; script-src 'self' 'unsafe-eval'; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "workerCsp": "default-src 'self'; script-src 'self' 'unsafe-eval'; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "ready": {
+        "ok": true,
+        "pageMs": 485,
+        "readyStyle": "promise"
+      },
+      "compare": {
+        "status": "FAIL",
+        "regions": 3
+      },
+      "cspConsole": [],
+      "pageErrors": []
+    },
+    "no-eval": {
+      "pageCsp": "default-src 'self'; script-src 'self' ; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "workerCsp": "default-src 'self'; script-src 'self' ; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+      "ready": {
+        "ok": false,
+        "error": "OpenCV failed to load (opencv.js): Could not load vendor/opencv/4.13.0/opencv.js: Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: script-src 'self'\".\n",
+        "pageMs": 277
+      },
+      "compare": null,
+      "cspConsole": [
+        "error: [inspector.worker] fatal opencv.js EvalError: Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: script-src 'self'\".\n\n    at new Function (<anonymous>)\n    at createNamedFunction (http://127.0.0."
+      ],
+      "pageErrors": []
+    }
+  }
+}

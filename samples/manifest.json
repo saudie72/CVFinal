@@ -1,0 +1,116 @@
+[
+  {
+    "page": "tl-timesheet",
+    "title": "Time & Labor – Timesheet",
+    "module": "Time & Labor",
+    "before": "samples/tl-timesheet_before.png",
+    "after": "samples/tl-timesheet_after.png",
+    "expected": {
+      "status": "FAIL",
+      "minRegions": 2
+    },
+    "ignoreZones": []
+  },
+  {
+    "page": "hcm-job-data",
+    "title": "HCM – Job Data",
+    "module": "HCM",
+    "before": "samples/hcm-job-data_before.png",
+    "after": "samples/hcm-job-data_after.png",
+    "expected": {
+      "status": "FAIL",
+      "minRegions": 2
+    },
+    "ignoreZones": []
+  },
+  {
+    "page": "hcm-personal-data",
+    "title": "HCM – Personal Data",
+    "module": "HCM",
+    "before": "samples/hcm-personal-data_before.png",
+    "after": "samples/hcm-personal-data_after.png",
+    "expected": {
+      "status": "FAIL",
+      "minRegions": 2
+    },
+    "ignoreZones": []
+  },
+  {
+    "page": "fscm-voucher",
+    "title": "FSCM – Voucher Entry",
+    "module": "FSCM",
+    "before": "samples/fscm-voucher_before.png",
+    "after": "samples/fscm-voucher_after.png",
+    "expected": {
+      "status": "FAIL",
+      "minRegions": 1
+    },
+    "ignoreZones": []
+  },
+  {
+    "page": "fscm-po",
+    "title": "FSCM – Purchase Order (timestamp only)",
+    "module": "FSCM",
+    "before": "samples/fscm-po_before.png",
+    "after": "samples/fscm-po_after.png",
+    "expected": {
+      "status": "FAIL",
+      "minRegions": 1
+    },
+    "ignoreZones": [
+      {
+        "x": 1207,
+        "y": 74,
+        "w": 146,
+        "h": 20,
+        "label": "Last updated timestamp"
+      }
+    ],
+    "expectedWithIgnoreZones": {
+      "status": "PASS",
+      "maxRegions": 0
+    },
+    "note": "expected = result with NO zone applied (FAIL on the timestamp). ignoreZones = the zone to draw or load, in baseline px; with it the same pair must PASS with 0 regions."
+  },
+  {
+    "page": "hcm-job-data-shifted",
+    "title": "HCM – Job Data, shifted +3 px",
+    "module": "HCM",
+    "before": "samples/hcm-job-data-shifted_before.png",
+    "after": "samples/hcm-job-data-shifted_after.png",
+    "expected": {
+      "status": "PASS",
+      "minRegions": 0,
+      "maxRegions": 0
+    },
+    "ignoreZones": [],
+    "note": "After = before with the whole page offset 3 px down. Expect alignment (0,+3) then PASS."
+  },
+  {
+    "page": "hcm-job-data-zoom110",
+    "title": "HCM – Job Data, 110% zoom",
+    "module": "HCM",
+    "before": "samples/hcm-job-data-zoom110_before.png",
+    "after": "samples/hcm-job-data-zoom110_after.png",
+    "expected": {
+      "status": "PASS",
+      "minRegions": 0,
+      "maxRegions": 0
+    },
+    "ignoreZones": [],
+    "note": "After = same page rendered at 110% zoom (same 1366 px width). PASS needs scale alignment; unverified: re-rendered text may not match pixel-for-pixel, so treat a FAIL here as a pipeline limit."
+  },
+  {
+    "page": "fscm-po-identical",
+    "title": "FSCM – Purchase Order (identical)",
+    "module": "FSCM",
+    "before": "samples/fscm-po-identical_before.png",
+    "after": "samples/fscm-po-identical_after.png",
+    "expected": {
+      "status": "PASS",
+      "minRegions": 0,
+      "maxRegions": 0
+    },
+    "ignoreZones": []
+  }
+]

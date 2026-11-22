@@ -1,0 +1,3 @@
+/* Planted change: page rendered at 110% (zoom variant). Body width is 1366/1.1 so the render stays 1366 px wide. */
+html { zoom: 1.1; }
+body { width: 1241px; }

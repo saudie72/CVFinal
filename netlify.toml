@@ -1,0 +1,76 @@
+# netlify.toml: ERP Visual Regression Inspector (static site, no build step)
+# Sources: docs/11-netlify-hosting.md, docs/build-plan.md,
+#          knowledge/release-docs-engineer/docs/01-netlify-config-and-headers.md
+#          https://docs.netlify.com/manage/routing/headers/
+#
+# Header rules are global (they cannot be scoped per branch or deploy).
+# Netlify's docs do not say how several matching rules are merged, so the
+# rules below are written so that no two matching rules set the same header
+# name for the same path. Keep it that way when you add rules.
+
+[build]
+  publish = "."
+  command = ""
+
+# Wasm: correct MIME type, immutable. opencv.js embeds its Wasm today, so no
+# .wasm file ships. This rule is for a future split build.
+# Keep .wasm files out of /vendor/* so that only this rule matches them.
+[[headers]]
+  for = "/*.wasm"
+  [headers.values]
+    Content-Type = "application/wasm"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Vendored OpenCV.js. The path is versioned (vendor/opencv/4.13.0/), so a
+# year-long immutable cache is safe. Ship a new version under a new path.
+[[headers]]
+  for = "/vendor/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Sample screenshots: cache for a week (not versioned, so not immutable).
+[[headers]]
+  for = "/samples/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# HTML, app code and the worker: always revalidate so fixes show up at once.
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/inspector.worker.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Security headers for every path. This rule sets no Cache-Control, so it
+# never overlaps with the cache rules above.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+    # No device APIs are needed.
+    Permissions-Policy = "camera=(), geolocation=(), microphone=(), payment=(), usb=()"
+    X-Frame-Options = "DENY"
+    # 'unsafe-eval' is kept for now because opencv.js may need it. Volt (wasm
+    # expert) is testing whether embind really needs it; remove it if not.
+    # Inline scripts and styles are blocked: the app must use external files.
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; worker-src 'self'; img-src 'self' blob: data:; connect-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"

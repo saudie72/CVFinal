@@ -1,0 +1,4 @@
+/* Planted change (business case): Reported Hours column narrowed so its values and header are cut off.
+   The Submit move is in after.html (toolbar below the grid). */
+col.c-hours { width: 34px; }
+table.w-ts { width: 688px; }

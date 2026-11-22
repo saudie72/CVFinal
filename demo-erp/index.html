@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo ERP (fictional): Pages</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="styles.css">
+<script src="index.js" defer></script>
+</head><body>
+<div class="banner"><span><b>Demo ERP (fictional)</b><span class="env">TEST</span></span><span>Fictional pages for the ERP Visual Regression Inspector</span></div>
+<div class="index-wrap">
+<h1>Demo pages</h1>
+<p>Open a page, take a screenshot at 1366&times;900 and 100% zoom, flip <b>Simulate patch</b>, take another, then drag both into the inspector. All data is fictional.</p>
+<div class="toggle"><input type="checkbox" id="patch"><label for="patch">Simulate patch</label>
+<strong id="patch-state" aria-live="polite">Showing: before</strong></div>
+<table><thead><tr><th>Module</th><th>Page</th><th>Planted change in &ldquo;after&rdquo;</th><th>Link</th></tr></thead><tbody>
+<tr><td>HCM</td><td>Job Data</td><td>Pay Grade field removed; Save button moved to top-right</td><td><a data-page="hcm-job-data" href="hcm-job-data/before.html">open</a></td></tr><tr><td>HCM</td><td>Personal Data</td><td>Label Dept ID becomes Department; link colour changes</td><td><a data-page="hcm-personal-data" href="hcm-personal-data/before.html">open</a></td></tr><tr><td>FSCM</td><td>Voucher Entry</td><td>Unit Price column +6 px (columns to its right shift); one Amount value truncated</td><td><a data-page="fscm-voucher" href="fscm-voucher/before.html">open</a></td></tr><tr><td>FSCM</td><td>Purchase Order</td><td>Only the Last updated timestamp changes (ignore-zone case)</td><td><a data-page="fscm-po" href="fscm-po/before.html">open</a></td></tr><tr><td>Time &amp; Labor</td><td>Timesheet</td><td>Submit moved below the grid; Reported Hours column truncated</td><td><a data-page="tl-timesheet" href="tl-timesheet/before.html">open</a></td></tr><tr><td>HCM</td><td>Job Data, shifted</td><td>Whole page +3 px down (alignment case; expect PASS)</td><td><a data-page="hcm-job-data-shifted" href="hcm-job-data-shifted/before.html">open</a></td></tr><tr><td>HCM</td><td>Job Data, 110% zoom</td><td>Whole page rendered at 110% (alignment variant)</td><td><a data-page="hcm-job-data-zoom110" href="hcm-job-data-zoom110/before.html">open</a></td></tr><tr><td>FSCM</td><td>Purchase Order, identical</td><td>No change (expect PASS, 0 regions)</td><td><a data-page="fscm-po-identical" href="fscm-po-identical/before.html">open</a></td></tr>
+</tbody></table>
+</div></body></html>

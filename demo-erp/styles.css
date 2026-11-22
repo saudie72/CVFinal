@@ -1,0 +1,46 @@
+/* Demo ERP (fictional): generic classic-ERP look. Own CSS only, no vendor CSS, images or logos. */
+body { margin: 0; font: 13px Arial, Helvetica, sans-serif; color: #222; background: #fff; width: 1366px; }
+.banner { background: #3d4f63; color: #fff; padding: 0 16px; height: 34px; display: flex; justify-content: space-between; align-items: center; }
+.banner b { letter-spacing: .5px; }
+.banner .env { margin-left: 10px; padding: 1px 8px; border-radius: 9px; background: #8a9aab; font-size: 11px; }
+.crumbs { padding: 6px 16px; height: 15px; color: #555; font-size: 12px; border-bottom: 1px solid #ddd; }
+.titlerow { height: 44px; margin: 0 16px; display: flex; justify-content: space-between; align-items: center; }
+h1 { font-size: 18px; font-weight: normal; margin: 0; }
+.btnslot { width: 70px; height: 28px; display: flex; justify-content: flex-end; }
+.stamp { color: #555; font-size: 12px; }
+.stamp span { display: inline-block; width: 140px; text-align: left; }
+.tabs { display: flex; margin: 0 16px; border-bottom: 1px solid #8a9aab; }
+.tabs span { padding: 6px 14px; border: 1px solid #c9d2dc; border-bottom: 0; background: #e8edf2; margin-right: 2px; }
+.tabs .on { background: #fff; font-weight: bold; }
+.fgrid { display: grid; grid-template-columns: 150px 240px 150px 240px; grid-auto-rows: 24px; gap: 6px 10px; margin: 8px 16px; }
+.fgrid.keys { margin: 10px 16px; }
+.fgrid label { color: #555; text-align: right; line-height: 24px; }
+.fgrid .val { border: 1px solid #b5c0cc; background: #fbfcfd; padding: 0 6px; line-height: 22px; white-space: nowrap; }
+.fgrid .ro { border-color: transparent; background: transparent; }
+.fgrid .slot { }
+.box { margin: 10px 16px; border: 1px solid #c9d2dc; }
+.box h2 { background: #e8edf2; margin: 0; padding: 4px 8px; font-size: 13px; }
+.box .fgrid { margin: 8px; }
+a.lnk { color: #0b3d91; text-decoration: underline; line-height: 24px; }
+table.grid { border-collapse: collapse; margin: 10px 16px; table-layout: fixed; }
+table.grid th, table.grid td { border: 1px solid #c9d2dc; padding: 5px 8px; text-align: left; overflow: hidden; white-space: nowrap; height: 18px; }
+table.grid th { background: #e8edf2; font-weight: bold; }
+table.w-ts { width: 764px; }
+table.w-vo { width: 780px; }
+table.w-po { width: 780px; }
+table.w-pd { width: 520px; }
+table.grid td.num, table.grid th.num { text-align: right; }
+table.grid tfoot td { background: #f4f6f8; font-weight: bold; }
+.box .nav { margin: 6px 8px; }
+.nav { margin: 0 16px; color: #555; font-size: 12px; }
+.toolbar { margin: 14px 16px; display: flex; gap: 8px; }
+button { font: inherit; padding: 5px 14px; border: 1px solid #8a9aab; background: #f4f6f8; border-radius: 3px; color: #222; }
+button.primary { background: #2f6fad; color: #fff; border-color: #2f6fad; }
+.fineprint { margin: 16px; color: #777; font-size: 11px; }
+/* index page only */
+.index-wrap { margin: 16px; max-width: 1100px; }
+.index-wrap table { border-collapse: collapse; width: 100%; }
+.index-wrap th, .index-wrap td { border: 1px solid #c9d2dc; padding: 6px 8px; text-align: left; }
+.index-wrap th { background: #e8edf2; }
+.toggle { margin: 12px 0; padding: 8px 12px; border: 1px solid #c9d2dc; background: #f4f6f8; display: flex; gap: 10px; align-items: center; }
+.toggle strong.on { color: #b3261e; }
