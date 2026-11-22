@@ -1052,18 +1052,18 @@ dialog::backdrop { -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px
 /* U4: tap-to-enlarge affordance (Juno toggles .is-zoomed on the canvas or its figure) */
 .tour-zoomable { cursor: zoom-in; }
 .tour-zoomable:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
-#tour-stage .tour-zoomable.is-zoomed, #tour-stage .is-zoomed.tour-zoomable {
-  position: fixed; inset: 0; z-index: 60; width: 100vw; height: 100vh; height: 100dvh; max-width: none; max-height: none; margin: 0;
+/* QA-R3-3 enlarged view: functional layout only (Sable styles .zoom-view / .zoom-close / .zoom-hint). The canvas shows at 1:1 pixels, the container scrolls both ways. */
+#tour-stage figure.zoom-view {
+  position: fixed; inset: 0; z-index: 60; width: 100vw; height: 100vh; height: 100dvh; margin: 0; box-sizing: border-box;
   padding: max(.75rem, env(safe-area-inset-top)) max(.75rem, env(safe-area-inset-right)) max(.75rem, env(safe-area-inset-bottom)) max(.75rem, env(safe-area-inset-left));
-  box-sizing: border-box; object-fit: contain; object-position: center; border: 0; border-radius: 0; box-shadow: none;
   background: var(--viewer);   /* opaque: the screenshot never sits on glass */
-  cursor: zoom-out; overflow: auto;
+  overflow: auto; touch-action: pan-x pan-y; -webkit-overflow-scrolling: touch;
+  display: flex; flex-direction: column; align-items: flex-start; gap: .5rem;
 }
-#tour-stage figure.is-zoomed { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .5rem; }
-#tour-stage figure.is-zoomed canvas {
-  width: auto; height: auto; max-width: 100%; max-height: calc(100dvh - 4rem); max-height: calc(100vh - 4rem); margin: 0; cursor: zoom-out;
-}
-#tour-stage figure.is-zoomed figcaption { color: var(--text-2); }
+#tour-stage figure.zoom-view canvas { flex: none; width: auto; height: auto; max-width: none; max-height: none; margin: 0; cursor: grab; }
+#tour-stage figure.zoom-view .zoom-close { position: sticky; top: 0; left: 0; z-index: 1; flex: none; min-width: 44px; min-height: 44px; }
+#tour-stage figure.zoom-view .zoom-hint { position: sticky; left: 0; flex: none; margin: 0; color: var(--text-2); }
+#tour-stage figure.zoom-view figcaption { color: var(--text-2); flex: none; }
 
 /* U2 (landing): headline, hero card and the quiet link share ONE left edge */
 .landing h1 { align-self: stretch; text-align: left; max-width: 20em; }

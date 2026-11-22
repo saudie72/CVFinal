@@ -137,6 +137,12 @@ def main():
             ("tour bar secondary text on panel", "--text-2", "panel", 4.5),
             ("zoomed tour caption on viewer", "--text-2", "viewer", 4.5),
             ("tour zoom focus ring on viewer (non-text)", "--focus", "viewer", 3.0),
+            # UX-8 (section 13d): full-screen zoom view
+            ("zoom Close pill text on glass (worst case over black/white)", "--text", "glass", 4.5),
+            ("zoom Close pill border on glass (non-text)", "--border-strong", "glass", 3.0),
+            ("zoom Close pill focus ring on viewer (non-text)", "--focus", "viewer", 3.0),
+            ("zoom hint chip text (--text-2) on panel", "--text-2", "panel", 4.5),
+            ("zoom hint chip border on viewer (non-text)", "--border-strong", "viewer", 3.0),
             # UX-POLISH (css/app.css section 13c): outcome-tinted result header, hero gradient, select arrow
             ("text on pass tint (PASS result header gradient)", "--text", "pass-bg", 4.5),
             ("secondary text on pass tint (PASS result header)", "--text-2", "pass-bg", 4.5),
