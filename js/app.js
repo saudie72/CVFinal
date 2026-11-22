@@ -344,7 +344,7 @@ function onPsChange(fill = true) {
   if (v && v !== '__other' && fill) {
     $('page-name').value = v;
     const mod = o && o.dataset.module, prod = o && o.dataset.product;
-    const target = mod === 'Time & Labor' ? 'Time & Labor' : prod;
+    const target = /^time (&|and) labou?r$/i.test(String(mod || '').trim()) ? 'Time & Labor' : prod;   // catalog says "Time and Labor", the select value is "Time & Labor"
     const ms = $('page-module'); if ([...ms.options].some((x) => x.value === target)) ms.value = target;
   } else if (v === '__other' && fill) { $('page-name').focus(); }
 }
@@ -1149,9 +1149,33 @@ function bindEvents() {
   for (const id of ['tour-before', 'tour-after']) {      // tap to enlarge the page thumbnail (U4)
     const c = $(id);
     c.classList.add('tour-zoomable'); c.tabIndex = 0; c.setAttribute('role', 'button'); c.setAttribute('aria-label', 'Enlarge image');
-    const flip = () => { const on = !c.classList.contains('is-zoomed'); c.classList.toggle('is-zoomed', on); c.parentElement.classList.toggle('is-zoomed', on); c.setAttribute('aria-expanded', String(on)); c.setAttribute('aria-label', on ? 'Shrink image' : 'Enlarge image'); };
-    c.addEventListener('click', flip);
-    c.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } else if (e.key === 'Escape' && c.classList.contains('is-zoomed')) { e.preventDefault(); e.stopPropagation(); flip(); c.focus(); } });
+    c.setAttribute('aria-expanded', 'false');             // QA-R3-1: at rest, not only after a toggle
+    const fig = c.parentElement;
+    const closeBtn = document.createElement('button'); closeBtn.type = 'button'; closeBtn.className = 'zoom-close'; closeBtn.textContent = 'Close'; closeBtn.hidden = true;
+    const hint = document.createElement('p'); hint.className = 'zoom-hint'; hint.textContent = 'Drag to move around. Close to go back.'; hint.hidden = true;
+    closeBtn.addEventListener('click', (e) => { e.stopPropagation(); flip(false); });
+    fig.prepend(closeBtn, hint);
+    const flip = (force) => {
+      const on = typeof force === 'boolean' ? force : !fig.classList.contains('is-zoomed');
+      if (on === fig.classList.contains('is-zoomed')) return;
+      fig.classList.toggle('is-zoomed', on); fig.classList.toggle('zoom-view', on);
+      c.setAttribute('aria-expanded', String(on)); c.setAttribute('aria-label', on ? 'Shrink image' : 'Enlarge image');
+      if (on) {   // QA-R3-3: natural-pixel (1:1) view in a scrollable full-screen container with a visible Close
+        c.style.width = c.width + 'px'; c.style.height = c.height + 'px'; c.style.maxWidth = 'none'; c.style.maxHeight = 'none';
+        fig.setAttribute('role', 'dialog'); fig.setAttribute('aria-label', 'Enlarged image'); fig.tabIndex = -1;
+        closeBtn.hidden = false; hint.hidden = false;
+        closeBtn.focus({ preventScroll: true });
+      } else {
+        for (const k of ['width', 'height', 'maxWidth', 'maxHeight']) c.style[k] = '';
+        fig.removeAttribute('role'); fig.removeAttribute('aria-label'); fig.removeAttribute('tabindex');
+        closeBtn.hidden = true; hint.hidden = true;
+        c.focus({ preventScroll: true });
+      }
+    };
+    c.addEventListener('click', () => { if (!fig.classList.contains('is-zoomed')) flip(true); });
+    fig.addEventListener('click', (e) => { if (e.target === fig && fig.classList.contains('is-zoomed')) flip(false); });   // tap outside the image
+    fig.addEventListener('keydown', (e) => { if (e.key === 'Escape' && fig.classList.contains('is-zoomed')) { e.preventDefault(); e.stopPropagation(); flip(false); } });
+    c.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && !fig.classList.contains('is-zoomed')) { e.preventDefault(); flip(true); } });
   }
   $('tour-flip').addEventListener('click', () => { if (S.tour) { S.tour.flip = !S.tour.flip; renderTour(); } });
   $('tour-retry').addEventListener('click', () => { if (S.tour) { S.tour.error = false; renderTour(); doCompare(); } });

@@ -1307,11 +1307,11 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
         const { ctx, page, log } = await newPage(browser, { viewport: { width: cfg.vw, height: cfg.vh } });
         await page.goto(URL); await ready(page);
         await page.click('#btn-load-sample'); await page.waitForSelector('#tour:not([hidden])'); await page.waitForTimeout(500);
-        const st = (id) => page.evaluate((i) => { const c = document.getElementById(i), r = c.getBoundingClientRect(); const cs = getComputedStyle(c); return { zoomed: c.classList.contains('is-zoomed'), expanded: c.getAttribute('aria-expanded'), label: c.getAttribute('aria-label'), role: c.getAttribute('role'), pos: cs.position, x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height), vw: innerWidth, vh: innerHeight, focus: document.activeElement.id, tourOpen: !document.getElementById('tour').hidden }; }, id);
+        const st = (id) => page.evaluate((i) => { const c = document.getElementById(i), f = c.parentElement, r = f.getBoundingClientRect(); const cs = getComputedStyle(f); return { zoomed: f.classList.contains('is-zoomed'), natural: c.getBoundingClientRect().width === c.width, closeFocus: document.activeElement.className === 'zoom-close', expanded: c.getAttribute('aria-expanded'), label: c.getAttribute('aria-label'), role: c.getAttribute('role'), pos: cs.position, x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height), vw: innerWidth, vh: innerHeight, focus: document.activeElement.id, tourOpen: !document.getElementById('tour').hidden }; }, id);
         const before = await st('tour-before');
         await page.click('#tour-before'); await page.waitForTimeout(250);
         const open = await st('tour-before');
-        rec(`15.1a.${cfg.vw}`, `tap-to-enlarge at ${cfg.vw}: clicking the Before image opens a full-screen view (position fixed, covers the viewport), aria-expanded=true, label "Shrink image"`, !before.zoomed && open.zoomed && open.pos === 'fixed' && open.x <= 1 && open.y <= 1 && open.w >= open.vw - 2 && open.h >= open.vh - 2 && open.expanded === 'true' && open.label === 'Shrink image', { before, open });
+        rec(`15.1a.${cfg.vw}`, `tap-to-enlarge at ${cfg.vw}: clicking the Before image opens a full-screen view (position fixed, covers the viewport), aria-expanded=true, label "Shrink image"`, !before.zoomed && open.zoomed && open.pos === 'fixed' && open.x <= 1 && open.y <= 1 && open.w >= open.vw - 2 && open.h >= open.vh - 2 && open.closeFocus && open.natural && open.expanded === 'true' && open.label === 'Shrink image', { before, open });
         await page.keyboard.press('Escape'); await page.waitForTimeout(250);
         const closed = await st('tour-before');
         rec(`15.1b.${cfg.vw}`, `Esc closes the enlarged view, focus returns to the image, and the tour stays open (Esc does not skip the tour)`, !closed.zoomed && closed.focus === 'tour-before' && closed.tourOpen && closed.expanded === 'false' && closed.label === 'Enlarge image', closed);
@@ -1319,9 +1319,9 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
         await page.focus('#tour-before'); await page.keyboard.press('Enter'); await page.waitForTimeout(200);
         const k1 = await st('tour-before'); await page.keyboard.press('Space'); await page.waitForTimeout(200); const k2 = await st('tour-before');
         rec(`15.1c.${cfg.vw}`, `keyboard: Enter on the focused image enlarges it, Space shrinks it again`, k1.zoomed && !k2.zoomed && k2.focus === 'tour-before', { k1: k1.zoomed, k2: k2.zoomed });
-        await page.click('#tour-before'); await page.waitForTimeout(150); await page.click('#tour-before', { position: { x: 20, y: 20 } }); await page.waitForTimeout(200);
+        await page.click('#tour-before'); await page.waitForTimeout(150); await page.click('#tour-before-fig .zoom-close'); await page.waitForTimeout(200);
         const k3 = await st('tour-before');
-        rec(`15.1d.${cfg.vw}`, `clicking the enlarged image shrinks it again`, !k3.zoomed, k3);
+        rec(`15.1d.${cfg.vw}`, `the visible Close button shrinks it again`, !k3.zoomed, k3);
         // step 2: whichever of the two images is showing (Flip swaps them) enlarges the same way; check both
         await tourNext(page); await page.waitForTimeout(300);
         const vis = () => page.evaluate(() => ['tour-before', 'tour-after'].filter((i) => document.getElementById(i).offsetWidth > 0));

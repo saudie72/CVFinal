@@ -1061,8 +1061,6 @@ dialog::backdrop { -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px
   display: flex; flex-direction: column; align-items: flex-start; gap: .5rem;
 }
 #tour-stage figure.zoom-view canvas { flex: none; width: auto; height: auto; max-width: none; max-height: none; margin: 0; cursor: grab; }
-#tour-stage figure.zoom-view .zoom-close { position: sticky; top: 0; left: 0; z-index: 1; flex: none; min-width: 44px; min-height: 44px; }
-#tour-stage figure.zoom-view .zoom-hint { position: sticky; left: 0; flex: none; margin: 0; color: var(--text-2); }
 #tour-stage figure.zoom-view figcaption { color: var(--text-2); flex: none; }
 
 /* U2 (landing): headline, hero card and the quiet link share ONE left edge */

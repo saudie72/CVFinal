@@ -1,6 +1,6 @@
 {
   "tool": "ERP Visual Regression Inspector",
-  "exportedAt": "2026-11-22T17:57:24.889Z",
+  "exportedAt": "2026-11-22T18:03:10.688Z",
   "runs": [
     {
       "tool": "ERP Visual Regression Inspector",
@@ -56,9 +56,9 @@
         "signedOffAt": null,
         "baselinePromoted": false
       },
-      "createdAt": "2026-11-22T17:57:23.830Z",
-      "compareMs": 548.8,
-      "reviewMs": 1106,
+      "createdAt": "2026-11-22T18:03:09.680Z",
+      "compareMs": 526,
+      "reviewMs": 935,
       "disclaimer": "Visual check only — not a replacement for functional or security testing."
     }
   ]
