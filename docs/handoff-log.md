@@ -134,3 +134,6 @@ Kept by **Atlas (orchestrator)**. One row per handoff or review. Experts never c
 | 108 | 0 | User | Atlas | Use public PeopleBooks 9.2.33 screenshots from the library | — | Decision (privacy/copyright first; rule 1): don't commit Oracle images; add a "try it locally with PeopleBooks" guide instead (the owner gave no preference when asked) |
 | 109 | A | Atlas | Riley | UX-3: find and verify PeopleBooks 9.2 (PUM 33) page links; write the try-it-locally guide | docs/erp/peoplebooks-try-it.md | launched |
 | 110 | 0 | User | Atlas → Wren | "Not user friendly, no idea what I'm supposed to do or why": UX-2 widened to the whole first-use journey (purpose in one sentence, a guided 'Try the demo' walkthrough, progressive disclosure, plain nav names) | docs/design/ux-flows.md | routed |
+| 111 | 0 | User | Atlas | Sample names like "FSCM - Purchase Order (timestamp only)" are meaningless: "build something a human can understand and use" | — | accepted |
+| 112 | A | Atlas | Mason | UX-4: plain title + story + whatToExpect + group/order for every sample (machine fields unchanged) | samples/manifest.json, samples/README.md | launched |
+| 113 | A | Atlas | Wren | Sample picker as grouped plain-language cards; plain labels app-wide (no module codes, no unexplained baseline/candidate, pixels only in Details) | docs/design/ux-flows.md | routed |

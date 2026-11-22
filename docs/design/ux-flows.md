@@ -5,7 +5,7 @@ Fictional data only ("Demo ERP (fictional)"). Browser-only, no network calls aft
 
 Sources: `knowledge/ux-designer-apple-hig/docs/01-feedback.md`, `02-progress-loading.md`, `03-accessibility-interaction.md` (Apple HIG: Feedback, Progress indicators, Loading, Accessibility) and `examples/ex1`..`ex3`; skills `apple-hig-ux`, `accessibility-wcag`, `ignore-zones-masking`, `peoplesoft-page-anatomy`, `upgrade-cycle-capture-standards`, `uat-evidence-traceability`; `docs/build-plan.md`, `docs/04-ignore-zones.md`, `docs/05-visual-outputs.md`, `docs/10-mock-erp-demo-plan.md`, `docs/business-case.md`; ERP specs `docs/erp/capture-standards.md` (section 5, the tip), `docs/erp/evidence-standard.md` (fields, decisions, sign-off), `docs/erp/user-stories.md`, `docs/erp/demo-story.md` (UI labels).
 
-> **UX-2 update:** section 12 ("UX-2 result clarity") supersedes this document wherever it conflicts, in particular the Result screen order (section 3), the region card and its template (sections 6 row 6, 7, 8), the stat labels, the status line wording, and the alignment line (D3). Everything else stands.
+> **UX-2 update:** section 12 ("UX-2 first-use clarity") supersedes this document wherever it conflicts, in particular the Result screen order (section 3), the region card and its template (sections 6 row 6, 7, 8), the stat labels, the status line wording, and the alignment line (D3). Everything else stands.
 
 ## 0. Decisions that deviate from, or settle, the inputs
 
@@ -687,7 +687,7 @@ Selectors Sable must style: `[data-state]` on `.pill`, `#main`, `#notice`, `#res
 |---|---|---|
 | `what` | What it does | Compares a before and an after screenshot of an ERP page and highlights unintended visual changes. Positioning line (see footer). A visual diff can show a field or button appeared or disappeared for a tested role; it does **not** prove authorization is correct. |
 | `steps` | The steps | Load a sample or add a baseline -> add the after-change screenshot -> Compare -> decide each region -> Save run -> Sign off -> Promote (optional). |
-| `pipeline` | What happens when you press Compare | Plain-words version of: align (shift/zoom), difference, ignore zones applied, threshold, merge into regions, SSIM, heatmap. States the pass rule: FAIL when there are regions and the changed % is above the page's limit (default 0.1%). Notes it runs in a Web Worker with OpenCV.js (WebAssembly) so the page stays responsive. |
+| `pipeline` | What happens when you press Compare | Plain-words version of: align (shift/zoom), difference, ignore zones applied, threshold, merge into regions, SSIM, heatmap. States the pass rule: FAIL when **any** change is found **or** the changed % is above the page's limit (default 0.1%). (Corrected in UX-2: the earlier text said "regions and %", which disagrees with `js/cv/pipeline.js` line 262 per Morgan; Juno fix `how-it-works.html#pipeline` to match.) Notes it runs in a Web Worker with OpenCV.js (WebAssembly) so the page stays responsive. |
 | `capture` | Capture standard | The tip sentence (verbatim, as in section 5) then the table from `docs/erp/capture-standards.md` section 2 (browser, 1366×900, 100% zoom, same user/role/data, theme, no popups, full-page PNG) and file name `<module>_<page>_<before|after>_<YYYYMMDD>.png`, and the cycle (capture before -> change -> capture after -> compare -> triage -> sign-off -> promote). |
 | `reading` | Reading a result | The four views, the numbered region list, Expected / Regression / Noise meanings, sign-off rules (no sign-off while any Regression is open; promote only after sign-off; every FAIL region needs a decision). |
 | `zones` | Ignore zones | What they are for (timestamps, user names), per page and reused, the 15% warning, the **not a security control** sentence. Three ways to add one, including the keyboard form. |
@@ -714,7 +714,9 @@ Intro line: "Links open the official documentation in a new tab. The app itself 
 5. Keyboard-only run of the whole flow, including the manual zone form and the overlay slider keys.
 6. Storage blocked (Chrome incognito with site data blocked), quota (simulate), duplicate name, Reset (confirm, blocked by a second tab, done), Network panel quiet after load, no CSP violations in the console.
 
-## 12. UX-2 result clarity
+## 12. UX-2 first-use clarity
+
+**Scope widened (project owner, verbatim): "this app is really not user friendly, i have no idea what in the world i'm suppose to do or why it's absolutely terrible".** Sections 12.1 to 12.15 fix the result screen and region card. **Section 12.16 is the whole-app first-use journey (landing, guided demo, progressive disclosure, plain navigation) and is the highest priority.** Each item there is marked **Must** or **Should**; Juno builds the Musts first. Priority across the whole section: 12.16 Musts, then 12.6 to 12.8 (card, decisions, two-way link), then 12.4 and 12.5 (guide, stats), then Shoulds.
 
 Why this section exists: the project owner used the app and said it works but "doesn't tell a user what exactly is going on or needed". Verbatim points: "what the hell is region 1", "there is not tie in to the screenshot", "what is expected, regression or noise", "What in the world does Region 1 of 4: 105 by 154 pixels at 702, 338 mean to a user?", and "where do all these agents and team come in to any of this like the business analyst?".
 
@@ -899,29 +901,13 @@ Selecting a card marks it "looked at" for the progress strip.
 **Intro card** (`#intro-card`, `role="region"`, `aria-labelledby="intro-title"`) shown at the top of the Library on first visit. **Settings key is `onboardingSeen`** (Morgan 4g, Atlas; this replaces the `introDismissed` name in the task brief; no schema change, the `settings` store already holds `engineSeen`). Title "What this tool does"; exactly three sentences (Morgan 4g, copy in 12.11), then the positioning line in smaller text (not counted in the three). Buttons: **Load sample** (primary, the same action as the main button) and **Got it** (`settingsDb.set('onboardingSeen', true)`; if storage is blocked, show every visit, no error), plus a link "How it works". **Got it** moves focus to **Load sample**. A Library link "What does this tool do?" reopens it. **Reset app data** clears the flag, so it returns after a reset. It sits above, and never covers, the main Load sample button. Show it whenever `onboardingSeen` isn't true (empty or not); Morgan's rule, and a returning-but-never-dismissed user still benefits. Under Load sample, a hint: "The sample is a fictional Timesheet page with a few deliberate changes."
 
 **Where the team shows up.** The AI agent team is not part of the running app, so the product only says so in three quiet places:
-1. `how-it-works.html#who` (section below).
-2. A footer line on every page: "Built and reviewed by a team of AI agents. [Who built this](how-it-works.html#who)." (`.credit`).
-3. Small `.credit` lines where a role's work is visible: under the capture tip ("The capture standard is from the PeopleSoft administrator role."), at the end of the "What do these numbers mean?" panel ("Wording from the business analyst role."), under "Likely cause" help (see 12.11, "Cause rules are from the PeopleSoft developer role."), and under the evidence form heading ("Fields follow the test lead's evidence standard."). Each links to `#who`. They're short, secondary text and never a reason a task is blocked.
+1. `how-it-works.html#team` (section below; Morgan's id).
+2. A footer line on every page: "Built and reviewed by a team of AI agents. [Who built this](how-it-works.html#team)." (`.credit`).
+3. Small `.credit` lines where a role's work is visible: under the capture tip ("The capture standard is from the PeopleSoft administrator role."), at the end of the "What do these numbers mean?" panel ("Wording from the business analyst role."), under "Likely cause" help (see 12.11, "Cause rules are from the PeopleSoft developer role."), and under the evidence form heading ("Fields follow the test lead's evidence standard."). Each links to `#team`. They're short, secondary text and never a reason a task is blocked.
 
-**`how-it-works.html`, new section `who`** (h2 "Who built this"; add `<li><a href="#who">Who built this</a></li>` to the TOC, placed last, after `limits`). Content (draft; Morgan's text for this section wins):
+**`how-it-works.html`, new section `team`** (h2 "Who built this"; Morgan's id and text). **Use section 5 of `docs/erp/plain-language-results.md` verbatim**: the opening paragraph (17 AI assistants, **not part of the running app**, nothing talks to an AI while you work), the 17-row table (Name, Role, What they did, Model tier, in a `.table-wrap` so it fits at 375 px), and the closing paragraph. I add one column to the table for UX, **"Where you see it in the app"** (Should): Morgan, "the wording of results, PASS/FAIL and the three decisions"; Riley, "the sample pages"; Dex, "the 'What this probably is' lines"; Hal, "the capture tip"; Vera, "the 'not a security control' lines"; Tess, "Expected / Regression / Noise, the Save run form, sign-off"; Iris/Volt/Ledger, "the comparison, its speed, Reset app data"; Wren/Sable/Juno/Mason, "every screen and the Demo ERP"; Quinn/Piper, "the checks and the README"; Atlas, "nowhere in the app". This is what answers the owner's question "where do the agents come in". Order in the page: `what`, `steps`, `pipeline`, `capture`, `reading`, `zones`, `storage`, `limits`, then **`try-real`** (Riley's section, `docs/erp/peoplebooks-try-it.md`, keep this slot free), then `team` last; the TOC lists them in that order. Add `<li><a href="#team">Who built this</a></li>`.
 
-- Intro: "This app was built and reviewed by a team of AI agents (Claude subagents), each acting in a role you'd find on an ERP test project. They did the design, the code and the checking. **They are not part of the running app.** The page you are using is a set of static files that runs in your browser: there is no AI behind it, no server, and no network call after the page loads."
-- Table "What each role did, and where you see it":
-
-| Role | What they did | Where you see it in the app |
-|---|---|---|
-| Orchestrator (Atlas) | Planned the work, handed tasks between roles, and logged every handoff and review | Nowhere in the app; see the log below |
-| Business analyst (Morgan) | Wrote the user stories and the plain-language definitions | The wording of results, PASS/FAIL and the three decisions |
-| Functional analyst (Riley) | Described the ERP pages and what a real change looks like | The sample pages and "Likely cause" wording |
-| PeopleSoft developer (Dex) | Catalogued the kinds of change PUM updates and PeopleTools upgrades cause | The "Likely cause" line on each change |
-| PeopleSoft administrator (Hal) | Wrote the capture standards | The capture tip and the Capture standard section |
-| Security administrator (Vera) | Set the security limits | The role-based test note and "not a security control" lines |
-| Test lead (Tess) | Defined the decisions, sign-off rules and evidence | Expected / Regression / Noise, the Save run form, sign-off |
-| Computer-vision engineer (Iris), WebAssembly engineer (Volt), data engineer (Ledger) | Built the comparison, ran it fast in the browser, stored your library | The comparison itself, the speed, and Reset app data |
-| UX and UI designers (Wren, Sable), front-end engineer (Juno), demo builder (Mason) | Designed and built the screens and the fictional Demo ERP | Everything you click |
-| QA tester (Quinn), release writer (Piper) | Tested it and wrote the docs | The checks in the README and this page |
-
-- Closing: "Every handoff and review between the roles is logged. Read the log: [docs/handoff-log.md](docs/handoff-log.md)." **Link target is unverified**: I did not find the GitHub repository URL anywhere in the repo (`grep` for github.com in `*.md`, `*.html`, `*.js` found only third-party tools). Because the site publishes `.` on Netlify, the relative path `docs/handoff-log.md` works without a third-party host and passes `tools/privacy_audit.py`. If Atlas supplies the repo URL, add a second link "View on GitHub" with `target="_blank" rel="noopener noreferrer"` and check the privacy audit allows it. Same link goes in the `project` section of `resources.html`.
+- Link to the log (Atlas asked for it here; Morgan prefers Resources only): put "Read the log: [docs/handoff-log.md](docs/handoff-log.md)" under the closing paragraph as a same-site relative link, and the same link in `resources.html#project`. **Link target is unverified**: I did not find the GitHub repository URL anywhere in the repo (`grep` for github.com in `*.md`, `*.html`, `*.js` found only third-party tools). Because the site publishes `.` on Netlify, the relative path `docs/handoff-log.md` works without a third-party host and passes `tools/privacy_audit.py`. If Atlas supplies the repo URL, add a second link "View on GitHub" with `target="_blank" rel="noopener noreferrer"` and check the privacy audit allows it. Same link goes in the `project` section of `resources.html`.
 - Names are team names, not people; all data in the app is fictional.
 
 ### 12.10 Keyboard and screen-reader rules (new interactions)
@@ -944,7 +930,7 @@ Selecting a card marks it "looked at" for the progress strip.
 ```js
 // UX-2 result clarity (docs/design/ux-flows.md section 12). Fictional data only.
 result: {
-  statusFail: (n, pct) => `FAIL — ${n === 1 ? '1 change found' : `${n} changes found`} (${pct} of page changed)`,
+  statusFail: (n, pct) => `FAIL — ${n === 1 ? '1 change found' : `${n} changes found`} (${pct} of the page)`,
   // pct is fmtPct(): "0.8%" or "under 0.1%"
   statusPass: 'PASS — no unexpected changes',
   announceFail: (n, pct) => `Comparison finished. FAIL, ${n === 1 ? '1 change' : `${n} changes`} found, ${pct} percent of the page changed.`,
@@ -1013,63 +999,70 @@ card: {
   show: 'Show on screenshot',
   showAnnounce: i => `Showing change ${i} on the Boxes view.`,
   selectAnnounce: (i, n, pos, shape) => `Change ${i} of ${n} selected: ${pos}, ${shape}.`,
-  causeLabel: 'Likely cause',
   causeCredit: 'Cause rules are from the PeopleSoft developer role.',
-  decideLegend: 'What is this change?',
-  notSureSummary: 'Not sure?',
-  notSure: "Compare the Before and After pictures, then check the change request: was this supposed to change? If yes, choose Expected. If it looks like a date or time that changes every time, choose Noise and consider adding an ignore zone. If you can't tell, choose Regression. You can change it later, and it keeps the run from being signed off until someone confirms.",
   noteLabel: 'Note (optional)',
   zoneBtn: 'Add ignore zone',
-  zoneHint: 'Leave this area out of future comparisons.',
-  detailsSummary: 'Details (pixels)',
-  detail: { x: 'From the left edge (x)', y: 'From the top edge (y)', w: 'Width', h: 'Height', size: 'Size' },
-  detailValue: px => `${px} px`,
-  detailSize: pct => `${pct} of the page`,
-  detailNote: "Pixels of the original screenshot, not of what is drawn on screen.",
   decided: d => `Decided: ${d}`,
   marked: (i, d, k, n) => `Change ${i} marked ${d}. ${k} of ${n} decided.`,
 },
-position: {
-  'top-left': 'top left', 'top-centre': 'top centre', 'top-right': 'top right',
-  'middle-left': 'middle left', 'middle-centre': 'centre of the page', 'middle-right': 'middle right',
-  'bottom-left': 'bottom left', 'bottom-centre': 'bottom centre', 'bottom-right': 'bottom right',
+position: {   // Morgan 4b. Keys: `${row}-${col}`; overrides 'most' and 'fullwidth' apply first.
+  'top-left': 'top left of the page', 'top-centre': 'top of the page', 'top-right': 'top right of the page',
+  'middle-left': 'middle left of the page', 'middle-centre': 'middle of the page', 'middle-right': 'middle right of the page',
+  'bottom-left': 'bottom left of the page', 'bottom-centre': 'bottom of the page', 'bottom-right': 'bottom right of the page',
+  most: 'most of the page',
+  fullwidth: row => `${row}, across the full width`,   // row = 'top' | 'middle' | 'bottom'
 },
-shape: { large: 'large area', tall: 'tall block', wide: 'wide strip', small: 'small spot', medium: 'medium area' },
-decision: {
-  Expected: 'The update was meant to change this. It\'s fine.',
-  Regression: 'Something broke, or changed when it shouldn\'t have. This is a defect, and it blocks sign-off.',
-  Noise: 'A harmless difference, like a date, a time or a font being drawn slightly differently. Not a real change.',
+shape: { tall: 'tall narrow block', large: 'large block', thin: 'thin strip', wide: 'wide strip', small: 'small block' },
+decision: {   // Morgan 4e, verbatim
+  legend: n => `Your decision for change ${n}`,
+  intro: 'Is this change OK? Compare it with your change ticket.',
+  Expected: 'This change was supposed to happen. It is part of the patch or upgrade.',
+  Regression: "This change is a defect. Log it. The page can't be signed off until it is fixed.",
+  Noise: 'Not a real change, for example a time stamp or rendering. Safe to ignore.',
+  rule: 'Not sure? Choose Regression and add a note. A reviewer can change it later.',
+  noiseTip: 'Will this change every time? Add an ignore zone so it stops showing up.',
+  notePh: 'For example: toolbar moved per CHG-0042',
+  notePhRegression: 'Say what is wrong, for example: Submit button missing',
+  zoneHelp: 'Hides this area from every future comparison of this page. Use it for things that change every time, like a time stamp. It is not a security control.',
 },
-cause: {   // keyed by hint id from js/hints.js; ids not listed fall back to 'unclassified'
-  'control-moved': 'A button or field seems to have moved: the same shape shows up in an old and a new place. Likely a page layout change.',
-  'label-text': 'A small piece of text changed. Likely a label or message, or a value such as a date or time that changes every time. If it does, add an ignore zone.',
-  'grid-layout': 'Part of a grid (table) changed, for example a column became wider or narrower, or rows shifted. Check that no values are cut off.',
-  'reflow': 'A large area moved down or sideways, probably because something above it was added, removed or resized. Look at the top of this change for the first real difference.',
-  'whole-page': 'Almost the whole page looks different. Likely a new theme or branding, or a change from Classic to Fluid. Consider capturing a new baseline.',
-  'capture-artifact': 'Many small differences spread around the page. This usually means the two screenshots were captured differently (zoom, window size, fonts), not that the page changed. Capture both again with the same settings.',
-  'unclassified': 'A visual difference with no obvious pattern. Compare the Before and After pictures and decide.',
+cause: {   // Morgan 4d: [what this probably is, what to check]; keyed by hint id; unknown ids use 'unclassified'
+  lead: 'What this probably is:', check: 'What to check:', guess: 'This is a guess from the shape. You decide.',
+  'grid-layout': ['A table or grid changed: a column is wider or narrower, or shifted.', 'Look for values that are cut off, for example an amount ending early.'],
+  'reflow': ['Something above this area changed and pushed the content below it. This block is the knock-on effect, not the cause.', 'Look at the top edge of the outline for the first real change, such as a moved toolbar or a removed field.'],
+  'control-moved': ['A button or link moved: the same shape appears at an old and a new position.', 'Check the change ticket for a toolbar or layout change.'],
+  'label-text': ['A small piece of text changed: a label, a message, or a value such as a date or time.', 'If it changes on every capture, consider an ignore zone.'],
+  'peoplecode-visibility': ['A field or button appeared, disappeared or turned grey.', 'Compare with the change ticket. This can come from page or PeopleCode changes, or from a different role or Business Unit. It does not prove that access (authorization) is right.'],
+  'page-definition-field': ['A field was added, removed or moved on the page.', 'Check the page in Application Designer, or the change ticket.'],
+  'style-branding': ['Colours, fonts or spacing changed.', 'This is typical of a style sheet or branding change, for example a PeopleTools upgrade.'],
+  'dynamic-content': ['This may be a value that changes every time, such as a date, time, user or ID.', 'If it is, choose Noise and add an ignore zone.'],
+  'whole-page': ['Most of the page looks different: a new theme, or Classic changed to Fluid or Classic Plus.', 'Consider capturing a new baseline instead of reviewing each change.'],
+  'configuration-values': ['Values or defaults differ.', 'Check that both screenshots used the same test data, Business Unit and SetID.'],
+  'capture-artifact': ['Many small changes with little of the page changed: often a capture difference, not a real change.', 'Capture again at 100% zoom, same window size, same browser.'],
+  'unclassified': ['The tool can see a difference here but cannot guess the cause.', 'Look at the before and after crops, then decide.'],
 },
-intro: {
-  title: 'Welcome',
-  body: "This tool compares a before and an after screenshot of an ERP page and shows what changed. You decide whether each change was expected, a defect (regression) or harmless noise, and save the result as test evidence. Everything runs in your browser, and nothing you load leaves your device.",
-  dismiss: 'Got it',
-  more: 'How it works',
-  sampleHint: 'The sample is a fictional Timesheet page with a few deliberate changes.',
+locate: n => `Outlined in red on the screenshot, badge ${n}.`,
+detailsSummary: 'Details',
+detailsLine: (w, h, x, y, pw, ph) => `${w} × ${h} pixels, top-left corner at x ${x}, y ${y}. Page size ${pw} × ${ph}.`,
+intro: {   // Morgan 4g, three sentences; settings key onboardingSeen
+  title: 'What this tool does',
+  body: 'This tool compares a before and an after screenshot of an ERP page and shows you what changed. You decide whether each change is expected, a defect, or just noise, and save the result as test evidence. Everything stays in your browser: nothing is uploaded and nothing is sent anywhere.',
+  positioning: 'A supplemental quality-assurance tool for the visual-comparison part of testing — not a replacement for functional or security testing.',
+  dismiss: 'Got it', more: 'How it works', reopen: 'What does this tool do?',
 },
-who: {
+team: {
   footer: 'Built and reviewed by a team of AI agents.',
   footerLink: 'Who built this',
   captureCredit: 'The capture standard is from the PeopleSoft administrator role.',
   evidenceCredit: "Fields follow the test lead's evidence standard.",
-  logLink: 'docs/handoff-log.md',
 },
 ```
+(Section 12.16 adds the whole-app first-use copy: `landing`, `tour`, `nav`, `empty`, per-screen purpose lines.)
 
 Notes on the copy: the `intro.body` is three sentences, as asked. Position, shape and cause maps keep all user-facing words in one file; `js/hints.js` and `js/region-hints.json` still decide *which* id applies, and `region-hints.json` `label`/`hint` are no longer shown (Dex: keep the ids stable). The `how-it-works.html` strings in 12.9 live in the HTML (static page, no JS).
 
 ### 12.12 New ids and classes (Sable styles, Juno builds)
 
-Ids: `result-guide`, `h-guide`, `result-summary`, `result-steps`, `stats-help`, `boxes-hint`, `btn-back-to-card`, `regions-lede`, `intro-card`, `intro-title`, `intro-dismiss`, `intro-more`, `sample-hint`; per card, `region-{n}-title` (`h3`) and the `canvas` ids are generated (`crop-before-{n}`, `crop-after-{n}`, `locator-{n}`). On `how-it-works.html`: `who`.
+Ids: `result-guide`, `h-guide`, `result-summary`, `result-steps`, `stats-help`, `boxes-hint`, `btn-back-to-card`, `regions-lede`, `result-next`, `result-explain`, `intro-card`, `intro-title`, `intro-dismiss`, `intro-more`; per card, `region-{n}-title` (`h3`) and the `canvas` ids are generated (`crop-before-{n}`, `crop-after-{n}`, `locator-{n}`). On `how-it-works.html`: `team` (and Riley's `try-real`). Extra card classes: `region-locate`, `region-rule`, `region-noise-tip`. Whole-app ids and classes are in 12.16.
 
 Classes: `guide`, `strip`, `strip-step` (`[data-step]`, `[data-status="done|current|todo|blocked"]`), `strip-status`, `stat-note`, `credit`, `result-layout` (two-column from 1100 px, view column sticky), `region-head`, `region-badge` (same colour and number as the canvas badge), `region-title`, `region-show`, `region-crops`, `region-crop` (the figure), `region-locator`, `region-cause`, `region-help` (the Not sure details), `region-details`, `choice`, `choice-name`, `choice-desc`, `is-over-box` (on `.canvas-wrap` while the pointer is over a box).
 
@@ -1120,7 +1113,9 @@ Template `tpl-region` replacement (Juno builds from this; no inline style or han
 5. Decide cards: the strip updates (2 of 4 decided), the announcer says "Change 2 marked Regression. 1 of 4 decided.", sign-off stays blocked with its exact text.
 6. Stats read "Page changed 0.8%", "Similarity (1.0 = identical) 0.962 out of 1.0", "Alignment None needed" (and the shifted pair reads "Shifted 3 px down" only after Iris confirms the direction).
 7. Fresh profile: intro card with three sentences; **Got it** hides it and it stays hidden after reload; Reset app data brings it back.
-8. How it works has `#who`, the table and a working `docs/handoff-log.md` link; the footer line is on all pages.
+8. How it works has `#team` (17 rows), a slot kept free for `#try-real`, and a working `docs/handoff-log.md` link; the footer line is on all pages; no horizontal scroll at 375 px.
+8a. On arrival at a result, **no radio is checked** on any card (D15).
+8b. `#pipeline` on How it works says FAIL happens when any change is found **or** the percent is above the limit.
 9. No CSP violations; Network quiet; `tools/contrast_check.py` covers the new text pairs; update the existing tests that match "changed region" or "Aligned: shift".
 
 ### 12.14 Before / after
@@ -1137,7 +1132,7 @@ Template `tpl-region` replacement (Juno builds from this; no inline style or han
 
 ### 12.15 Handoffs (for Atlas to route)
 
-- **Juno:** build 12.3 to 12.12 (`js/app.js`, `js/views.js` for crops, locator, click hit-test and persistent highlight; `js/copy.js`; `index.html` template; `how-it-works.html` `#who` and footer line on all three pages; `resources.html` `project` link). Add `introDismissed` through `settingsDb`.
+- **Juno:** build 12.3 to 12.12 (`js/app.js`, `js/views.js` for crops, locator, click hit-test and persistent highlight; `js/copy.js`; `index.html` template; `how-it-works.html` `#team`, the `#pipeline` FAIL-rule fix and footer line on all three pages; `resources.html` `project` link). Use settings key `onboardingSeen` (not `introDismissed`) through `settingsDb`. **Then build 12.16.**
 - **Sable:** style 12.12 (card layout, crops, strip, stat notes, `.credit`, sticky two-column layout at 1100 px, `is-over-box` cursor, selected/linked states) and run `tools/contrast_check.py` on the new pairs.
 - **Morgan:** reconcile the definitions in 12.5, 12.7 and the "Who built this" table with `docs/erp/plain-language-results.md`; confirm D12 ("when unsure, choose Regression").
 - **Iris:** confirm what `alignment.dx`/`dy` mean (which image moved, which way) so "Shifted 3 px down" is true (D11).
