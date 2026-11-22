@@ -19,20 +19,43 @@ const check = (n, ok, d) => { out.push(ok); console.log((ok ? 'PASS ' : 'FAIL ')
   await page.goto(URL);
   await page.waitForFunction(() => document.getElementById('status-pill').dataset.state === 'ready', null, { timeout: 60000 });
   check('pill Ready after OpenCV loads', true);
-  check('empty library state', await page.getAttribute('#main', 'data-state') === 'ready-empty');
-  // --- UX-2 landing: purpose sentence, one hero button, grouped example cards with plain titles
-  check('landing visible on first run (owner sentence as h1)', /^Compare a page before and after a PeopleSoft update/.test(await page.textContent('#h-library')), await page.textContent('#h-library'));
-  check('landing: hero button is "Try the demo (30 seconds)"', (await page.textContent('#btn-load-sample')).trim() === 'Try the demo (30 seconds)');
-  check('landing: "Compare my own screenshots" present', (await page.textContent('#btn-new-page')).trim() === 'Compare my own screenshots');
-  check('landing: nav shows only My pages, Settings, How it works, Resources', JSON.stringify(await page.locator('.app-nav li:not([hidden])').allInnerTexts()) === JSON.stringify(['My pages', 'Settings', 'How it works', 'Resources']));
-  check('landing: no sample dropdown', await page.locator('#sample-select').count() === 0);
-  const groupCounts = [await page.locator('#examples-more .sample-card').count(), await page.locator('#examples-tricky .sample-card').count()];
-  check('example cards grouped 3 + 4', groupCounts.join() === '3,4', groupCounts);
-  const cardText = await page.locator('#sample-hero, #examples-more, #examples-tricky').allInnerTexts();
-  check('example cards: plain titles, no module codes or pixel numbers', !/FSCM –|HCM –|\bFSCM\)?\s*-|timestamp only|\d+ by \d+/i.test(cardText.join('\n')) && /What to expect:/.test(cardText.join('\n')));
-  check('example titles are plain', (await page.locator('.sample-card .sample-title, #sample-hero .sample-title').allTextContents()).includes('Purchase order (with a changing clock)'));
+  // --- UX-9: first visit lands on Getting started (walkthrough + examples); My pages is the work area
+  check('first visit lands on #/start (Getting started)', await page.evaluate(() => location.hash) === '#/start' && await page.isVisible('#screen-start') && (await page.textContent('#h-start')).trim() === 'Getting started');
+  check('start: purpose line is the owner sentence', /^Compare a page before and after a PeopleSoft update/.test(await page.textContent('#start-purpose')));
+  check('start: "Start the walkthrough" button is primary and present', (await page.textContent('#btn-start-tour')).trim() === 'Start the walkthrough');
+  check('nav: Getting started first, then My pages, Settings, How it works, Resources', JSON.stringify(await page.locator('.app-nav li:not([hidden])').allInnerTexts()) === JSON.stringify(['Getting started', 'My pages', 'Settings', 'How it works', 'Resources']));
+  check('start: primary button of the example row is "Open example"', (await page.textContent('#btn-load-sample')).trim() === 'Open example');
+  const manifestS = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'samples', 'manifest.json'), 'utf8'));
+  check('UX-9: #example-select visible, Timesheet selected by default', await page.isVisible('#example-select') && await page.$eval('#example-select', e => e.selectedOptions[0].textContent) === 'Timesheet');
+  check('UX-9: example options = manifest titles in 3 optgroups', JSON.stringify(await page.$$eval('#example-select option', o => o.map(x => x.textContent))) === JSON.stringify(manifestS.slice().sort((a, b) => a.order - b.order).map(m => m.title)) && await page.locator('#example-select optgroup').count() === 3);
+  check('UX-9: no collapsed example cards or hero any more', await page.locator('.sample-card, #sample-hero, #examples, #examples-more, #examples-tricky').count() === 0);
+  const descBefore = await page.textContent('#example-desc');
+  await page.selectOption('#example-select', 'hcm-job-data');
+  const descAfter = await page.textContent('#example-desc');
+  check('UX-9: changing the select updates the live description (story + Expect:)', descBefore !== descAfter && descAfter.includes('Pay Grade') && /Expect:/.test(descAfter) && await page.getAttribute('#example-desc', 'aria-live') === 'polite', descAfter);
+  await page.selectOption('#example-select', 'tl-timesheet');
+  check('UX-9: no module codes in the Getting started examples', !/FSCM|HCM/.test(await page.locator('#home-example').innerText()));
+  // --- My pages: library dropdown on top, one action button, filtered saved pages
+  await page.click('.app-nav a[data-route="library"]');
+  await page.waitForSelector('#screen-library:not([hidden])');
+  check('empty library state on My pages', await page.getAttribute('#main', 'data-state') === 'ready-empty');
+  check('UX-9: #ps-page visible on My pages without any click, first option "All modules", optgroups, Other last', await page.isVisible('#ps-page') && await page.$eval('#ps-page', e => e.options[0].textContent) === 'All modules' && await page.locator('#ps-page optgroup').count() > 5 && await page.$eval('#ps-page', e => e.options[e.options.length - 1].value) === '__other');
+  check('UX-9: the library dropdown is the first thing under the h1/purpose (before any list)', await page.evaluate(() => { const a = document.getElementById('ps-page').getBoundingClientRect().top, b = document.getElementById('your-pages').getBoundingClientRect().top; return a < b; }));
+  check('UX-9: no example picker on My pages; empty sentence + link to Getting started', await page.locator('#screen-library #example-select').count() === 0 && /^No pages yet\. Choose a PeopleSoft page above/.test((await page.textContent('#pages-empty')).trim()) && await page.isVisible('#link-try-example'));
+  check('UX-9: action button hidden while "All modules"', await page.isHidden('#btn-new-page'));
+  await page.selectOption('#ps-page', { index: 1 });
+  const chosen = await page.$eval('#ps-page', e => e.value);
+  check('UX-9: choosing a page shows "Add before & after screenshots"', await page.isVisible('#btn-new-page') && (await page.textContent('#btn-new-page')).trim() === 'Add before & after screenshots');
+  await page.click('#btn-new-page');
+  check('UX-9: the button pre-fills the page name and focuses the Before drop zone', await page.isVisible('#new-page-form') && await page.inputValue('#page-name') === chosen && await page.evaluate(() => document.activeElement.id) === 'baseline-file', await page.inputValue('#page-name'));
+  await page.click('#btn-new-page-cancel');
+  await page.selectOption('#ps-page', '__other'); await page.click('#btn-new-page');
+  check('UX-9: Other opens the form with the name field focused', await page.evaluate(() => document.activeElement.id) === 'page-name');
+  await page.click('#btn-new-page-cancel');
+  await page.click('.app-nav a[data-route="start"]');
+  await page.waitForSelector('#screen-start:not([hidden])');
 
-  await page.click('#btn-load-sample');
+  await page.click('#btn-start-tour');
   // --- guided tour: 5 steps, Next ... Finish
   await page.waitForSelector('#tour:not([hidden])');
   check('tour step 1: before page, docked panel', /^Step 1 of 5\. This is the page before the update\./.test(await page.textContent('#tour-title')) && await page.isVisible('#tour-before'));
@@ -115,10 +138,9 @@ const check = (n, ok, d) => { out.push(ok); console.log((ok ? 'PASS ' : 'FAIL ')
 
   // ignore zone from a region -> compare again
   // Purchase Order: FAIL -> suggested zone -> PASS
-  await page.goto(URL + '#/library');
+  await page.goto(URL + '#/start');
   await page.waitForFunction(() => document.getElementById('status-pill').dataset.state === 'ready');
-  await page.evaluate(() => { document.getElementById('examples').open = true; });
-  await page.click('#examples [data-sample-id="fscm-po"]');
+  await page.selectOption('#example-select', 'fscm-po'); await page.click('#btn-load-sample');
   await page.waitForFunction(() => /^result-/.test(document.getElementById('main').dataset.state), null, { timeout: 30000 });
   const poFirst = await page.getAttribute('#main', 'data-state');
   check('PO pair FAILs before the ignore zone (manifest expectation)', poFirst === 'result-fail', poFirst);
@@ -130,10 +152,9 @@ const check = (n, ok, d) => { out.push(ok); console.log((ok ? 'PASS ' : 'FAIL ')
   }
 
   // sign-off + promote + zone from a region (HCM Job Data)
-  await page.goto(URL + '#/library');
+  await page.goto(URL + '#/start');
   await page.waitForFunction(() => document.getElementById('status-pill').dataset.state === 'ready');
-  await page.evaluate(() => { document.getElementById('examples').open = true; });
-  await page.click('#examples [data-sample-id="hcm-job-data"]');
+  await page.selectOption('#example-select', 'hcm-job-data'); await page.click('#btn-load-sample');
   await page.waitForFunction(() => document.getElementById('main').dataset.state === 'result-fail', null, { timeout: 30000 });
   await page.locator('#region-list > li').first().locator('.region-zone').click();
   await page.fill('#zone-label', 'Smoke zone'); await page.click('#zone-submit');
@@ -182,24 +203,25 @@ const check = (n, ok, d) => { out.push(ok); console.log((ok ? 'PASS ' : 'FAIL ')
   check('still empty after reload', true);
   // Skip + Esc, and onboardingSeen persists
   await page.waitForFunction(() => document.getElementById('status-pill').dataset.state === 'ready');
-  await page.click('#btn-load-sample'); await page.waitForSelector('#tour:not([hidden])');
+  await page.evaluate(() => { location.hash = '#/start'; }); await page.waitForSelector('#screen-start:not([hidden])');
+  await page.click('#btn-start-tour'); await page.waitForSelector('#tour:not([hidden])');
   await page.focus('#tour-next'); await page.keyboard.press('Escape');
   check('Esc skips the tour', await page.isHidden('#tour'));
   await page.waitForFunction(() => document.getElementById('main').dataset.state === 'result-fail', null, { timeout: 60000 });
   check('after Skip the user lands on the Result screen', await page.isVisible('#screen-result'));
-  await page.reload(); await page.waitForSelector('#page-list > li');
-  check('onboardingSeen persists (no tour banner after reload)', await page.isHidden('#tour-again'));
+  await page.goto(URL); await page.waitForSelector('#page-list > li');
+  check('onboardingSeen persists: after the tour the default landing is My pages, not Getting started', await page.evaluate(() => location.hash) === '#/library' && await page.isVisible('#screen-library'));
 
 
   // ===== UX-6: "Try an example" must open ANY example from My pages, every time =====
   const ready = () => page.waitForFunction(() => document.getElementById('status-pill').dataset.state === 'ready', null, { timeout: 60000 });
   const resultOf = async (to = 30000) => { try { await page.waitForFunction(() => /^result-|^error/.test(document.getElementById('main').dataset.state) && location.hash === '#/result', null, { timeout: to }); } catch { /* reported by the check */ } return page.getAttribute('#main', 'data-state'); };
-  const openExampleFromPages = async (id, how = {}) => {
-    await page.evaluate(() => { location.hash = '#/library'; });
-    await page.waitForFunction(() => location.hash === '#/library' && !document.getElementById('screen-library').hidden && !!document.querySelector('#page-list > li, #sample-hero:not([hidden])'), null, { timeout: 15000 });
+  const openExampleFromPages = async (id, how = {}) => {      // examples now live on Getting started
+    await page.evaluate(() => { location.hash = '#/start'; });
+    await page.waitForFunction(() => location.hash === '#/start' && !document.getElementById('screen-start').hidden, null, { timeout: 15000 });
     await page.waitForTimeout(250);
-    await page.evaluate(() => { const d = document.getElementById('examples'); if (!d.hidden) d.open = true; else document.getElementById('examples-more').open = document.getElementById('examples-tricky').open = true; });
-    const btn = page.locator(`[data-sample-id="${id}"]:visible`).first();
+    await page.selectOption('#example-select', id);
+    const btn = page.locator('#btn-load-sample');
     if (how.key) { await btn.focus(); await page.keyboard.press(how.key); } else await btn.click({ clickCount: how.dbl ? 2 : 1, delay: how.dbl ? 20 : 0 });
     return resultOf();
   };
@@ -207,12 +229,21 @@ const check = (n, ok, d) => { out.push(ok); console.log((ok ? 'PASS ' : 'FAIL ')
   await page.goto(URL + '#/library'); await ready();
   const before = await pageCount();
   check('UX-6a: example already in My pages opens and runs (no error)', await openExampleFromPages('tl-timesheet') === 'result-fail' && await pageCount() === before);
-  check('UX-6a: "In My pages" tag shown on the saved example', await page.locator('#examples .sample-card:has([data-sample-id="tl-timesheet"]) .sample-tag').count() === 1);
+  await page.evaluate(() => { location.hash = '#/library'; }); await page.waitForSelector('#page-list > li');
+  check('UX-9: opened examples are tagged "Example" in My pages', await page.locator('#page-list > li:has(.sample-tag:not([hidden]))').count() === await page.locator('#page-list > li').count() && await page.locator('#page-list > li').count() >= 1);
+  await page.evaluate(async () => {            // one saved result on the first page, so the card can show it
+    const { pages, runs } = await import('/js/db.js'); const p = (await pages.list())[0];
+    const b = new Blob(['x'], { type: 'image/png' });
+    await runs.add({ pageId: p.id, candidate: b, result: b, regions: [{ id: 1, decision: 'Expected' }, { id: 2, decision: null }], changedPct: 1.2, ssim: 0.9, status: 'FAIL', alignment: 'none', settings: {}, signOff: { signedOff: true, reviewer: 'SA' } });
+  });
+  await page.evaluate(() => { location.hash = '#/start'; }); await page.waitForTimeout(200); await page.evaluate(() => { location.hash = '#/library'; }); await page.waitForTimeout(500);
+  check('UX-9: saved page cards show the latest result status (FAIL, regions, decided, signed off)', await page.locator('#page-list > li .card-status', { hasText: /^Latest result: FAIL, 2 changes · .* · 1 of 2 decided · Signed off$/ }).count() === 1, await page.locator('#page-list > li .card-status').allTextContents());
+  check('UX-9: saved page cards show the latest result status', (await page.locator('#page-list > li .card-status').allTextContents()).some(t => /^Latest result: (PASS|FAIL)/.test(t)), await page.textContent('#page-list > li .card-status'));
   check('UX-6e: Enter on an example button', await openExampleFromPages('hcm-job-data', { key: 'Enter' }) === 'result-fail');
   check('UX-6e: Space on an example button', await openExampleFromPages('hcm-personal-data', { key: 'Space' }) === 'result-fail');
   const n0 = await pageCount();
   check('UX-6f: double click opens once, no duplicate page', await openExampleFromPages('fscm-voucher', { dbl: true }) === 'result-fail' && await pageCount() === n0 + 1, await pageCount());
-  check('UX-6e: the "Try an example" details toggles by keyboard', await (async () => { await page.evaluate(() => { location.hash = '#/library'; }); await page.waitForTimeout(400); await page.evaluate(() => { document.getElementById('examples').open = false; }); await page.focus('#examples > summary'); await page.keyboard.press('Enter'); const a = await page.$eval('#examples', d => d.open); await page.keyboard.press('Space'); const b = await page.$eval('#examples', d => d.open); return a === true && b === false; })());
+  check('UX-6e: the example select changes by keyboard and updates the description', await (async () => { await page.evaluate(() => { location.hash = '#/start'; }); await page.waitForTimeout(400); await page.selectOption('#example-select', 'tl-timesheet'); const d0 = await page.textContent('#example-desc'); await page.focus('#example-select'); await page.keyboard.press('ArrowDown'); const d1 = await page.textContent('#example-desc'); return d0 !== d1; })());
   // (b) pages saved by the OLD app (old titles, records without the new fields)
   await page.evaluate(async () => {
     const { pages } = await import('/js/db.js');
@@ -227,26 +258,27 @@ const check = (n, ok, d) => { out.push(ok); console.log((ok ? 'PASS ' : 'FAIL ')
   check('UX-6b: a different example still adds a new page', await openExampleFromPages('hcm-job-data') === 'result-fail' && await pageCount() === 3);
   check('UX-6b: old records get the PeopleSoft page subtitle', await page.evaluate(async () => (await (await import('/js/db.js')).pages.list()).find(p => p.name === 'Time & Labor – Timesheet').psPage) === 'Time & Labor – Timesheet');
   // race: start one example, open another while it is still working
-  await page.evaluate(() => { location.hash = '#/library'; }); await page.waitForTimeout(400);
-  await page.evaluate(() => { document.getElementById('examples').open = true; });
-  await page.click('#examples [data-sample-id="fscm-voucher"]');
+  await page.evaluate(() => { location.hash = '#/start'; }); await page.waitForTimeout(400);
+  await page.selectOption('#example-select', 'fscm-voucher'); await page.click('#btn-load-sample');
   await page.waitForFunction(() => document.getElementById('main').dataset.state === 'working', null, { timeout: 10000 }).catch(() => {});
-  await page.evaluate(async () => {            // go back to My pages and click the 2nd example while the 1st is still comparing
-    location.hash = '#/library';
-    const b = () => document.querySelector('#examples [data-sample-id="hcm-personal-data"]');
-    for (let k = 0; k < 200 && !(b() && b().offsetParent && document.getElementById('main').dataset.state === 'working'); k++) { document.getElementById('examples').open = true; await new Promise(r => setTimeout(r, 10)); }
+  await page.evaluate(async () => {            // go back to Getting started and open the 2nd example while the 1st is still comparing
+    location.hash = '#/start';
+    const sel = () => document.getElementById('example-select');
+    for (let k = 0; k < 200 && !(sel().offsetParent && document.getElementById('main').dataset.state === 'working'); k++) await new Promise(r => setTimeout(r, 10));
     if (document.getElementById('main').dataset.state !== 'working') console.log('note: first compare finished before the second click');
-    b().click();
+    sel().value = 'hcm-personal-data'; sel().dispatchEvent(new Event('change', { bubbles: true }));
+    document.getElementById('btn-load-sample').click();
   });
+  await page.waitForFunction(() => /Personal details/.test(document.getElementById('result-page-name').textContent) && /^result-/.test(document.getElementById('main').dataset.state), null, { timeout: 60000 }).catch(() => {});
   const raced = await resultOf(60000);
   await page.waitForTimeout(400);
   check('UX-6: opening an example while another is comparing shows the second one', raced === 'result-fail' && /Personal details/.test(await page.textContent('#result-page-name')), await page.textContent('#result-page-name'));
   // (d) tour open / after Skip
-  await page.goto(URL + '#/library'); await ready();
-  await page.evaluate(() => document.getElementById('btn-tour-again').click());
+  await page.goto(URL + '#/start'); await ready();
+  await page.click('#btn-start-tour');
   await page.waitForSelector('#tour:not([hidden])');
   await page.evaluate(() => { location.hash = '#/library'; }); await page.waitForTimeout(500);
-  check('UX-6d: leaving the tour shows My pages with examples', await page.isHidden('#tour') && await page.isVisible('#screen-library'));
+  check('UX-6d: leaving the tour shows My pages', await page.isHidden('#tour') && await page.isVisible('#screen-library'));
   check('UX-6d: example opens after leaving the tour', await openExampleFromPages('hcm-job-data') === 'result-fail' && await page.isHidden('#tour'));
   await page.evaluate(() => { location.hash = '#/library'; }); await page.waitForTimeout(400);
   check('UX-6d: example opens after Skip', await openExampleFromPages('hcm-personal-data') === 'result-fail');
@@ -255,22 +287,22 @@ const check = (n, ok, d) => { out.push(ok); console.log((ok ? 'PASS ' : 'FAIL ')
   await page.click('#btn-reset'); await page.click('#reset-confirm');
   await page.waitForFunction(() => document.getElementById('reset-dialog').dataset.state === 'reset-done'); await page.click('#reset-back');
   await page.waitForFunction(() => document.getElementById('main').dataset.state === 'ready-empty');
-  await page.evaluate(() => { document.getElementById('examples-more').open = true; });
-  await page.click('#examples-more [data-sample-id="hcm-job-data"]');
+  await page.evaluate(() => { location.hash = '#/start'; }); await page.waitForSelector('#screen-start:not([hidden])');
+  await page.selectOption('#example-select', 'hcm-job-data'); await page.click('#btn-load-sample');
   check('UX-6c: example opens right after Reset app data', await resultOf() === 'result-fail');
 
   // ===== UX-6: PeopleSoft page catalog select =====
   await page.goto(URL + '#/library'); await ready();
-  await page.click('#btn-new-page');
-  check('PS select: labelled "Which PeopleSoft page is this?"', (await page.textContent('label[for="ps-page"]')).trim() === 'Which PeopleSoft page is this?' && await page.$eval('#ps-page', e => e.tagName === 'SELECT' && e.classList.contains('ps-select')));
+  check('PS select: labelled "Which PeopleSoft page are you testing?"', (await page.textContent('label[for="ps-page"]')).trim() === 'Which PeopleSoft page are you testing?' && await page.$eval('#ps-page', e => e.tagName === 'SELECT' && e.classList.contains('ps-select')));
   const ps = await page.evaluate(() => { const s = document.getElementById('ps-page'), o = [...s.options]; return { first: o[0].text, last: o[o.length - 1].text, groups: [...s.querySelectorAll('optgroup')].map(g => g.label), n: o.length }; });
-  check('PS select: first "Choose a page…", last "Other (type a name)"', ps.first === 'Choose a page…' && ps.last === 'Other (type a name)', [ps.first, ps.last]);
+  check('PS select: first "All modules", last "Other (type a name)"', ps.first === 'All modules' && ps.last === 'Other (type a name)', [ps.first, ps.last]);
   check('PS select: optgroups per product and module, with HCM and FSCM', ps.groups.includes('HCM · Time & Labor') && ps.groups.some(g => g.startsWith('FSCM · ')) && ps.n > 100, [ps.groups.length, ps.n]);
   check('PS select: Time & Labor – Timesheet and Position Management are listed', await page.evaluate(() => { const t = [...document.getElementById('ps-page').options].map(o => o.text); return t.includes('Time & Labor – Timesheet') && t.some(x => /Position Management/.test(x)); }));
-  check('PS select: name field hidden until a choice is made', await page.isHidden('#page-name'));
+  check('PS select: form and name field hidden until a choice is made and the button pressed', await page.isHidden('#page-name') && await page.isHidden('#new-page-form'));
   await page.selectOption('#ps-page', { label: 'Time & Labor – Rules' }).catch(async () => { await page.selectOption('#ps-page', { index: 1 }); });
-  const chosen = await page.$eval('#ps-page', s => s.value);
-  check('PS select: choosing fills the editable page name', await page.inputValue('#page-name') === chosen && await page.isVisible('#page-name'), chosen);
+  await page.click('#btn-new-page');
+  const chosen2 = await page.$eval('#ps-page', s => s.value);
+  check('PS select: choosing fills the editable page name', await page.inputValue('#page-name') === chosen2 && await page.isVisible('#page-name'), chosen2);
   await page.selectOption('#ps-page', '__other'); await page.fill('#page-name', 'My custom page');
   check('PS select: Other keeps the free-text name', await page.inputValue('#page-name') === 'My custom page');
   await page.selectOption('#ps-page', { label: 'Time & Labor – Timesheet' });

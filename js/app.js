@@ -12,7 +12,7 @@ import { classify } from './hints.js';
 import { position, shape, areaName } from './plain.js';
 
 const DEFAULTS = { T: 25, minArea: 64, kernel: 5, thresholdPct: 0.1, alignment: 'auto' };
-const ROUTES = ['library', 'compare', 'result', 'history', 'settings'];
+const ROUTES = ['start', 'library', 'compare', 'result', 'history', 'settings'];
 const S = {
   screen: 'library', dbOK: true, engineReady: false, everReady: false, engineSeen: false, onboardingSeen: false, hasRuns: false, tour: null,
   working: false, cancelled: false, error: null,
@@ -71,7 +71,9 @@ function syncMain() {
   updateSampleButton();
 }
 function updateSampleButton() {
-  setDisabled($('btn-load-sample'), !heroSample());
+  setDisabled($('btn-load-sample'), !selectedSample());
+  setDisabled($('btn-start-tour'), !heroSample());
+  $('example-select').disabled = !S.samples.length;
 }
 // Compare progress in the status pill. Calm while the guided tour is open (it has its own step counter); endTour() shows it.
 function workPill(idx) {
@@ -143,7 +145,8 @@ async function route() {
   document.title = `${copy.screens[r]} - ${copy.title}`;
   updateNav();
   syncMain();
-  if (r === 'library') await renderLibrary();
+  if (r === 'start') renderStart();
+  else if (r === 'library') await renderLibrary();
   else if (r === 'compare') renderCompare();
   else if (r === 'history') await renderHistory();
   else if (r === 'settings') await renderSettings();
@@ -176,36 +179,72 @@ async function refreshPages() {
   }
   updateNav();
 }
+const isExample = (p) => !!p.sampleId || S.samples.some((x) => savedFor(x) === p);
+const psModule = (label) => String(label || '').split(' \u2013 ')[0];
+// Which saved pages match the PeopleSoft select: the same PeopleSoft page, or another page of the same module.
+function pagesForSelection(v) {
+  if (!v) return S.pages;
+  if (v === '__other') return S.pages.filter((p) => !p.psPage);
+  const mod = normName(psModule(v));
+  return S.pages.filter((p) => p.psPage === v || normName(p.name) === normName(v) || (p.psPage && normName(psModule(p.psPage)) === mod));
+}
+const exactPageFor = (v) => (v && v !== '__other' ? S.pages.filter((p) => p.psPage === v || normName(p.name) === normName(v)).sort((a, b) => Number(isExample(a)) - Number(isExample(b)))[0] || null : null);
+function updateOwnButton() {
+  const v = $('ps-page').value, b = $('btn-new-page');
+  b.hidden = v === '';
+  b.textContent = exactPageFor(v) ? copy.landing.compareAgain : copy.landing.secondary;
+}
+async function latestRunText(p) {
+  if (!S.dbOK || p.id == null) return null;
+  try {
+    const rs = (await runsDb.forPage(p.id)).sort((a, b) => b.createdAt - a.createdAt);
+    const r = rs[0]; if (!r) return null;
+    const n = r.regions.length, dec = r.regions.filter((x) => x.decision).length;
+    const parts = [r.status === 'PASS' ? 'PASS' : `FAIL, ${n} change${n === 1 ? '' : 's'}`, fmtDate(r.createdAt)];
+    if (r.status !== 'PASS' && n) parts.push(`${dec} of ${n} decided`);
+    if (r.signOff && r.signOff.signedOff) parts.push('Signed off');
+    return { text: `Latest result: ${parts.join(' \u00b7 ')}`, status: r.status };
+  } catch (e) { console.error(e); return null; }
+}
 async function renderLibrary() {
   await refreshPages();
   S.thumbUrls.forEach((u) => URL.revokeObjectURL(u)); S.thumbUrls = [];
-  const has = S.pages.length > 0;
-  $('h-library').textContent = has ? copy.screens.library : copy.landing.h1;
-  $('library-purpose').textContent = copy.purpose.pages; $('library-purpose').hidden = !has;
-  $('library-empty').hidden = has;
-  $('your-pages').hidden = !has;
-  $('btn-new-page').textContent = has ? copy.landing.secondaryWithPages : copy.landing.secondary;
-  $('tour-again').hidden = !(has && !S.onboardingSeen && !S.tour && heroSample());
-  $('tour-again').querySelector('p').textContent = copy.landing.tourAgain;
+  const total = S.pages.length;
+  $('library-purpose').textContent = copy.purpose.pages; $('library-purpose').hidden = false;
   $('intro-title').textContent = copy.intro.title; $('intro-body').textContent = copy.intro.body;
   $('intro-positioning').textContent = copy.intro.positioning; $('intro-more').textContent = copy.intro.more;
+  updateOwnButton();
+  const v = $('ps-page').value;
+  const shown = pagesForSelection(v).slice().sort((a, b) => Number(isExample(a)) - Number(isExample(b)) || a.name.localeCompare(b.name));   // real work first, examples last
+  $('pages-empty').hidden = total > 0;
+  $('pages-filter-empty').hidden = !(total > 0 && shown.length === 0);
+  $('pages-filter-empty').textContent = copy.landing.noneForSelection;
   const ul = $('page-list'), tpl = $('tpl-page');
-  ul.replaceChildren(...S.pages.map((p, idx) => {
+  const lis = await Promise.all(shown.map(async (p, idx) => {
     const li = tpl.content.firstElementChild.cloneNode(true);
     li.dataset.pageId = p.id;
     const img = li.querySelector('.card-thumb');
     const url = URL.createObjectURL(p.baseline); S.thumbUrls.push(url);
     img.src = url; img.alt = `Before screenshot of ${p.name}`;
     li.querySelector('.card-title').textContent = p.name;
+    li.querySelector('.sample-tag').hidden = !isExample(p);
     const sub = li.querySelector('.card-sub'); sub.hidden = !subtitleOf(p); sub.textContent = subtitleOf(p);
-    li.querySelector('.card-meta').textContent = `${areaName(p.module)} · Before screenshot added ${fmtDate(p.createdAt)}`;
+    li.querySelector('.card-meta').textContent = `${areaName(p.module)} \u00b7 Before screenshot added ${fmtDate(p.createdAt)}`;
+    const lr = await latestRunText(p), st = li.querySelector('.card-status');
+    st.textContent = lr ? lr.text : copy.landing.noResultsYet; st.dataset.status = lr ? lr.status : 'none';
     const open = li.querySelector('.page-open');
     if (idx > 0) open.classList.remove('btn-primary');
+    open.textContent = lr ? copy.landing.compareAgain : 'Compare';
     open.addEventListener('click', () => openPage(p).then(() => go('compare')));
     li.querySelector('.page-history').addEventListener('click', () => { S.historyPage = p.id; go('history'); });
     li.querySelector('.page-delete').addEventListener('click', (e) => deletePage(p, e.currentTarget));
     return li;
   }));
+  ul.replaceChildren(...lis);
+  syncMain();
+}
+function renderStart() {
+  $('start-purpose').textContent = copy.landing.h1;
   renderExamples();
   syncMain();
 }
@@ -244,8 +283,8 @@ function fillNameFromFile(f) {
 }
 function showNewPageForm(show) {
   $('new-page-form').hidden = !show;
-  if (show) { $('new-page-form').dataset.state = 'idle'; $('page-name-error').hidden = true; $('btn-open-existing').hidden = true; onPsChange(false); $('ps-page').focus(); }
-  else { newPageFile = null; $('new-page-form').reset(); onPsChange(false); }
+  if (show) { $('new-page-form').dataset.state = 'idle'; $('page-name-error').hidden = true; $('btn-open-existing').hidden = true; onPsChange(false); }
+  else { newPageFile = null; $('new-page-form').reset(); $('ps-page').value = ''; onPsChange(false); if (S.screen === 'library') renderLibrary(); document.querySelector('#new-page-form .drop .hint').textContent = copy.landing.dropHint; }
 }
 function pageNameError(text, duplicate) {
   const e = $('page-name-error');
@@ -324,7 +363,7 @@ const catalogLabels = () => (catalog ? catalog.products : []).flatMap((pr) => pr
 function buildPsSelect() {
   const sel = $('ps-page'); if (!sel || !catalog) return;
   const keep = sel.value;
-  sel.replaceChildren(new Option('Choose a page…', ''));
+  sel.replaceChildren(new Option(copy.landing.allModules, ''));
   const frag = document.createDocumentFragment();
   for (const pr of catalog.products) {
     for (const m of pr.modules) {
@@ -346,7 +385,18 @@ function onPsChange(fill = true) {
     const mod = o && o.dataset.module, prod = o && o.dataset.product;
     const target = /^time (&|and) labou?r$/i.test(String(mod || '').trim()) ? 'Time & Labor' : prod;   // catalog says "Time and Labor", the select value is "Time & Labor"
     const ms = $('page-module'); if ([...ms.options].some((x) => x.value === target)) ms.value = target;
-  } else if (v === '__other' && fill) { $('page-name').focus(); }
+  }
+}
+// The action next to the PeopleSoft select: open the saved page, or open the form with the page chosen (Before drop zone next; name for "Other").
+async function continueOwn() {
+  if (isDisabled($('btn-new-page'))) return;
+  const v = $('ps-page').value; if (!v) return;
+  const ex = exactPageFor(v);
+  if (ex) { await openPage(ex); go('compare'); return; }
+  showNewPageForm(true);
+  onPsChange(true);
+  $('new-page-form').scrollIntoView({ block: 'nearest' });
+  if (v === '__other') $('page-name').focus(); else $('baseline-file').focus();
 }
 async function loadManifest() {
   try {
@@ -356,52 +406,31 @@ async function loadManifest() {
   } catch (e) { console.error(e); S.samples = []; }
   syncMain();
 }
-function fillSampleCard(el, s) {
-  el.querySelector('.sample-title').textContent = sampleName(s);
-  el.querySelector('.sample-area').textContent = areaName(s.module);
-  el.querySelector('.sample-story').textContent = s.story || '';
-  const ex = el.querySelector('.sample-expect'); ex.replaceChildren();
-  const t = s.whatToExpect || '';
-  if (t) {
-    const b = document.createElement('strong'); b.textContent = copy.samples.expectLead;
-    ex.append(b, document.createTextNode(' ' + t.replace(/^Expect:\s*/i, '')));
-  }
+const selectedSample = () => { const v = $('example-select').value; return S.samples.find((x) => x.page === v) || null; };
+function showExampleDesc() {
+  const s = selectedSample(), d = $('example-desc');
+  d.replaceChildren();
+  if (!s) return;
+  d.append(document.createTextNode(s.story || ''));
+  const t = (s.whatToExpect || '').replace(/^Expect:\s*/i, '');
+  if (t) { const b = document.createElement('strong'); b.textContent = copy.samples.expectShort; d.append(document.createTextNode(' '), b, document.createTextNode(' ' + t)); }
 }
 function renderExamples() {
-  const list = sortedSamples(), order = copy.samples.groupOrder;
-  const hero = heroSample(), has = S.pages.length > 0;
-  const heroEl = $('sample-hero');
-  heroEl.hidden = !hero || has;
-  if (hero) fillSampleCard(heroEl, hero);
+  const list = sortedSamples(), order = copy.samples.groupOrder, sel = $('example-select');
+  const keep = sel.value, hero = heroSample();
   const err = $('examples-error');
   err.hidden = list.length > 0; err.textContent = list.length ? '' : copy.samples.loadError;
-  const mk = (s) => {
-    const el = $('tpl-sample').content.firstElementChild.cloneNode(true);
-    fillSampleCard(el, s);
-    const btn = el.querySelector('.sample-open'); btn.dataset.sampleId = s.page;
-    btn.addEventListener('click', () => loadSample(s, { btn }));
-    if (savedFor(s)) {
-      const tag = document.createElement('span'); tag.className = 'sample-tag'; tag.textContent = copy.samples.inLibrary;
-      el.querySelector('.sample-area').after(tag);
-    }
-    return el;
-  };
-  const group = (g, items) => {
-    const sec = document.createElement('div'); sec.className = 'sample-group';
-    const h = document.createElement('h3'); h.textContent = g;
-    const grid = document.createElement('div'); grid.className = 'sample-grid'; grid.append(...items.map(mk));
-    sec.append(h, grid); return sec;
-  };
-  const fill = (box, groups) => { box.querySelectorAll('.sample-group').forEach((e) => e.remove()); box.append(...groups); };
-  const grp = (g) => list.filter((x) => x.group === g);
-  const more = grp(order[1]), tricky = grp(order[2]);
-  const dm = $('examples-more'), dt = $('examples-tricky'), da = $('examples');
-  dm.hidden = has || !more.length; dt.hidden = has || !tricky.length; da.hidden = !has || !list.length;
-  dm.querySelector('summary').textContent = copy.samples.moreSummary(more.length);
-  dt.querySelector('summary').textContent = copy.samples.trickySummary(tricky.length);
-  fill(dm, [group(order[1], more)]); fill(dt, [group(order[2], tricky)]);
-  da.querySelector('summary').textContent = copy.samples.tryExample;
-  fill(da, order.map((g) => [g, grp(g)]).filter(([, it]) => it.length).map(([g, it]) => group(g, it)));
+  sel.replaceChildren();
+  for (const g of order) {
+    const items = list.filter((x) => x.group === g); if (!items.length) continue;
+    const og = document.createElement('optgroup'); og.label = g;
+    for (const x of items) og.append(new Option(sampleName(x), x.page));
+    sel.append(og);
+  }
+  const rest = list.filter((x) => !order.includes(x.group));      // a group the copy doesn't know yet still shows
+  if (rest.length) { const og = document.createElement('optgroup'); og.label = copy.samples.otherGroup; for (const x of rest) og.append(new Option(sampleName(x), x.page)); sel.append(og); }
+  sel.value = keep && list.some((x) => x.page === keep) ? keep : (hero ? hero.page : '');
+  showExampleDesc();
 }
 async function fetchBlob(url) {
   const r = await fetch(url);
@@ -410,7 +439,7 @@ async function fetchBlob(url) {
 }
 async function loadSample(s, { tour = false, btn = null } = {}) {
   btn = btn || $('btn-load-sample');
-  if (!s || isDisabled(btn) || btn.getAttribute('aria-busy') === 'true' || S.opening) return;
+  if (!s || isDisabled(btn) || S.opening) return;   // S.opening covers the double click; the one shared Open button may be pressed again for another example while a compare runs
   S.opening = true;
   btn.setAttribute('aria-busy', 'true');
   announce(copy.samples.opening(sampleName(s)));
@@ -1180,13 +1209,14 @@ function bindEvents() {
   $('tour-flip').addEventListener('click', () => { if (S.tour) { S.tour.flip = !S.tour.flip; renderTour(); } });
   $('tour-retry').addEventListener('click', () => { if (S.tour) { S.tour.error = false; renderTour(); doCompare(); } });
   $('tour').addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); endTour('skip'); } });
-  $('btn-tour-again').addEventListener('click', (e) => loadSample(heroSample(), { tour: true, btn: e.currentTarget }));
-  $('btn-tour-again-dismiss').addEventListener('click', () => { markOnboarded(); $('tour-again').hidden = true; });
-  $('btn-load-sample').addEventListener('click', () => loadSample(heroSample(), { tour: true }));
-  $('btn-new-page').addEventListener('click', () => { if (isDisabled($('btn-new-page'))) return; showNewPageForm(true); });
-  $('btn-new-page-cancel').addEventListener('click', () => { showNewPageForm(false); $('btn-new-page').focus(); });
+  $('btn-start-tour').addEventListener('click', (e) => loadSample(heroSample(), { tour: true, btn: e.currentTarget }));
+  $('btn-start-skip').addEventListener('click', () => { markOnboarded(); go('library'); });
+  $('example-select').addEventListener('change', showExampleDesc);
+  $('btn-load-sample').addEventListener('click', () => { const x = selectedSample(); loadSample(x); });
+  $('btn-new-page').addEventListener('click', continueOwn);
+  $('btn-new-page-cancel').addEventListener('click', () => { showNewPageForm(false); $('ps-page').focus(); });
   $('new-page-form').addEventListener('submit', createPage);
-  $('ps-page').addEventListener('change', () => onPsChange(true));
+  $('ps-page').addEventListener('change', () => { onPsChange(true); if (S.screen === 'library') renderLibrary(); });
   $('btn-open-existing').addEventListener('click', async () => { const p = S.dupePage; if (p) { showNewPageForm(false); await openPage(p); go('compare'); } });
   $('baseline-file').addEventListener('change', (e) => { newPageFile = e.target.files[0] || null; fillNameFromFile(newPageFile); });
   bindDrop($('candidate-drop'), (f) => setCandidateFromFile(f));
@@ -1287,7 +1317,7 @@ async function boot() {
   }
   updateStorageGates();
   await Promise.all([loadManifest(), loadCatalog()]);
-  if (!location.hash) history.replaceState(null, '', '#/library');
+  if (!location.hash) history.replaceState(null, '', S.onboardingSeen ? '#/library' : '#/start');
   await route();
   if (S.dbOK && S.pages.length && S.notice === 'none') { /* nothing else to announce */ }
 }
@@ -1312,7 +1342,7 @@ function drawTourImages() {
 function startTour() {
   S.tour = { step: 1, flip: false, error: false, announced: false };
   document.body.dataset.tour = 'on'; document.body.classList.add('tour-open');
-  $('tour').hidden = false; $('tour-again').hidden = true;
+  $('tour').hidden = false;
   drawTourImages();
   renderTour(); focusTour();
 }

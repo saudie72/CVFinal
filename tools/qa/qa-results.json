@@ -1,19 +1,18 @@
 {
- "date": "2026-11-22T18:06:07.739Z",
+ "date": "2026-11-22T18:25:02.403Z",
  "chromium": "157.0.8103.78",
  "node": "v22.23.5",
- "seconds": 194,
- "passed": 230,
- "failed": 0,
+ "seconds": 204,
+ "passed": 229,
+ "failed": 2,
  "results": [
   {
    "id": "1.0",
-   "name": "fresh profile: main=ready-empty (landing), pill Ready, one example card per manifest entry (1 hero + the rest in the two collapsed groups), no #sample-select dropdown",
+   "name": "fresh profile: first visit lands on #/start (Getting started), pill Ready, ONE #example-select with an option per manifest entry in 3 optgroups, no old example cards or hero, Timesheet selected, #btn-start-tour and #btn-load-sample visible",
    "ok": true,
    "evidence": {
-    "main": "ready-empty",
-    "dropdown": 0,
-    "openButtonsInLandingGroups": 7,
+    "hash": "#/start",
+    "options": 8,
     "manifest": 8
    }
   },
@@ -238,9 +237,9 @@
      "ignoreZones": 2,
      "pages": 1,
      "runs": 0,
-     "settings": 3
+     "settings": 2
     },
-    "library": "Timesheet Time & Labor – Timesheet Time and labor · Before screenshot added 22 Nov 2026, 18:03 Compare Past results More"
+    "library": "Timesheet Example Time & Labor – Timesheet Time and labor · Before screenshot added 22 Nov 2026, 18:21 No results yet. C"
    }
   },
   {
@@ -293,13 +292,13 @@
      "ignoreZones": 0,
      "pages": 1,
      "runs": 1,
-     "settings": 4
+     "settings": 3
     },
     "after": {
      "ignoreZones": 0,
      "pages": 1,
      "runs": 1,
-     "settings": 4
+     "settings": 3
     },
     "saved": "Saved as result 1"
    }
@@ -308,7 +307,7 @@
    "id": "3.3",
    "name": "library lists the page after reload",
    "ok": true,
-   "evidence": "Timesheet Time & Labor – Timesheet Time and labor · Before screenshot added 22 Nov 2026, 18:03 Compa"
+   "evidence": "Timesheet Example Time & Labor – Timesheet Time and labor · Before screenshot added 22 Nov 2026, 18:"
   },
   {
    "id": "3.4",
@@ -316,7 +315,7 @@
    "ok": true,
    "evidence": {
     "rows": 1,
-    "text": "22 Nov 2026, 18:03 FAIL 2 VR-TL-01Not signed off View Delete"
+    "text": "22 Nov 2026, 18:21 FAIL 2 VR-TL-01Not signed off View Delete"
    }
   },
   {
@@ -415,7 +414,7 @@
   },
   {
    "id": "4.6",
-   "name": "after reload the landing is back (#btn-load-sample visible, main=ready-empty) and pages/runs/ignoreZones hold 0 rows (settings keeps only the engineSeen flag)",
+   "name": "after reset + reload the first-visit landing (Getting started, #btn-load-sample visible) is back, My pages is main=ready-empty, and pages/runs/ignoreZones hold 0 rows (settings keeps only the engineSeen flag)",
    "ok": true,
    "evidence": {
     "hashAfterReload": "#/settings",
@@ -459,14 +458,14 @@
   },
   {
    "id": "5.1",
-   "name": "after \"ready\": only the sample PNG fetches the user triggered (Try the demo + 3 x Compare); nothing else",
+   "name": "after \"ready\": only the sample PNG fetches the user triggered (walkthrough + 3 x Compare); nothing else",
    "ok": true,
    "evidence": {
     "initialLoadRequests": 20,
     "afterReady": [
      "/samples/tl-timesheet_before.png",
      "/samples/tl-timesheet_after.png",
-     "blob:/922e6b6b-cc91-4049-98ba-d83af45e0c71"
+     "blob:/69c8da6c-1f73-4a62-979b-755f8fdad800"
     ]
    }
   },
@@ -494,9 +493,9 @@
     "/js/hints.js",
     "/js/plain.js",
     "/inspector.worker.js",
+    "/vendor/opencv/4.13.0/opencv.js",
     "/samples/manifest.json",
     "/js/ps-catalog.json",
-    "/vendor/opencv/4.13.0/opencv.js",
     "/js/cv/align.js",
     "/js/cv/ssim.js",
     "/js/cv/heatmap.js",
@@ -533,7 +532,7 @@
    "name": "offline compare made no new network request (a blob: URL for the thumbnail is in-memory, not network)",
    "ok": true,
    "evidence": [
-    "blob:http://localhost:8107/e6e72e1f-8b49-4018-91d9-ed59c869173e"
+    "blob:http://localhost:8107/877a3429-17cd-44f6-a354-0b0a516e4677"
    ]
   },
   {
@@ -563,9 +562,9 @@
      "headerDisplay": "none",
      "mainDisplay": "none"
     },
-    "pdfBytes": 139496,
+    "pdfBytes": 139155,
     "pdfPages": 2,
-    "pdfTextHead": "Timesheet (Time & Labor) FAIL · 22 Nov 2026, 18:03 Test case ID Ticket / change ID PeopleSoft version or update image Business unit Role Environment Tester Reviewer Sign-off Not signed off Boxes view "
+    "pdfTextHead": "Timesheet (Time & Labor) FAIL · 22 Nov 2026, 18:22 Test case ID Ticket / change ID PeopleSoft version or update image Business unit Role Environment Tester Reviewer Sign-off Not signed off Boxes view "
    }
   },
   {
@@ -593,7 +592,7 @@
    "name": "page.pdf() produces a non-empty PDF whose text contains the report headings",
    "ok": true,
    "evidence": {
-    "bytes": 139496,
+    "bytes": 139155,
     "hasChangesHeading": true,
     "hasDisclaimer": true
    }
@@ -611,38 +610,38 @@
    "evidence": {
     "runs": [
      {
-      "ms": 778,
-      "maxGap": 17,
-      "gaps": 47,
+      "ms": 468,
+      "maxGap": 33,
+      "gaps": 27,
       "longtasks": []
      },
      {
-      "ms": 814,
+      "ms": 531,
+      "maxGap": 33,
+      "gaps": 31,
+      "longtasks": []
+     },
+     {
+      "ms": 922,
+      "maxGap": 33,
+      "gaps": 52,
+      "longtasks": []
+     },
+     {
+      "ms": 829,
       "maxGap": 33,
       "gaps": 47,
       "longtasks": []
      },
      {
-      "ms": 943,
+      "ms": 840,
       "maxGap": 33,
-      "gaps": 55,
-      "longtasks": []
-     },
-     {
-      "ms": 765,
-      "maxGap": 67,
-      "gaps": 40,
-      "longtasks": []
-     },
-     {
-      "ms": 853,
-      "maxGap": 34,
-      "gaps": 48,
+      "gaps": 50,
       "longtasks": []
      }
     ],
     "loadSample": {
-     "maxGap": 50,
+     "maxGap": 33,
      "longtasks": []
     }
    }
@@ -652,7 +651,7 @@
    "name": "main thread stays responsive during Compare: max requestAnimationFrame gap < 100 ms over 5 compares",
    "ok": true,
    "evidence": {
-    "maxGapMs": 67
+    "maxGapMs": 33
    }
   },
   {
@@ -773,12 +772,12 @@
      "polite",
      "sr-only"
     ],
-    "liveRegions": 11
+    "liveRegions": 12
    }
   },
   {
    "id": "9.2",
-   "name": "keyboard: Tab reaches \"Try the demo\" (after skip link + nav)",
+   "name": "keyboard: Tab reaches \"Start the walkthrough\" (after skip link + nav)",
    "ok": true,
    "evidence": [
     "A",
@@ -787,7 +786,8 @@
     "A",
     "A",
     "A",
-    "btn-load-sample"
+    "A",
+    "btn-start-tour"
    ]
   },
   {
@@ -795,7 +795,7 @@
    "name": "every Tab stop shows a visible focus indicator (>=2 px outline or box-shadow)",
    "ok": true,
    "evidence": {
-    "stops": 7,
+    "stops": 8,
     "withoutRing": []
    }
   },
@@ -865,7 +865,7 @@
   },
   {
    "id": "9.10",
-   "name": "keyboard-only: Try the demo -> Esc -> decisions -> Save result (Enter) -> \"Saved as result N\" and announced",
+   "name": "keyboard-only: Start the walkthrough -> Esc -> decisions -> Save result (Enter) -> \"Saved as result N\" and announced",
    "ok": true,
    "evidence": {
     "primary": "Save result",
@@ -878,7 +878,7 @@
    "id": "9.11",
    "name": "keyboard-only sign-off completes (\"Signed off by QA\"; primary action was \"signoff\")",
    "ok": true,
-   "evidence": "Signed off by QAQA on 22 Nov 2026, 18:03."
+   "evidence": "Signed off by QAQA on 22 Nov 2026, 18:22."
   },
   {
    "id": "9.12",
@@ -929,6 +929,11 @@
    "name": "targets under 44x44 px on the result screen (Wren section 7; WCAG 2.5.8 AA minimum is 24 px)",
    "ok": null,
    "evidence": [
+    {
+     "id": "Getting started",
+     "w": 140,
+     "h": 40
+    },
     {
      "id": "My pages",
      "w": 103,
@@ -1046,7 +1051,7 @@
    "id": "11.4e",
    "name": "after sign off, Promote is enabled (and is now the primary button) and the signed-off line shows",
    "ok": true,
-   "evidence": "Signed off by QA on 22 Nov 2026, 18:04."
+   "evidence": "Signed off by QA on 22 Nov 2026, 18:22."
   },
   {
    "id": "11.6a",
@@ -1108,13 +1113,13 @@
     "vis": [
      {
       "t": "How it works",
-      "x": 530,
+      "x": 673,
       "w": 126,
       "inView": true
      },
      {
       "t": "Resources",
-      "x": 658,
+      "x": 802,
       "w": 108,
       "inView": true
      }
@@ -1132,13 +1137,13 @@
     "vis": [
      {
       "t": "How it works",
-      "x": 222,
+      "x": 116,
       "w": 126,
       "inView": true
      },
      {
       "t": "Resources",
-      "x": 23,
+      "x": 244,
       "w": 108,
       "inView": true
      }
@@ -1162,29 +1167,49 @@
   },
   {
    "id": "11.1",
-   "name": "landing on first run: h1 is the purpose sentence (starts \"Compare a page before and after\")",
+   "name": "first visit lands on Getting started: h1 \"Getting started\", purpose line is the purpose sentence (starts \"Compare a page before and after\")",
    "ok": true,
    "evidence": {
-    "h1": "Compare a page before and after a PeopleSoft update, and see exactly what changed on screen.",
-    "title": "My pages - ERP Visual Regression Inspector"
+    "hash": "#/start",
+    "h1": "Getting started",
+    "purpose": "Compare a page before and after a PeopleSoft update, and see exactly what changed on screen.",
+    "title": "Getting started - ERP Visual Regression Inspector",
+    "primaries": [
+     "Start the walkthrough",
+     "Open example"
+    ],
+    "nav": [
+     "Getting started",
+     "My pages",
+     "Settings",
+     "How it works",
+     "Resources"
+    ],
+    "tourVisible": false,
+    "tourAgain": false,
+    "walkBottom": 438,
+    "vh": 900,
+    "pill": "Ready",
+    "introOpen": false,
+    "dropdown": false,
+    "radiosOnPage": 0
    }
   },
   {
    "id": "11.2",
-   "name": "landing: exactly ONE visible primary button, \"Try the demo (30 seconds)\", and the secondary \"Compare my own screenshots\"",
+   "name": "Getting started: the primary buttons are \"Start the walkthrough\" and \"Open example\"",
    "ok": true,
-   "evidence": {
-    "primaries": [
-     "Try the demo (30 seconds)"
-    ],
-    "secondary": "Compare my own screenshots"
-   }
+   "evidence": [
+    "Start the walkthrough",
+    "Open example"
+   ]
   },
   {
    "id": "11.3",
-   "name": "landing: nav shows only My pages, Settings, How it works, Resources (Compare and Past results hidden until relevant)",
+   "name": "nav: Getting started, My pages, Settings, How it works, Resources (Compare and Past results hidden until relevant)",
    "ok": true,
    "evidence": [
+    "Getting started",
     "My pages",
     "Settings",
     "How it works",
@@ -1193,16 +1218,19 @@
   },
   {
    "id": "11.4",
-   "name": "landing: no tour panel, no tour banner, no dropdown, intro and example groups start collapsed, the demo button is above the fold at 1366x900",
+   "name": "Getting started: no tour panel, no tour banner on My pages any more, no old sample dropdown, the walkthrough button is above the fold at 1366x900",
    "ok": true,
    "evidence": {
-    "h1": "Compare a page before and after a PeopleSoft update, and see exactly what changed on screen.",
-    "title": "My pages - ERP Visual Regression Inspector",
+    "hash": "#/start",
+    "h1": "Getting started",
+    "purpose": "Compare a page before and after a PeopleSoft update, and see exactly what changed on screen.",
+    "title": "Getting started - ERP Visual Regression Inspector",
     "primaries": [
-     "Try the demo (30 seconds)"
+     "Start the walkthrough",
+     "Open example"
     ],
-    "secondary": "Compare my own screenshots",
     "nav": [
+     "Getting started",
      "My pages",
      "Settings",
      "How it works",
@@ -1210,12 +1238,10 @@
     ],
     "tourVisible": false,
     "tourAgain": false,
-    "heroBottom": 552,
+    "walkBottom": 438,
     "vh": 900,
     "pill": "Ready",
     "introOpen": false,
-    "moreOpen": false,
-    "trickyOpen": false,
     "dropdown": false,
     "radiosOnPage": 0
    }
@@ -1228,29 +1254,50 @@
   },
   {
    "id": "11.6",
-   "name": "example cards are grouped: hero \"Start here\" (1), \"More examples (3)\", \"How the inspector handles tricky cases (4)\", each in manifest order",
+   "name": "the example select has optgroups \"Start here\", \"More examples\", \"How the inspector handles tricky cases\", each in manifest order, the first example (Timesheet) selected",
    "ok": true,
    "evidence": {
-    "hero": "Timesheet",
-    "more": [
-     "Employee job record",
-     "Personal details",
-     "Supplier invoice (voucher)"
+    "groups": [
+     {
+      "label": "Start here",
+      "titles": [
+       "Timesheet"
+      ],
+      "ids": [
+       "tl-timesheet"
+      ]
+     },
+     {
+      "label": "More examples",
+      "titles": [
+       "Employee job record",
+       "Personal details",
+       "Supplier invoice (voucher)"
+      ],
+      "ids": [
+       "hcm-job-data",
+       "hcm-personal-data",
+       "fscm-voucher"
+      ]
+     },
+     {
+      "label": "How the inspector handles tricky cases",
+      "titles": [
+       "Purchase order (with a changing clock)",
+       "Employee job record (page scrolled slightly)",
+       "Purchase order (same page twice)",
+       "Employee job record (different screen scale)"
+      ],
+      "ids": [
+       "fscm-po",
+       "hcm-job-data-shifted",
+       "fscm-po-identical",
+       "hcm-job-data-zoom110"
+      ]
+     }
     ],
-    "tricky": [
-     "Purchase order (with a changing clock)",
-     "Employee job record (page scrolled slightly)",
-     "Purchase order (same page twice)",
-     "Employee job record (different screen scale)"
-    ],
-    "heads": [
-     [
-      "More examples"
-     ],
-     [
-      "How the inspector handles tricky cases"
-     ]
-    ]
+    "selected": "Timesheet",
+    "label": "h-example"
    }
   },
   {
@@ -1273,49 +1320,44 @@
   },
   {
    "id": "11.8",
-   "name": "module code is only shown as a plain area tag (\"People and HR (HCM)\", \"Money and purchasing (FSCM)\", \"Time and labor\"), never alone",
+   "name": "changing the select updates the live description (aria-live polite): the story sentence + \"Expect: …\" of that example, and the area is not shown as a module code",
    "ok": true,
    "evidence": [
-    "Time and labor",
-    "People and HR (HCM)",
-    "People and HR (HCM)",
-    "Money and purchasing (FSCM)",
-    "Money and purchasing (FSCM)",
-    "People and HR (HCM)",
-    "Money and purchasing (FSCM)",
-    "People and HR (HCM)"
+    {
+     "id": "tl-timesheet",
+     "text": "After the update, the Submit button moved below the hours table and the Reported Hours column got cut off. Expect: 2 changes found (FAIL): the big block where the table moved, and the cut-off column.",
+     "story": "After the update, the Submit button moved below the hours table and the Reported Hours column got cut off.",
+     "expect": "Expect: 2 changes found (FAIL): the big block where the table moved, and the cut-off column."
+    },
+    {
+     "id": "hcm-job-data",
+     "text": "After the update, the Pay Grade field disappeared and the Save button moved. Expect: about 3 changes found (FAIL): the missing field, the moved button and the shifted area.",
+     "story": "After the update, the Pay Grade field disappeared and the Save button moved.",
+     "expect": "Expect: about 3 changes found (FAIL): the missing field, the moved button and the shifted area."
+    }
    ]
   },
   {
    "id": "11.9",
-   "name": "every card has a one-sentence story, a \"What to expect:\" line, and a button (\"Try the demo (30 seconds)\" on the hero, \"Open this example\" on the rest); card titles are headings (h2 hero, h4 others)",
+   "name": "every example has a one-sentence story (> 15 chars) and an Expect line",
    "ok": true,
-   "evidence": {
-    "sample": {
-     "title": "Employee job record",
-     "titleTag": "H4",
-     "area": "People and HR (HCM)",
-     "story": "After the update, the Pay Grade field disappeared and the Save button moved.",
-     "expect": "What to expect: about 3 changes found (FAIL): the missing field, the moved button and the shifted area.",
-     "btn": "Open this example",
-     "id": "hcm-job-data"
-    },
-    "hero": {
-     "title": "Timesheet",
-     "tag": "H2",
-     "area": "Time and labor",
-     "story": "After the update, the Submit button moved below the hours table and the Reported Hours column got cut off.",
-     "expect": "What to expect: 2 changes found (FAIL): the big block where the table moved, and the cut-off column.",
-     "btn": "Try the demo (30 seconds)"
-    }
-   }
+   "evidence": [
+    "tl-timesheet",
+    "hcm-job-data",
+    "hcm-personal-data",
+    "fscm-voucher",
+    "fscm-po",
+    "hcm-job-data-shifted",
+    "hcm-job-data-zoom110",
+    "fscm-po-identical"
+   ]
   },
   {
    "id": "11.9a",
-   "name": "cards whose story/expect line still contains a pixel number (the rule bans them from titles; stories may keep one)",
+   "name": "examples whose story/expect line still contains a pixel number (the rule bans them from titles; stories may keep one)",
    "ok": null,
    "evidence": [
-    "Employee job record (page scrolled slightly)"
+    "hcm-job-data-shifted"
    ]
   },
   {
@@ -1572,8 +1614,9 @@
      "Sign-off",
      "Actions"
     ],
-    "row": "22 Nov 2026, 18:04 FAIL 2 VR-TL-01 Not signed off View Delete",
+    "row": "22 Nov 2026, 18:23 FAIL 2 VR-TL-01 Not signed off View Delete",
     "nav": [
+     "Getting started",
      "My pages",
      "Compare",
      "Past results",
@@ -1740,7 +1783,7 @@
   },
   {
    "id": "11.36",
-   "name": "onboardingSeen persists in IndexedDB settings after Finish, and survives a reload (no \"Take the 30-second tour\" banner)",
+   "name": "onboardingSeen persists in IndexedDB settings after Finish, and survives a reload (lands on My pages)",
    "ok": true,
    "evidence": true
   },
@@ -1815,26 +1858,25 @@
   },
   {
    "id": "11.40",
-   "name": "reload mid-tour: tour is gone, \"Take the 30-second tour\" banner shown above the demo page in My pages, onboardingSeen NOT set",
+   "name": "reload mid-tour: tour is gone, no banner element on My pages, onboardingSeen NOT set (so a fresh visit still lands on Getting started)",
    "ok": true,
    "evidence": {
     "tour": false,
-    "banner": true,
-    "text": "Take the 30-second tour",
-    "landing": false,
+    "hash": "#/library",
+    "banner": false,
     "pageCards": 1,
     "seen": null
    }
   },
   {
    "id": "11.41",
-   "name": "the banner restarts the tour at step 1 (and Skip afterwards still works)",
+   "name": "Getting started restarts the tour at step 1 (and Skip afterwards still works and sets onboardingSeen)",
    "ok": true,
    "evidence": "1"
   },
   {
    "id": "11.42",
-   "name": "Dismiss hides the banner and sets onboardingSeen",
+   "name": "\"Go to My pages\" on Getting started sets onboardingSeen and opens My pages; a later visit with no hash lands on My pages",
    "ok": true,
    "evidence": null
   },
@@ -1965,15 +2007,15 @@
   },
   {
    "id": "12.1.375-light",
-   "name": "landing at 375-light: no horizontal scroll, \"Try the demo\" is above the fold (no scrolling) and at least 44 px tall, the secondary action is 44 px tall, colour scheme honoured",
+   "name": "Getting started at 375-light: no horizontal scroll, \"Start the walkthrough\" is above the fold (no scrolling) and at least 44 px tall, \"Open example\" is 44 px tall, colour scheme honoured",
    "ok": true,
    "evidence": {
-    "btnTop": 744,
-    "btnBottom": 800,
-    "btnH": 56,
-    "btnW": 283,
-    "secH": 44,
-    "h1Bottom": 408,
+    "btnTop": 604,
+    "btnBottom": 648,
+    "btnH": 44,
+    "btnW": 198,
+    "secH": 48,
+    "h1Bottom": 262,
     "vh": 812,
     "scheme": "light"
    }
@@ -1989,7 +2031,7 @@
     "canvasH": 217,
     "canvasRight": 352,
     "vw": 375,
-    "nextBottom": 803,
+    "nextBottom": 804,
     "nextH": 44
    }
   },
@@ -1999,7 +2041,7 @@
    "ok": true,
    "evidence": {
     "found": true,
-    "top": 321,
+    "top": 350,
     "targetH": 225,
     "visibleH": 225,
     "coveredH": 0,
@@ -2014,18 +2056,18 @@
   {
    "id": "12.4.375-light",
    "name": "tour step 4 at 375-light: card 1 (what the step points at) is not hidden by the tour panel (card fits: <= 25% covered; card taller than the free area above the bar: its top, title + crops, is visible above the bar)",
-   "ok": true,
+   "ok": false,
    "evidence": {
     "tall": true,
     "bottomBar": true,
     "free": 634,
     "card": {
      "found": true,
-     "top": 206,
+     "top": 249,
      "targetH": 1483,
-     "visibleH": 606,
+     "visibleH": 563,
      "coveredH": 178,
-     "coveredFrac": 0.29,
+     "coveredFrac": 0.32,
      "panelH": 178,
      "panelTop": 634,
      "vh": 812,
@@ -2034,7 +2076,7 @@
     },
     "title": {
      "found": true,
-     "top": 224,
+     "top": 266,
      "targetH": 44,
      "visibleH": 44,
      "coveredH": 0,
@@ -2047,11 +2089,11 @@
     },
     "crops": {
      "found": true,
-     "top": 361,
+     "top": 404,
      "targetH": 243,
      "visibleH": 243,
-     "coveredH": 0,
-     "coveredFrac": 0,
+     "coveredH": 13,
+     "coveredFrac": 0.05,
      "panelH": 178,
      "panelTop": 634,
      "vh": 812,
@@ -2066,11 +2108,11 @@
    "ok": true,
    "evidence": {
     "found": true,
-    "top": 361,
+    "top": 404,
     "targetH": 243,
     "visibleH": 243,
-    "coveredH": 0,
-    "coveredFrac": 0,
+    "coveredH": 13,
+    "coveredFrac": 0.05,
     "panelH": 178,
     "panelTop": 634,
     "vh": 812,
@@ -2087,7 +2129,7 @@
      "title": true,
      "next": true,
      "skip": true,
-     "nextTop": 759,
+     "nextTop": 760,
      "position": "fixed",
      "scrollY": 0
     },
@@ -2097,7 +2139,7 @@
      "skip": true,
      "nextTop": 759,
      "position": "fixed",
-     "scrollY": 1736
+     "scrollY": 1750
     },
     "s4": {
      "title": true,
@@ -2113,7 +2155,7 @@
      "skip": true,
      "nextTop": 759,
      "position": "fixed",
-     "scrollY": 4987
+     "scrollY": 5007
     }
    }
   },
@@ -2123,7 +2165,7 @@
    "ok": true,
    "evidence": {
     "found": true,
-    "top": 405,
+    "top": 427,
     "targetH": 44,
     "visibleH": 44,
     "coveredH": 0,
@@ -2223,15 +2265,15 @@
   },
   {
    "id": "12.1.375-dark",
-   "name": "landing at 375-dark: no horizontal scroll, \"Try the demo\" is above the fold (no scrolling) and at least 44 px tall, the secondary action is 44 px tall, colour scheme honoured",
+   "name": "Getting started at 375-dark: no horizontal scroll, \"Start the walkthrough\" is above the fold (no scrolling) and at least 44 px tall, \"Open example\" is 44 px tall, colour scheme honoured",
    "ok": true,
    "evidence": {
-    "btnTop": 744,
-    "btnBottom": 800,
-    "btnH": 56,
-    "btnW": 283,
-    "secH": 44,
-    "h1Bottom": 408,
+    "btnTop": 604,
+    "btnBottom": 648,
+    "btnH": 44,
+    "btnW": 198,
+    "secH": 48,
+    "h1Bottom": 262,
     "vh": 812,
     "scheme": "dark"
    }
@@ -2247,7 +2289,7 @@
     "canvasH": 217,
     "canvasRight": 352,
     "vw": 375,
-    "nextBottom": 803,
+    "nextBottom": 804,
     "nextH": 44
    }
   },
@@ -2257,7 +2299,7 @@
    "ok": true,
    "evidence": {
     "found": true,
-    "top": 321,
+    "top": 350,
     "targetH": 225,
     "visibleH": 225,
     "coveredH": 0,
@@ -2272,18 +2314,18 @@
   {
    "id": "12.4.375-dark",
    "name": "tour step 4 at 375-dark: card 1 (what the step points at) is not hidden by the tour panel (card fits: <= 25% covered; card taller than the free area above the bar: its top, title + crops, is visible above the bar)",
-   "ok": true,
+   "ok": false,
    "evidence": {
     "tall": true,
     "bottomBar": true,
     "free": 634,
     "card": {
      "found": true,
-     "top": 206,
+     "top": 249,
      "targetH": 1483,
-     "visibleH": 606,
+     "visibleH": 563,
      "coveredH": 178,
-     "coveredFrac": 0.29,
+     "coveredFrac": 0.32,
      "panelH": 178,
      "panelTop": 634,
      "vh": 812,
@@ -2292,7 +2334,7 @@
     },
     "title": {
      "found": true,
-     "top": 224,
+     "top": 266,
      "targetH": 44,
      "visibleH": 44,
      "coveredH": 0,
@@ -2305,11 +2347,11 @@
     },
     "crops": {
      "found": true,
-     "top": 361,
+     "top": 404,
      "targetH": 243,
      "visibleH": 243,
-     "coveredH": 0,
-     "coveredFrac": 0,
+     "coveredH": 13,
+     "coveredFrac": 0.05,
      "panelH": 178,
      "panelTop": 634,
      "vh": 812,
@@ -2324,11 +2366,11 @@
    "ok": true,
    "evidence": {
     "found": true,
-    "top": 361,
+    "top": 404,
     "targetH": 243,
     "visibleH": 243,
-    "coveredH": 0,
-    "coveredFrac": 0,
+    "coveredH": 13,
+    "coveredFrac": 0.05,
     "panelH": 178,
     "panelTop": 634,
     "vh": 812,
@@ -2345,7 +2387,7 @@
      "title": true,
      "next": true,
      "skip": true,
-     "nextTop": 759,
+     "nextTop": 760,
      "position": "fixed",
      "scrollY": 0
     },
@@ -2355,7 +2397,7 @@
      "skip": true,
      "nextTop": 759,
      "position": "fixed",
-     "scrollY": 1736
+     "scrollY": 1750
     },
     "s4": {
      "title": true,
@@ -2371,7 +2413,7 @@
      "skip": true,
      "nextTop": 759,
      "position": "fixed",
-     "scrollY": 4987
+     "scrollY": 5007
     }
    }
   },
@@ -2381,7 +2423,7 @@
    "ok": true,
    "evidence": {
     "found": true,
-    "top": 405,
+    "top": 427,
     "targetH": 44,
     "visibleH": 44,
     "coveredH": 0,
@@ -2487,15 +2529,15 @@
   },
   {
    "id": "12.1.1366-dark",
-   "name": "landing at 1366-dark: no horizontal scroll, \"Try the demo\" is above the fold (no scrolling) and at least 44 px tall, the secondary action is 44 px tall, colour scheme honoured",
+   "name": "Getting started at 1366-dark: no horizontal scroll, \"Start the walkthrough\" is above the fold (no scrolling) and at least 44 px tall, \"Open example\" is 44 px tall, colour scheme honoured",
    "ok": true,
    "evidence": {
-    "btnTop": 496,
-    "btnBottom": 552,
-    "btnH": 56,
-    "btnW": 296,
-    "secH": 44,
-    "h1Bottom": 191,
+    "btnTop": 394,
+    "btnBottom": 438,
+    "btnH": 44,
+    "btnW": 198,
+    "secH": 48,
+    "h1Bottom": 143,
     "vh": 900,
     "scheme": "dark"
    }
@@ -2765,16 +2807,17 @@
   },
   {
    "id": "13.1",
-   "name": "keyboard: from page load, Tab reaches \"Try the demo (30 seconds)\"",
+   "name": "keyboard: from page load, Tab reaches \"Start the walkthrough\"",
    "ok": true,
    "evidence": [
     "A:Skip to main content",
     "A:ERP Visual Regressio",
+    "A:Getting started",
     "A:My pages",
     "A:Settings",
     "A:How it works",
     "A:Resources",
-    "btn-load-sample"
+    "btn-start-tour"
    ]
   },
   {
@@ -2832,7 +2875,7 @@
      "text": "1. Review changes1 of 2 looked at",
      "scrollY": 0
     },
-    "keys": 33
+    "keys": 34
    }
   },
   {
@@ -2903,7 +2946,7 @@
    "name": "Sign off by keyboard completes (\"Signed off by QA on ...\") and the primary becomes the next step",
    "ok": true,
    "evidence": {
-    "signed": "Signed off by QAQA on 22 Nov 2026, 18:05.",
+    "signed": "Signed off by QAQA on 22 Nov 2026, 18:24.",
     "primary": "Use as new Before screenshot (promote)",
     "reached": true
    }
@@ -2918,7 +2961,7 @@
    "id": "13.14",
    "name": "total key presses for: landing -> tour -> review 2 changes -> Save result -> Sign off",
    "ok": null,
-   "evidence": 89
+   "evidence": 91
   },
   {
    "id": "13.15",
@@ -2941,17 +2984,9 @@
    "name": "heading outline on the landing (groups open) starts at h1 and never skips a level",
    "ok": true,
    "evidence": [
-    "h1 Compare a page before and after a People",
-    "h2 Timesheet",
-    "h3 More examples",
-    "h4 Employee job record",
-    "h4 Personal details",
-    "h4 Supplier invoice (voucher)",
-    "h3 How the inspector handles tricky cases",
-    "h4 Purchase order (with a changing clock)",
-    "h4 Employee job record (page scrolled sligh",
-    "h4 Purchase order (same page twice)",
-    "h4 Employee job record (different screen sc"
+    "h1 Getting started",
+    "h2 Take the walkthrough",
+    "h2 Try an example"
    ]
   },
   {
@@ -3142,6 +3177,10 @@
    "name": "each screen sets a distinct document title and has one visible h1",
    "ok": true,
    "evidence": {
+    "start": {
+     "title": "Getting started - ERP Visual Regression Inspector",
+     "h1": "Getting started"
+    },
     "library": {
      "title": "My pages - ERP Visual Regression Inspector",
      "h1": "My pages"
@@ -3457,7 +3496,7 @@
      "next": true,
      "skip": true,
      "title_in": true,
-     "nextBottom": 803,
+     "nextBottom": 804,
      "nextH": 44,
      "vh": 812
     },
@@ -3514,7 +3553,7 @@
      "next": true,
      "skip": true,
      "title_in": true,
-     "nextBottom": 803,
+     "nextBottom": 804,
      "nextH": 44,
      "vh": 812
     },
@@ -3581,7 +3620,7 @@
      "next": true,
      "skip": true,
      "title_in": true,
-     "nextBottom": 519,
+     "nextBottom": 518,
      "nextH": 44,
      "vh": 900
     },
@@ -3676,7 +3715,7 @@
   },
   {
    "id": "15.3a",
-   "name": "clean profile: Try the demo, then \"Try an example\" from My pages opens a result with the manifest status for all 8 examples (the first opens the already-saved demo page)",
+   "name": "clean profile: every one of the 8 examples opens through the Getting started #example-select + \"Open example\" and gives the manifest status",
    "ok": true,
    "evidence": [
     {
@@ -3685,7 +3724,7 @@
      "status": "FAIL — 2 changes found (",
      "regions": 2,
      "notice": "none",
-     "ms": 1150
+     "ms": 1127
     },
     {
      "id": "hcm-job-data",
@@ -3693,7 +3732,7 @@
      "status": "FAIL — 3 changes found (",
      "regions": 3,
      "notice": "none",
-     "ms": 754
+     "ms": 836
     },
     {
      "id": "hcm-personal-data",
@@ -3701,7 +3740,7 @@
      "status": "FAIL — 4 changes found (",
      "regions": 4,
      "notice": "none",
-     "ms": 741
+     "ms": 739
     },
     {
      "id": "fscm-voucher",
@@ -3709,7 +3748,7 @@
      "status": "FAIL — 4 changes found (",
      "regions": 4,
      "notice": "none",
-     "ms": 965
+     "ms": 1108
     },
     {
      "id": "fscm-po",
@@ -3717,7 +3756,7 @@
      "status": "FAIL — 1 change found (u",
      "regions": 1,
      "notice": "none",
-     "ms": 801
+     "ms": 783
     },
     {
      "id": "hcm-job-data-shifted",
@@ -3725,7 +3764,7 @@
      "status": "PASS — no unexpected cha",
      "regions": 0,
      "notice": "none",
-     "ms": 876
+     "ms": 835
     },
     {
      "id": "hcm-job-data-zoom110",
@@ -3733,7 +3772,7 @@
      "status": "FAIL — 25 changes found ",
      "regions": 25,
      "notice": "none",
-     "ms": 922
+     "ms": 893
     },
     {
      "id": "fscm-po-identical",
@@ -3741,7 +3780,7 @@
      "status": "PASS — no unexpected cha",
      "regions": 0,
      "notice": "none",
-     "ms": 765
+     "ms": 795
     }
    ]
   },
@@ -3849,7 +3888,7 @@
       "notice": "none"
      }
     ],
-    "libNames": 4
+    "libNames": 0
    }
   },
   {
@@ -3868,11 +3907,11 @@
   },
   {
    "id": "15.5a",
-   "name": "the \"Which PeopleSoft page is this?\" select lists \"Time & Labor – Timesheet\" (and more than 10 other pages), and picking it fills the name",
+   "name": "the \"Which PeopleSoft page are you testing?\" select (My pages, no click needed) lists \"Time & Labor – Timesheet\" (and more than 10 other pages), and picking it fills the name",
    "ok": true,
    "evidence": {
     "sel": {
-     "label": "Which PeopleSoft page is this?",
+     "label": "Which PeopleSoft page are you testing?",
      "count": 316,
      "groups": [
       "HCM · Human Resources",
@@ -3971,6 +4010,26 @@
      "hasWanted": true
     },
     "filled": {
+     "btnText": "Add before & after screenshots",
+     "focus": "baseline-file",
+     "name": "Time & Labor – Timesheet",
+     "module": "Time & Labor",
+     "nameVisible": true
+    }
+   }
+  },
+  {
+   "id": "15.5d",
+   "name": "UX-9: #ps-page is visible on My pages with no click, its first option is \"All modules\", the action button is hidden until a page is chosen and then reads \"Add before & after screenshots\"; the button pre-fills the name and focuses the Before drop zone",
+   "ok": true,
+   "evidence": {
+    "sel": {
+     "first": "All modules",
+     "btnHiddenBefore": true
+    },
+    "filled": {
+     "btnText": "Add before & after screenshots",
+     "focus": "baseline-file",
      "name": "Time & Labor – Timesheet",
      "module": "Time & Labor",
      "nameVisible": true
@@ -3982,6 +4041,8 @@
    "name": "picking \"Time & Labor – Timesheet\" also sets the Module field to \"Time and labor\" (the sample for this page is a Time & Labor page); it must not be left on HCM",
    "ok": true,
    "evidence": {
+    "btnText": "Add before & after screenshots",
+    "focus": "baseline-file",
     "name": "Time & Labor – Timesheet",
     "module": "Time & Labor",
     "nameVisible": true

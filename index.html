@@ -16,6 +16,7 @@
     <a class="brand" href="index.html#/library">ERP Visual Regression Inspector</a>
     <nav class="app-nav" aria-label="Main">
       <ul>
+        <li><a href="#/start" data-route="start">Getting started</a></li>
         <li><a href="#/library" data-route="library">My pages</a></li>
         <li data-nav="compare" hidden><a href="#/compare" data-route="compare">Compare</a></li>
         <li data-nav="history" hidden><a href="#/history" data-route="history">Past results</a></li>
@@ -76,52 +77,54 @@
       </div>
     </section>
 
+    <!-- ============ GETTING STARTED (hosts the guided demo) ============ -->
+    <section id="screen-start" class="screen" data-screen="start" aria-labelledby="h-start" hidden>
+      <h1 id="h-start" tabindex="-1">Getting started</h1>
+      <p id="start-purpose" class="screen-purpose"></p>
+      <section id="home-start" class="home-section" aria-labelledby="h-start-demo">
+        <h2 id="h-start-demo">Take the walkthrough</h2>
+        <p id="start-intro" class="picker-desc">A 30-second walkthrough on a fictional Timesheet page. You will see the page before and after an update, and the changes the inspector finds.</p>
+        <div class="actions">
+          <button id="btn-start-tour" class="btn btn-primary" type="button">Start the walkthrough</button>
+          <button id="btn-start-skip" class="btn" type="button">Go to My pages</button>
+        </div>
+        <p class="hint">Uses fictional data. Nothing leaves your browser.</p>
+      </section>
+
+      <section id="home-example" class="home-section" aria-labelledby="h-example">
+        <h2 id="h-example">Try an example</h2>
+        <div class="picker-row">
+          <select id="example-select" class="ps-select" aria-labelledby="h-example" aria-describedby="example-desc"></select>
+          <button id="btn-load-sample" class="btn btn-primary" type="button">Open example</button>
+        </div>
+        <p id="example-desc" class="picker-desc" aria-live="polite"></p>
+        <p id="examples-error" class="hint" hidden></p>
+        <p class="hint">Fictional pages. Nothing leaves your browser.</p>
+      </section>
+    </section>
+
     <!-- ============ LIBRARY (My pages, and the landing when empty) ============ -->
     <section id="screen-library" class="screen" data-screen="library" aria-labelledby="h-library">
       <h1 id="h-library" tabindex="-1">My pages</h1>
       <p id="library-purpose" class="screen-purpose" hidden></p>
 
-      <div id="tour-again" class="notice" role="region" aria-label="Tour" hidden>
-        <p></p>
-        <button id="btn-tour-again" class="btn" type="button">Take the 30-second tour</button>
-        <button id="btn-tour-again-dismiss" class="btn" type="button">Dismiss</button>
-      </div>
-
-      <div id="library-empty" class="landing">
-        <article id="sample-hero" class="sample-hero panel" hidden>
-          <h2 class="sample-title"></h2>
-          <span class="sample-area"></span>
-          <p class="sample-story"></p>
-          <p class="sample-expect"></p>
-          <button id="btn-load-sample" class="btn btn-primary" type="button">Try the demo (30 seconds)</button>
-          <p class="hint">Uses a fictional Timesheet page. Nothing leaves your browser.</p>
-        </article>
-      </div>
-
-      <div id="library-actions" class="actions">
-        <button id="btn-new-page" class="link-btn" type="button">Compare my own screenshots</button>
-      </div>
-
-      <details id="intro-card" class="intro">
-        <summary id="intro-title">What this tool does</summary>
-        <p id="intro-body"></p>
-        <p id="intro-positioning" class="hint"></p>
-        <p><a id="intro-more" href="how-it-works.html">How it works</a></p>
-      </details>
+      <section id="home-own" class="home-section" aria-labelledby="ps-page-label">
+        <label id="ps-page-label" for="ps-page">Which PeopleSoft page are you testing?</label>
+        <div class="picker-row">
+          <select id="ps-page" class="ps-select" name="psPage" aria-describedby="ps-page-hint"><option value="">All modules</option></select>
+          <button id="btn-new-page" class="btn btn-primary" type="button" hidden>Add before &amp; after screenshots</button>
+        </div>
+        <p id="ps-page-hint" class="hint">Pick the PeopleSoft page you're testing, then add your before and after screenshots. Names follow PeopleBooks for PeopleSoft 9.2.</p>
+      </section>
 
       <form id="new-page-form" class="panel" data-state="idle" novalidate hidden>
-        <h2>Compare my own screenshots</h2>
+        <h2>Add your Before screenshot</h2>
         <div class="field">
           <label class="drop" for="baseline-file">
             <span class="drop-title">Before screenshot (baseline)</span>
             <span class="hint">Drop a PNG here or choose a file. Full-page PNG only.</span>
             <input id="baseline-file" class="sr-only" type="file" accept="image/png">
           </label>
-        </div>
-        <div class="field">
-          <label for="ps-page">Which PeopleSoft page is this?</label>
-          <select id="ps-page" class="ps-select" name="psPage" aria-describedby="ps-page-hint"><option value="">Choose a page…</option></select>
-          <p id="ps-page-hint" class="hint">Names follow PeopleBooks for PeopleSoft 9.2 (HCM and FSCM). Pick one, or choose Other to type your own.</p>
         </div>
         <div class="field" id="page-name-field">
           <label for="page-name">Page name</label>
@@ -145,16 +148,27 @@
         </div>
       </form>
 
-      <section id="your-pages" aria-labelledby="h-your-pages" hidden>
+      <section id="your-pages" class="home-section" aria-labelledby="h-your-pages">
         <h2 id="h-your-pages">Your pages</h2>
         <ul id="page-list" class="cards" aria-label="Pages"></ul>
+        <p id="pages-filter-empty" class="hint" hidden></p>
+        <p id="pages-empty" class="hint" hidden>No pages yet. Choose a PeopleSoft page above and add your before and after screenshots. <a id="link-try-example" href="#/start">New here? Try an example in Getting started.</a></p>
       </section>
+      <details id="intro-card" class="intro">
+        <summary id="intro-title">What this tool does</summary>
+        <p id="intro-body"></p>
+        <p id="intro-positioning" class="hint"></p>
+        <p><a id="intro-more" href="how-it-works.html">How it works</a></p>
+      </details>
+
       <template id="tpl-page">
         <li class="card" data-page-id="">
           <img class="card-thumb" alt="" width="160" height="105">
           <h3 class="card-title"></h3>
+          <span class="sample-tag" hidden>Example</span>
           <p class="card-sub hint" hidden></p>
           <p class="card-meta"></p>
+          <p class="card-status"></p>
           <div class="actions">
             <button class="btn btn-primary page-open" type="button">Compare</button>
             <button class="btn page-history" type="button">Past results</button>
@@ -163,22 +177,6 @@
             <button class="btn btn-danger page-delete" type="button">Delete page</button>
           </details>
         </li>
-      </template>
-
-      <section id="examples-wrap" aria-label="Examples">
-        <p id="examples-error" class="hint" hidden></p>
-        <details id="examples-more" hidden><summary></summary></details>
-        <details id="examples-tricky" hidden><summary></summary></details>
-        <details id="examples" hidden><summary>Try an example</summary></details>
-      </section>
-      <template id="tpl-sample">
-        <article class="sample-card">
-          <h4 class="sample-title"></h4>
-          <span class="sample-area"></span>
-          <p class="sample-story"></p>
-          <p class="sample-expect"></p>
-          <button class="btn sample-open" type="button">Open this example</button>
-        </article>
       </template>
     </section>
 

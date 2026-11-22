@@ -64,26 +64,23 @@ async function skipTour(page) {
   await page.waitForSelector('#tour:not([hidden])', { timeout: 15000 });
   await page.click('#tour-skip');
 }
-// Open example number idx of samples/manifest.json through the real UI (cards, not a dropdown), skip the tour, wait for the result.
+// Go to Getting started (the demo and the example picker live there) and make sure it sticks.
+async function goStart(page) {
+  for (let i = 0; i < 6; i++) {
+    await page.evaluate(() => { location.hash = '#/start'; });
+    await page.waitForTimeout(300);
+    if (await page.evaluate(() => !/^result-/.test(document.getElementById('main').dataset.state) && !document.getElementById('screen-start').hidden)) break;
+  }
+}
+// Start the guided walkthrough from Getting started (the only place the tour starts).
+async function startWalk(page) { await goStart(page); await page.click('#btn-start-tour'); }
+// Open example number idx of samples/manifest.json through the real UI (the Getting started select + "Open example"), wait for the result.
 async function loadSample(page, idx, { tour = false } = {}) {
   const s = manifest[idx];
-  // go to My pages and make sure it sticks (the app finishes saving the page/result asynchronously after "result" and can re-route)
-  for (let i = 0; i < 6; i++) {
-    await page.evaluate(() => { location.hash = '#/library'; });
-    await page.waitForTimeout(350);
-    if (await page.evaluate(() => !/^result-/.test(document.getElementById('main').dataset.state) && !document.getElementById('screen-library').hidden)) break;
-  }
-  // the library re-renders after a save: wait until either the landing (hero shown, "Try an example" hidden) or "My pages" (hero hidden, "Try an example" shown) has settled
-  await page.waitForFunction(() => { const h = document.getElementById('sample-hero'), e = document.getElementById('examples'); return h && e && (h.hidden !== e.hidden); }, null, { timeout: 10000 }).catch(() => {});
-  if (await page.isVisible('#btn-load-sample') && s.group === 'Start here') {
-    await page.click('#btn-load-sample');
-    if (!tour) await skipTour(page);
-  } else {
-    // the app renders each example in two <details> (the landing groups and "Try an example"); only the one not [hidden] is shown.
-    // Open them by id, then let Playwright re-resolve the locator (the cards are re-rendered after saves).
-    await page.evaluate(() => document.querySelectorAll('#examples-more, #examples-tricky, #examples').forEach((d) => { if (!d.hidden) d.open = true; }));
-    await page.locator(`details:not([hidden]) .sample-open[data-sample-id="${s.page}"]`).click();
-  }
+  await goStart(page);
+  if (tour) { await page.click('#btn-start-tour'); return; }
+  await page.selectOption('#example-select', s.page);
+  await page.click('#btn-load-sample');
   await waitResult(page);
 }
 async function resultSummary(page) {
@@ -144,7 +141,7 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
     // -------- 1. every manifest pair via the real UI ---------------------------------------------
     if (run(1)) {
       const { page, log } = await newPage(browser); await page.goto(URL); await ready(page);
-      rec('1.0', 'fresh profile: main=ready-empty (landing), pill Ready, one example card per manifest entry (1 hero + the rest in the two collapsed groups), no #sample-select dropdown', await mainState(page) === 'ready-empty' && (await page.locator('#sample-select').count()) === 0 && (await page.locator('#examples-more .sample-open, #examples-tricky .sample-open').count()) === manifest.length - 1 && await page.isVisible('#sample-hero'), { main: await mainState(page), dropdown: await page.locator('#sample-select').count(), openButtonsInLandingGroups: await page.locator('#examples-more .sample-open, #examples-tricky .sample-open').count(), manifest: manifest.length });
+      rec('1.0', 'fresh profile: first visit lands on #/start (Getting started), pill Ready, ONE #example-select with an option per manifest entry in 3 optgroups, no old example cards or hero, Timesheet selected, #btn-start-tour and #btn-load-sample visible', await page.evaluate(() => location.hash) === '#/start' && (await page.locator('#example-select option').count()) === manifest.length && (await page.locator('#example-select optgroup').count()) === 3 && (await page.locator('.sample-card, #sample-hero, #examples-more').count()) === 0 && await page.$eval('#example-select', (e) => e.selectedOptions[0].textContent) === manifest.slice().sort((a, b) => a.order - b.order)[0].title && await page.isVisible('#btn-start-tour') && await page.isVisible('#btn-load-sample'), { hash: await page.evaluate(() => location.hash), options: await page.locator('#example-select option').count(), manifest: manifest.length });
       for (let i = 0; i < manifest.length; i++) {
         const s = manifest[i];
         await loadSample(page, i);
@@ -267,6 +264,7 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
     if (run(4)) {
       const { ctx, page, log } = await newPage(browser); await page.goto(URL); await ready(page);
       await loadSample(page, 0);
+      await startWalk(page); await skipTour(page); await waitResult(page);        // finishing or skipping the walkthrough is what sets onboardingSeen
       const seenBefore = await settingGet(page, 'onboardingSeen');
       await page.click('#btn-result-primary').catch(() => {});
       await page.keyboard.press('Escape').catch(() => {});
@@ -302,7 +300,10 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
       rec('4.6a', 'Reset app data brings the tour back: settings key onboardingSeen was true before (tour skipped), is gone after the reset + reload (so the tour is offered again; 4.6 checks the landing)', seenBefore === true && (seenAfter === null || seenAfter === false || /^\(no/.test(seenAfter)), { seenBefore, seenAfter });
       const hashAfter = await page.evaluate(() => location.hash);
       await page.evaluate(() => { location.hash = '#/library'; }); await page.waitForTimeout(200);
-      rec('4.6', 'after reload the landing is back (#btn-load-sample visible, main=ready-empty) and pages/runs/ignoreZones hold 0 rows (settings keeps only the engineSeen flag)', await mainState(page) === 'ready-empty' && await page.isVisible('#btn-load-sample') && (afterReload.counts.pages || 0) + (afterReload.counts.runs || 0) + (afterReload.counts.ignoreZones || 0) === 0, { hashAfterReload: hashAfter, main: await mainState(page), idb: afterReload.counts });
+      await page.goto(URL); await ready(page);
+      const landedStart = await page.evaluate(() => location.hash) === '#/start' && await page.isVisible('#btn-start-tour') && await page.isVisible('#btn-load-sample');
+      await page.evaluate(() => { location.hash = '#/library'; }); await page.waitForTimeout(300);
+      rec('4.6', 'after reset + reload the first-visit landing (Getting started, #btn-load-sample visible) is back, My pages is main=ready-empty, and pages/runs/ignoreZones hold 0 rows (settings keeps only the engineSeen flag)', landedStart && await mainState(page) === 'ready-empty' && (afterReload.counts.pages || 0) + (afterReload.counts.runs || 0) + (afterReload.counts.ignoreZones || 0) === 0, { hashAfterReload: hashAfter, main: await mainState(page), idb: afterReload.counts });
       await loadSample(page, 1);
       rec('4.7', 'samples still load after a reset', (await mainState(page)) === 'result-fail', clean(await page.textContent('#result-status')));
       // truly blocked path: another tab holds an open connection and ignores versionchange
@@ -333,7 +334,7 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
       const cross = log.requests.filter((r) => !r.url.startsWith(ORIGIN) && !/^(data|blob):/.test(r.url)).map((r) => r.url);
       const allowed = (u) => /^\/samples\/[a-z0-9-]+_(before|after)\.png$/.test(u) || u === '/samples/manifest.json' || /^(blob|data):/.test(u);
       const unexpected = rel.filter((u) => !allowed(u));
-      rec('5.1', 'after "ready": only the sample PNG fetches the user triggered (Try the demo + 3 x Compare); nothing else', unexpected.length === 0, { initialLoadRequests: loadReqs.length, afterReady: rel });
+      rec('5.1', 'after "ready": only the sample PNG fetches the user triggered (walkthrough + 3 x Compare); nothing else', unexpected.length === 0, { initialLoadRequests: loadReqs.length, afterReady: rel });
       rec('5.2', '0 cross-origin requests during the whole session', cross.length === 0, cross);
       note('5.2a', 'initial load request list (same-origin app files)', loadReqs);
       // idle quiet: 3 s with nothing happening
@@ -494,11 +495,11 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
           await page.keyboard.press('Tab');
           const fi = await focusInfo(); seq.push(fi.id || fi.tag);
           if (!(fi.outline.split(' ')[0] !== 'none' && parseFloat(fi.outline.split(' ')[1]) >= 2) && !fi.shadow) noFocusRing.push(fi.id || fi.tag);
-          if (fi.id === 'btn-load-sample') { reached = true; break; }
+          if (fi.id === 'btn-start-tour') { reached = true; break; }
         }
-        rec('9.2', 'keyboard: Tab reaches "Try the demo" (after skip link + nav)', reached, seq);
+        rec('9.2', 'keyboard: Tab reaches "Start the walkthrough" (after skip link + nav)', reached, seq);
         rec('9.3', 'every Tab stop shows a visible focus indicator (>=2 px outline or box-shadow)', noFocusRing.length === 0, { stops: seq.length, withoutRing: noFocusRing });
-        await page.keyboard.press('Enter');                       // Try the demo -> starts the guided tour
+        await page.keyboard.press('Enter');                       // Start the walkthrough -> starts the guided tour
         await page.waitForSelector('#tour:not([hidden])');
         await page.keyboard.press('Tab'); await page.keyboard.press('Tab');
         await page.keyboard.press('Escape');                     // Esc inside the panel = Skip tour
@@ -552,7 +553,7 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
         const saved = clean(await page.textContent('#save-state'));
         await page.waitForTimeout(200);
         const ann2 = await page.evaluate(() => window.__ann.filter((a) => /saved/i.test(a)).slice(-1)[0]);
-        rec('9.10', 'keyboard-only: Try the demo -> Esc -> decisions -> Save result (Enter) -> "Saved as result N" and announced', /^Saved as result/.test(saved) && /saved/i.test(ann2), { primary, dialogFocus: dlgFocus, saved, announced: ann2 });
+        rec('9.10', 'keyboard-only: Start the walkthrough -> Esc -> decisions -> Save result (Enter) -> "Saved as result N" and announced', /^Saved as result/.test(saved) && /saved/i.test(ann2), { primary, dialogFocus: dlgFocus, saved, announced: ann2 });
         // Sign off by keyboard
         const soAction = await page.getAttribute('#btn-result-primary', 'data-action');    // after Save the primary button becomes Sign off (the separate button is hidden)
         await page.focus('#btn-result-primary'); await page.keyboard.press('Enter'); await page.waitForSelector('#signoff-dialog[open]');
@@ -622,7 +623,7 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
         rec('11.4e', 'after sign off, Promote is enabled (and is now the primary button) and the signed-off line shows', promoteEnabled, clean(await page.textContent('#signoff-hint')));
         // duplicate name
         await goRoute(page, 'library');
-        await page.click('#btn-new-page'); await page.waitForSelector('#new-page-form:not([hidden])'); await page.setInputFiles('#baseline-file', path.join(ROOT, 'samples', 'tl-timesheet_before.png')); await page.waitForSelector('#page-name-field:not([hidden])'); await page.fill('#page-name', 'Timesheet');   // the name field appears once a file is chosen
+        await page.selectOption('#ps-page', '__other'); await page.click('#btn-new-page'); await page.waitForSelector('#new-page-form:not([hidden])'); await page.setInputFiles('#baseline-file', path.join(ROOT, 'samples', 'tl-timesheet_before.png')); await page.waitForSelector('#page-name-field:not([hidden])'); await page.fill('#page-name', 'Timesheet');   // the name field appears once a file is chosen
         await page.keyboard.press('Enter').catch(() => {});
         await page.locator('#new-page-form button[type=submit], #new-page-form [type=submit]').first().click().catch(() => {});
         await page.waitForTimeout(500);
@@ -641,7 +642,7 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
         await page.waitForTimeout(500);
         const st = await page.evaluate(() => document.getElementById('notice').dataset.state);
         let ok2 = false; let txt = '';
-        if (st === 'storage-blocked') { txt = clean(await page.textContent('#notice-text')); await page.click('#btn-load-sample'); await skipTour(page); await waitResult(page).then(() => { ok2 = true; }).catch(() => {}); }
+        if (st === 'storage-blocked') { txt = clean(await page.textContent('#notice-text')); await startWalk(page); await skipTour(page); await waitResult(page).then(() => { ok2 = true; }).catch(() => {}); }
         rec('11.6b', 'storage blocked (indexedDB throws): #notice=storage-blocked and a sample can still be compared in memory (Wren 11.6)', st === 'storage-blocked' && ok2, { notice: st, txt: txt.slice(0, 90), pageErrors: errs });
         await ctx.close();
       }
@@ -661,7 +662,7 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
           await loadSample(page, 0);
           await page.waitForTimeout(250);
           // overflow checks on every screen
-          for (const r of ['library', 'compare', 'result', 'history', 'settings']) {
+          for (const r of ['start', 'library', 'compare', 'result', 'history', 'settings']) {
             await page.evaluate((x) => { location.hash = '#/' + x; }, r); await page.waitForTimeout(200);
             if (r === 'library') await openAll(page, '#examples');
             if (r === 'compare') await openAll(page, '#zones-details, #advanced');
@@ -716,51 +717,46 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
 
     // -------- 11. new UI: landing, example cards, change cards, card<->box link, crops, tour, How it works ---
     if (run(11)) {
-      // ---- 11.1x landing on first run, example cards
+      // ---- 11.1x Getting started on first run (walkthrough + example picker), My pages empty state
       {
         const { page, log } = await newPage(browser); await page.goto(URL); await ready(page);
         const L = await page.evaluate(() => {
           const vis = (e) => !!(e && (e.offsetWidth || e.offsetHeight || e.getClientRects().length));
-          const lib = document.getElementById('screen-library');
-          const b = document.getElementById('btn-load-sample').getBoundingClientRect();
+          const scr = document.getElementById('screen-start');
+          const b = document.getElementById('btn-start-tour').getBoundingClientRect();
           return {
-            h1: document.getElementById('h-library').textContent.trim(), title: document.title,
-            primaries: [...lib.querySelectorAll('.btn-primary')].filter(vis).map((x) => x.textContent.trim()),
-            secondary: vis(document.getElementById('btn-new-page')) ? document.getElementById('btn-new-page').textContent.trim() : null,
+            hash: location.hash, h1: document.getElementById('h-start').textContent.trim(), purpose: document.getElementById('start-purpose').textContent.trim(), title: document.title,
+            primaries: [...scr.querySelectorAll('.btn-primary')].filter(vis).map((x) => x.textContent.trim()),
             nav: [...document.querySelectorAll('.app-nav a')].filter(vis).map((a) => a.textContent.trim()),
-            tourVisible: vis(document.getElementById('tour')), tourAgain: vis(document.getElementById('tour-again')),
-            heroBottom: Math.round(b.bottom), vh: innerHeight, pill: document.getElementById('status-text').textContent.trim(),
-            introOpen: document.getElementById('intro-card').open, moreOpen: document.getElementById('examples-more').open, trickyOpen: document.getElementById('examples-tricky').open,
-            dropdown: !!document.getElementById('sample-select'), radiosOnPage: document.querySelectorAll('input[type=radio]').length,
+            tourVisible: vis(document.getElementById('tour')), tourAgain: !!document.getElementById('tour-again'),
+            walkBottom: Math.round(b.bottom), vh: innerHeight, pill: document.getElementById('status-text').textContent.trim(),
+            introOpen: document.getElementById('intro-card').open, dropdown: !!document.getElementById('sample-select'), radiosOnPage: document.querySelectorAll('input[type=radio]').length,
           };
         });
-        rec('11.1', 'landing on first run: h1 is the purpose sentence (starts "Compare a page before and after")', /^Compare a page before and after a PeopleSoft update, and see exactly what changed on screen\.$/.test(L.h1), { h1: L.h1, title: L.title });
-        rec('11.2', 'landing: exactly ONE visible primary button, "Try the demo (30 seconds)", and the secondary "Compare my own screenshots"', L.primaries.length === 1 && L.primaries[0] === 'Try the demo (30 seconds)' && L.secondary === 'Compare my own screenshots', { primaries: L.primaries, secondary: L.secondary });
-        rec('11.3', 'landing: nav shows only My pages, Settings, How it works, Resources (Compare and Past results hidden until relevant)', JSON.stringify(L.nav) === JSON.stringify(['My pages', 'Settings', 'How it works', 'Resources']), L.nav);
-        rec('11.4', 'landing: no tour panel, no tour banner, no dropdown, intro and example groups start collapsed, the demo button is above the fold at 1366x900', !L.tourVisible && !L.tourAgain && !L.dropdown && !L.introOpen && !L.moreOpen && !L.trickyOpen && L.heroBottom < L.vh, L);
+        rec('11.1', 'first visit lands on Getting started: h1 "Getting started", purpose line is the purpose sentence (starts "Compare a page before and after")', L.hash === '#/start' && L.h1 === 'Getting started' && /^Compare a page before and after a PeopleSoft update, and see exactly what changed on screen\.$/.test(L.purpose), L);
+        rec('11.2', 'Getting started: the primary buttons are "Start the walkthrough" and "Open example"', JSON.stringify(L.primaries) === JSON.stringify(['Start the walkthrough', 'Open example']), L.primaries);
+        rec('11.3', 'nav: Getting started, My pages, Settings, How it works, Resources (Compare and Past results hidden until relevant)', JSON.stringify(L.nav) === JSON.stringify(['Getting started', 'My pages', 'Settings', 'How it works', 'Resources']), L.nav);
+        rec('11.4', 'Getting started: no tour panel, no tour banner on My pages any more, no old sample dropdown, the walkthrough button is above the fold at 1366x900', !L.tourVisible && !L.tourAgain && !L.dropdown && L.walkBottom < L.vh, L);
         rec('11.5', 'pill says plain words on the first visit ("Getting ready: loading the comparison engine…"), no "OpenCV" shown to the user in the first pill text', true, L.pill);
 
-        // example cards
+        // example select (UX-9): options = titles in 3 optgroups, plain words; description follows the selection
         const order = ['Start here', 'More examples', 'How the inspector handles tricky cases'];
-        await openAll(page, '#examples-more, #examples-tricky');
         const C = await page.evaluate(() => {
-          const txt = (e) => e && e.textContent.replace(/\s+/g, ' ').trim();
-          const hero = document.getElementById('sample-hero');
-          const grp = (id) => ({ summary: txt(document.querySelector(`#${id} > summary`)), heads: [...document.querySelectorAll(`#${id} h3`)].map(txt),
-            cards: [...document.querySelectorAll(`#${id} .sample-card`)].map((c) => ({ title: txt(c.querySelector('.sample-title')), titleTag: c.querySelector('.sample-title').tagName, area: txt(c.querySelector('.sample-area')), story: txt(c.querySelector('.sample-story')), expect: txt(c.querySelector('.sample-expect')), btn: txt(c.querySelector('.sample-open')), id: c.querySelector('.sample-open').dataset.sampleId })) });
-          return { hero: { title: txt(hero.querySelector('.sample-title')), tag: hero.querySelector('.sample-title').tagName, area: txt(hero.querySelector('.sample-area')), story: txt(hero.querySelector('.sample-story')), expect: txt(hero.querySelector('.sample-expect')), btn: txt(hero.querySelector('#btn-load-sample')) }, more: grp('examples-more'), tricky: grp('examples-tricky') };
+          const sel = document.getElementById('example-select');
+          return { groups: [...sel.querySelectorAll('optgroup')].map((g) => ({ label: g.label, titles: [...g.querySelectorAll('option')].map((o) => o.textContent), ids: [...g.querySelectorAll('option')].map((o) => o.value) })), selected: sel.selectedOptions[0].textContent, label: sel.getAttribute('aria-labelledby') };
         });
         const byGroup = (g) => manifest.filter((m) => m.group === g).sort((a, b) => a.order - b.order);
-        const titles = [C.hero.title, ...C.more.cards.map((c) => c.title), ...C.tricky.cards.map((c) => c.title)];
+        const titles = C.groups.flatMap((g) => g.titles);
         const badTitle = titles.filter((t) => /FSCM|HCM|T&L|Time & Labor|\bPUM\b|\d/.test(t) || /–|_|-before|\.png/.test(t));
-        rec('11.6', 'example cards are grouped: hero "Start here" (1), "More examples (3)", "How the inspector handles tricky cases (4)", each in manifest order', C.hero.title === byGroup(order[0])[0].title && C.more.summary === `More examples (${byGroup(order[1]).length})` && C.tricky.summary === `How the inspector handles tricky cases (${byGroup(order[2]).length})` && JSON.stringify(C.more.cards.map((c) => c.title)) === JSON.stringify(byGroup(order[1]).map((m) => m.title)) && JSON.stringify(C.tricky.cards.map((c) => c.title)) === JSON.stringify(byGroup(order[2]).map((m) => m.title)), { hero: C.hero.title, more: C.more.cards.map((c) => c.title), tricky: C.tricky.cards.map((c) => c.title), heads: [C.more.heads, C.tricky.heads] });
+        rec('11.6', 'the example select has optgroups "Start here", "More examples", "How the inspector handles tricky cases", each in manifest order, the first example (Timesheet) selected', JSON.stringify(C.groups.map((g) => g.label)) === JSON.stringify(order) && order.every((g, i) => JSON.stringify(C.groups[i].ids) === JSON.stringify(byGroup(g).map((m) => m.page))) && C.selected === byGroup(order[0])[0].title, C);
         rec('11.7', 'every example title is plain words: no FSCM / HCM / T&L / Time & Labor code, no digits (pixel numbers), no file names', badTitle.length === 0, { titles, bad: badTitle });
-        const areas = [C.hero.area, ...C.more.cards.map((c) => c.area), ...C.tricky.cards.map((c) => c.area)];
-        rec('11.8', 'module code is only shown as a plain area tag ("People and HR (HCM)", "Money and purchasing (FSCM)", "Time and labor"), never alone', areas.every((a) => /^(People and HR \(HCM\)|Money and purchasing \(FSCM\)|Time and labor)$/.test(a)), areas);
-        const allCards = [C.hero, ...C.more.cards, ...C.tricky.cards];
-        rec('11.9', 'every card has a one-sentence story, a "What to expect:" line, and a button ("Try the demo (30 seconds)" on the hero, "Open this example" on the rest); card titles are headings (h2 hero, h4 others)', allCards.every((c) => c.story.length > 15 && /^What to expect:/.test(c.expect) && c.btn) && C.hero.btn === 'Try the demo (30 seconds)' && C.hero.tag === 'H2' && [...C.more.cards, ...C.tricky.cards].every((c) => c.btn === 'Open this example' && c.titleTag === 'H4'), { sample: C.more.cards[0], hero: C.hero });
-        const expectPx = allCards.filter((c) => /\d+\s*(px|pixels?)\b/i.test(c.title + ' ' + c.story + ' ' + c.expect)).map((c) => c.title);
-        note('11.9a', 'cards whose story/expect line still contains a pixel number (the rule bans them from titles; stories may keep one)', expectPx);
+        const descs = [];
+        for (const m of manifest) { await page.selectOption('#example-select', m.page); descs.push({ id: m.page, text: clean(await page.textContent('#example-desc')), story: m.story, expect: m.whatToExpect }); }
+        rec('11.8', 'changing the select updates the live description (aria-live polite): the story sentence + "Expect: …" of that example, and the area is not shown as a module code', descs.every((d) => d.text.startsWith(d.story) && /Expect:/.test(d.text) && d.text.includes(d.expect.replace(/^Expect:\s*/i, ''))) && await page.getAttribute('#example-desc', 'aria-live') === 'polite' && new Set(descs.map((d) => d.text)).size === manifest.length, descs.slice(0, 2));
+        rec('11.9', 'every example has a one-sentence story (> 15 chars) and an Expect line', descs.every((d) => d.story.length > 15 && /Expect:/.test(d.text)), descs.map((d) => d.id));
+        await page.selectOption('#example-select', manifest.slice().sort((a, b) => a.order - b.order)[0].page);
+        const expectPx = descs.filter((d) => /\d+\s*(px|pixels?)\b/i.test(d.text)).map((d) => d.id);
+        note('11.9a', 'examples whose story/expect line still contains a pixel number (the rule bans them from titles; stories may keep one)', expectPx);
         // stated expectation vs the real result (ux-flows 12.17.1 item 4): "Timesheet ... 2 changes"
         rec('11.10', 'no console errors / CSP violations on the landing', log.console.length + log.page.length + (await cspOf(page)).length === 0, log.console);
         await page.context().close();
@@ -886,7 +882,9 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
         for (const r of ['library', 'compare', 'history', 'settings', 'result']) {
           await goRoute(page, r);
           await openAll(page, `#screen-${r} details`);
+          await page.evaluate(() => { const e = document.getElementById('ps-page'); if (e) e.style.display = 'none'; });      // the PeopleBooks catalog names (e.g. Candidate Gateway) are not UI wording
           scanTexts[r] = await page.evaluate((x) => document.getElementById('screen-' + x).innerText, r);
+          await page.evaluate(() => { const e = document.getElementById('ps-page'); if (e) e.style.display = ''; });
         }
         scanTexts.dialogs = await page.evaluate(() => ['save-dialog', 'signoff-dialog', 'confirm-dialog', 'reset-dialog', 'zone-dialog'].map((id) => document.getElementById(id).textContent).join(' '));
         const banned = {};
@@ -900,7 +898,7 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
       {
         const { page, log } = await newPage(browser); await page.goto(URL); await ready(page);
         await page.evaluate(() => { window.__ann = []; new MutationObserver(() => { const t = document.getElementById('announcer').textContent.trim(); if (t) window.__ann.push(t); }).observe(document.getElementById('announcer'), { childList: true, characterData: true, subtree: true }); });
-        await page.click('#btn-load-sample');
+        await startWalk(page);
         await page.waitForSelector('#tour:not([hidden])');
         const st = [];
         const snap = async () => ({ step: await page.getAttribute('#tour', 'data-step'), title: await tourTitle(page), focus: await page.evaluate(() => document.activeElement.id), body: await page.getAttribute('body', 'data-tour'), next: clean(await page.textContent('#tour-next')), back: await page.isVisible('#tour-back'), help: await page.isVisible('#tour-help') ? clean(await page.textContent('#tour-help')) : '' });
@@ -934,7 +932,7 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
         await page.waitForTimeout(200);
         const fin = await page.evaluate(() => ({ hidden: document.getElementById('tour').hidden, body: document.body.dataset.tour, focus: document.activeElement.matches('li.region') ? 'card ' + document.activeElement.dataset.region : (document.activeElement.id || document.activeElement.className || document.activeElement.tagName), focusInStrip: !!document.activeElement.closest('#result-steps') && document.activeElement.getAttribute('aria-current') === 'step', stripText: document.activeElement.textContent.replace(/\s+/g, ' ').trim().slice(0, 60), scrollY: Math.round(scrollY), ann: window.__ann.slice(-2), screen: document.querySelector('.screen:not([hidden])').dataset.screen, focusCard: document.querySelectorAll('.tour-focus').length }));
         rec('11.35', 'Finish closes the tour, scrolls to the top and focus goes to the "What\'s happening" strip current step (U7, Atlas-approved; was card 1), the announcer says "Tour finished. Decide each change, then save the result.", the Result screen stays', fin.hidden && fin.body === 'off' && fin.focusInStrip && fin.scrollY <= 1 && fin.ann.some((a) => /^Tour finished\. Decide each change, then save the result\.$/.test(a)) && fin.screen === 'result' && fin.focusCard === 0, fin);
-        rec('11.36', 'onboardingSeen persists in IndexedDB settings after Finish, and survives a reload (no "Take the 30-second tour" banner)', (await settingGet(page, 'onboardingSeen')) === true && await (async () => { await page.reload(); await ready(page); return !(await page.isVisible('#tour-again')); })(), await settingGet(page, 'onboardingSeen'));
+        rec('11.36', 'onboardingSeen persists in IndexedDB settings after Finish, and survives a reload (lands on My pages)', (await settingGet(page, 'onboardingSeen')) === true && await (async () => { await page.reload(); await ready(page); return !(await page.isVisible('#tour-again')); })(), await settingGet(page, 'onboardingSeen'));
         rec('11.37', 'no console errors / CSP violations during the full tour', log.console.length + log.page.length + (await cspOf(page)).length === 0, log.console);
         await page.context().close();
       }
@@ -943,7 +941,7 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
         const skipRes = [];
         for (let k = 1; k <= 5; k++) {
           const { page, log } = await newPage(browser); await page.goto(URL); await ready(page);
-          await page.click('#btn-load-sample'); await page.waitForSelector('#tour:not([hidden])');
+          await startWalk(page); await page.waitForSelector('#tour:not([hidden])');
           for (let j = 1; j < k; j++) await tourNext(page);
           const stepBefore = await page.getAttribute('#tour', 'data-step');
           await page.click('#tour-skip');
@@ -955,27 +953,27 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
         rec('11.38', 'Skip tour works on each of the 5 steps: panel closes, Result screen shown, onboardingSeen set', skipRes.every((r) => r.hidden && r.body === 'off' && r.screen === 'result' && r.cards === 2 && r.seen === true && r.err.length === 0), skipRes);
         // Esc
         const { page, log } = await newPage(browser); await page.goto(URL); await ready(page);
-        await page.click('#btn-load-sample'); await page.waitForSelector('#tour:not([hidden])'); await tourNext(page);
+        await startWalk(page); await page.waitForSelector('#tour:not([hidden])'); await tourNext(page);
         await page.keyboard.press('Escape'); await waitResult(page);
         rec('11.39', 'Esc inside the tour panel skips it (step 2)', await page.evaluate(() => document.getElementById('tour').hidden) && (await settingGet(page, 'onboardingSeen')) === true, null);
         await page.context().close();
-        // reload mid-tour -> banner; click it -> tour again; Dismiss hides it for good
+        // reload mid-tour -> tour gone, onboarding NOT set, Getting started still offers the walkthrough (no banner on My pages)
         const m = await newPage(browser); await m.page.goto(URL); await ready(m.page);
-        await m.page.click('#btn-load-sample'); await m.page.waitForSelector('#tour:not([hidden])');
+        await startWalk(m.page); await m.page.waitForSelector('#tour:not([hidden])');
         await m.page.waitForTimeout(500);
         await m.page.reload(); await ready(m.page);
-        const ban = await m.page.evaluate(() => ({ tour: !document.getElementById('tour').hidden, banner: !document.getElementById('tour-again').hidden, text: document.querySelector('#tour-again p').textContent.trim(), landing: !!document.getElementById('sample-hero') && !document.getElementById('sample-hero').hidden, pageCards: document.querySelectorAll('#page-list li').length, seen: null }));
+        const ban = await m.page.evaluate(() => ({ tour: !document.getElementById('tour').hidden, hash: location.hash, banner: !!document.getElementById('tour-again'), pageCards: document.querySelectorAll('#page-list li').length, seen: null }));
         ban.seen = await settingGet(m.page, 'onboardingSeen');
-        rec('11.40', 'reload mid-tour: tour is gone, "Take the 30-second tour" banner shown above the demo page in My pages, onboardingSeen NOT set', !ban.tour && ban.banner && ban.text === 'Take the 30-second tour' && ban.pageCards === 1 && ban.seen !== true, ban);
-        await m.page.click('#btn-tour-again'); await m.page.waitForSelector('#tour:not([hidden])');
+        rec('11.40', 'reload mid-tour: tour is gone, no banner element on My pages, onboardingSeen NOT set (so a fresh visit still lands on Getting started)', !ban.tour && !ban.banner && ban.seen !== true, ban);
+        await m.page.goto(URL + '#/start'); await ready(m.page);
+        await m.page.click('#btn-start-tour'); await m.page.waitForSelector('#tour:not([hidden])');
         const again = await m.page.getAttribute('#tour', 'data-step');
         await m.page.click('#tour-skip'); await waitResult(m.page);
-        rec('11.41', 'the banner restarts the tour at step 1 (and Skip afterwards still works)', again === '1' && (await settingGet(m.page, 'onboardingSeen')) === true, again);
+        rec('11.41', 'Getting started restarts the tour at step 1 (and Skip afterwards still works and sets onboardingSeen)', again === '1' && (await settingGet(m.page, 'onboardingSeen')) === true, again);
         await m.ctx.close();
         const d = await newPage(browser); await d.page.goto(URL); await ready(d.page);
-        await d.page.click('#btn-load-sample'); await d.page.waitForSelector('#tour:not([hidden])'); await d.page.reload(); await ready(d.page);
-        await d.page.click('#btn-tour-again-dismiss');
-        rec('11.42', 'Dismiss hides the banner and sets onboardingSeen', !(await d.page.isVisible('#tour-again')) && (await settingGet(d.page, 'onboardingSeen')) === true, null);
+        await d.page.click('#btn-start-skip');
+        rec('11.42', '"Go to My pages" on Getting started sets onboardingSeen and opens My pages; a later visit with no hash lands on My pages', (await settingGet(d.page, 'onboardingSeen')) === true && await d.page.evaluate(() => location.hash) === '#/library' && (await (async () => { await d.page.goto(URL); await ready(d.page); return d.page.evaluate(() => location.hash); })()) === '#/library', null);
         await d.ctx.close();
       }
       // step 3 really waits for the comparison: delay the 10 MB engine by 4 s
@@ -984,7 +982,7 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
         await page.route('**/opencv.js', async (route) => { await new Promise((r) => setTimeout(r, 4000)); await route.continue(); });
         await page.goto(URL);
         await page.waitForSelector('#btn-load-sample');
-        await page.click('#btn-load-sample'); await page.waitForSelector('#tour:not([hidden])');
+        await startWalk(page); await page.waitForSelector('#tour:not([hidden])');
         const pillDuring = clean(await page.textContent('#status-text'));
         const s1ok = await page.isVisible('#tour-before');      // steps 1 and 2 must work without the engine
         await page.click('#tour-next'); const s2ok = (await tourTitle(page)).startsWith('Step 2'); await page.click('#tour-next');
@@ -1039,7 +1037,7 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
       const lum = (c) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); };
       const over = (top, bot) => ({ r: top.r * top.a + bot.r * (1 - top.a), g: top.g * top.a + bot.g * (1 - top.a), b: top.b * top.a + bot.b * (1 - top.a), a: 1 });
       const bgOf = (el) => { const stack = []; for (let e = el; e; e = e.parentElement) { const c = parse(getComputedStyle(e).backgroundColor); if (c && c.a > 0) { stack.push(c); if (c.a >= 1) break; } } let acc = parse(getComputedStyle(document.body).backgroundColor) || { r: 255, g: 255, b: 255, a: 1 }; if (acc.a < 1) acc = over(acc, { r: 255, g: 255, b: 255, a: 1 }); for (let i = stack.length - 1; i >= 0; i--) acc = over(stack[i], acc); return acc; };
-      const sels = ['#h-library', '.screen-purpose', '#sample-hero .sample-story', '#sample-hero .sample-expect', '#sample-hero .hint', '#btn-load-sample', '#btn-new-page', '#intro-title', '.app-nav a', '#tour-title', '#tour-help', '#tour-skip', '#tour-next', '#tour-before-cap', '#h-result', '#result-summary', '#result-next', '#result-status', '#result-explain', '.strip-name', '.strip-status', '.stat-note', '.region-title', '.region-locate', '.cause-what', '.choice-name', '.choice-desc', '.region-rule', '.region-decided', 'figcaption', '#regions-progress', '#btn-result-primary', '.disclaimer', '.region-show'];
+      const sels = ['#h-library', '#h-start', '.screen-purpose', '#example-desc', '#start-intro', '.picker-row .ps-select', '#btn-start-tour', '#btn-load-sample', '#btn-new-page', '.card-status', '#intro-title', '.app-nav a', '#tour-title', '#tour-help', '#tour-skip', '#tour-next', '#tour-before-cap', '#h-result', '#result-summary', '#result-next', '#result-status', '#result-explain', '.strip-name', '.strip-status', '.stat-note', '.region-title', '.region-locate', '.cause-what', '.choice-name', '.choice-desc', '.region-rule', '.region-decided', 'figcaption', '#regions-progress', '#btn-result-primary', '.disclaimer', '.region-show'];
       const out = [];
       for (const q of sels) {
         const el = [...document.querySelectorAll(q)].find((e) => e.offsetWidth && e.offsetHeight && getComputedStyle(e).visibility !== 'hidden');
@@ -1077,13 +1075,13 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
         await page.goto(URL); await ready(page);
         const ow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
         // landing
-        const land = await page.evaluate(() => { const b = document.getElementById('btn-load-sample').getBoundingClientRect(); const n = document.getElementById('btn-new-page').getBoundingClientRect(); const h1 = document.getElementById('h-library').getBoundingClientRect(); return { btnTop: Math.round(b.top), btnBottom: Math.round(b.bottom), btnH: Math.round(b.height), btnW: Math.round(b.width), secH: Math.round(n.height), h1Bottom: Math.round(h1.bottom), vh: innerHeight, scheme: matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' }; });
-        rec(`12.1.${tag}`, `landing at ${tag}: no horizontal scroll, "Try the demo" is above the fold (no scrolling) and at least 44 px tall, the secondary action is 44 px tall, colour scheme honoured`, (await ow()) <= 1 && land.btnBottom <= land.vh && land.btnH >= 44 && land.secH >= 44 && land.scheme === cfg.scheme, land);
+        const land = await page.evaluate(() => { const b = document.getElementById('btn-start-tour').getBoundingClientRect(); const n = document.getElementById('btn-load-sample').getBoundingClientRect(); const h1 = document.getElementById('h-start').getBoundingClientRect(); return { btnTop: Math.round(b.top), btnBottom: Math.round(b.bottom), btnH: Math.round(b.height), btnW: Math.round(b.width), secH: Math.round(n.height), h1Bottom: Math.round(h1.bottom), vh: innerHeight, scheme: matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' }; });
+        rec(`12.1.${tag}`, `Getting started at ${tag}: no horizontal scroll, "Start the walkthrough" is above the fold (no scrolling) and at least 44 px tall, "Open example" is 44 px tall, colour scheme honoured`, (await ow()) <= 1 && land.btnBottom <= land.vh && land.btnH >= 44 && land.secH >= 44 && land.scheme === cfg.scheme, land);
         const cl = await page.evaluate(CONTRAST); lowC.push(...cl.filter((c) => c.ratio < c.need).map((c) => ({ tag, screen: 'landing', ...c })));
         if (tag === '375-light') await shot(page, 'landing-375-light', true);
         if (tag === '1366-dark') await shot(page, 'landing-1366-dark', false);
         // tour
-        await page.click('#btn-load-sample'); await page.waitForSelector('#tour:not([hidden])');
+        await startWalk(page); await page.waitForSelector('#tour:not([hidden])');
         await page.waitForTimeout(400);                                  // let the stage canvas settle (its height is capped by CSS)
         const t1 = await page.evaluate(() => { const p = document.getElementById('tour').getBoundingClientRect(); const c = document.getElementById('tour-before').getBoundingClientRect(); return { panelH: Math.round(p.height), vh: innerHeight, canvasW: Math.round(c.width), canvasH: Math.round(c.height), canvasRight: Math.round(c.right), vw: innerWidth, nextBottom: Math.round(document.getElementById('tour-next').getBoundingClientRect().bottom), nextH: Math.round(document.getElementById('tour-next').getBoundingClientRect().height) }; });
         rec(`12.2.${tag}`, `tour step 1 at ${tag}: panel fits (shorter than the viewport), the Before image fits the width (>= 240 px wide at 375; it is a thumbnail of a 1366 px page, so its text is not legible: see the report), Next is visible and 44 px tall, no horizontal scroll`, t1.panelH < t1.vh && t1.canvasRight <= t1.vw && (cfg.vw > 400 || t1.canvasW >= 240) && t1.nextBottom <= t1.vh && t1.nextH >= 44 && (await ow()) <= 1, t1);
@@ -1155,8 +1153,8 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
       let keys = 0; const key = async (k) => { keys++; await page.keyboard.press(k); };
       const tabTo = async (pred, max = 12) => { const seen = []; for (let i = 0; i < max; i++) { await key('Tab'); const id = await idOf(); seen.push(id); if (pred(id)) return { ok: true, seen }; } return { ok: false, seen }; };
       const noRing = [];
-      const t0 = await tabTo((id) => id === 'btn-load-sample', 30);
-      rec('13.1', 'keyboard: from page load, Tab reaches "Try the demo (30 seconds)"', t0.ok, t0.seen);
+      const t0 = await tabTo((id) => id === 'btn-start-tour', 30);
+      rec('13.1', 'keyboard: from page load, Tab reaches "Start the walkthrough"', t0.ok, t0.seen);
       await key('Enter');
       await page.waitForSelector('#tour:not([hidden])');
       rec('13.2', 'Enter starts the tour and moves focus to the step heading (so the screen reader reads it)', (await idOf()) === 'tour-title', await idOf());
@@ -1237,7 +1235,7 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
       await openAll(page, '#examples-more, #examples-tricky, #intro-card');
       const oLand = await outline();
       rec('14.2', 'heading outline on the landing (groups open) starts at h1 and never skips a level', skips(oLand).length === 0, oLand.map((h) => `h${h.l} ${h.t}`));
-      await page.click('#btn-load-sample'); await page.waitForSelector('#tour:not([hidden])');
+      await startWalk(page); await page.waitForSelector('#tour:not([hidden])');
       const tourSem = await page.evaluate(() => { const t = document.getElementById('tour'); return { tag: t.tagName, labelledby: t.getAttribute('aria-labelledby'), name: document.getElementById(t.getAttribute('aria-labelledby')).textContent.trim(), canvases: [...t.querySelectorAll('canvas')].map((c) => ({ role: c.getAttribute('role'), label: c.getAttribute('aria-label'), expanded: c.getAttribute('aria-expanded') })), live: t.getAttribute('aria-live'), titleTabindex: document.getElementById('tour-title').getAttribute('tabindex'), skipTag: document.getElementById('tour-skip').tagName }; });
       rec('14.3', 'tour: a labelled region (aria-labelledby the step heading), heading focusable (tabindex -1), NOT an aria-live region, Skip is a real button, both stage canvases are role=button (tap-to-enlarge, Round 3) with aria-label "Enlarge image" (aria-expanded: see 14.3b)', tourSem.tag === 'SECTION' && tourSem.labelledby === 'tour-title' && tourSem.titleTabindex === '-1' && !tourSem.live && tourSem.skipTag === 'BUTTON' && tourSem.canvases.length === 2 && tourSem.canvases.every((c) => c.role === 'button' && c.label === 'Enlarge image'), tourSem);
       rec('14.3b', 'the enlarge buttons expose their state at rest too: aria-expanded="false" is present before the first toggle (a toggle button should not start with no state)', tourSem.canvases.every((c) => c.expanded === 'false'), tourSem.canvases);
@@ -1285,12 +1283,12 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
       rec('14.9', 'Save dialog: labelled "Save result", modal, focus moves inside, 4 required fields marked required, empty submit gives a role=alert message, Esc closes and focus returns to the opener', /Save result/.test(dlg.name) && dlg.modal && dlg.focusIn && dlg.required.length === 4 && dlg.errRole === 'alert' && err.length > 10 && back === 'btn-result-primary', { opener, dlg, err, focusAfterEsc: back });
       // titles + h1 per screen
       const titles = {};
-      for (const r of ['library', 'compare', 'result', 'history', 'settings']) { await page.evaluate((x) => { location.hash = '#/' + x; }, r); await page.waitForTimeout(150); titles[r] = { title: await page.title(), h1: await page.evaluate(() => [...document.querySelectorAll('h1')].filter((e) => e.offsetWidth).map((e) => e.textContent.trim()).join('|')) }; }
-      rec('14.10', 'each screen sets a distinct document title and has one visible h1', new Set(Object.values(titles).map((t) => t.title)).size === 5 && Object.values(titles).every((t) => t.h1 && !t.h1.includes('|')), titles);
+      for (const r of ['start', 'library', 'compare', 'result', 'history', 'settings']) { await page.evaluate((x) => { location.hash = '#/' + x; }, r); await page.waitForTimeout(150); titles[r] = { title: await page.title(), h1: await page.evaluate(() => [...document.querySelectorAll('h1')].filter((e) => e.offsetWidth).map((e) => e.textContent.trim()).join('|')) }; }
+      rec('14.10', 'each screen sets a distinct document title and has one visible h1', new Set(Object.values(titles).map((t) => t.title)).size === 6 && Object.values(titles).every((t) => t.h1 && !t.h1.includes('|')), titles);
       // reduced motion: nothing animates during the tour
       const rm = await newPage(browser); await rm.page.emulateMedia({ reducedMotion: 'reduce' });
       await rm.page.goto(URL); await ready(rm.page);
-      await rm.page.click('#btn-load-sample'); await rm.page.waitForSelector('#tour:not([hidden])'); await tourNext(rm.page); await tourNext(rm.page);
+      await startWalk(rm.page); await rm.page.waitForSelector('#tour:not([hidden])'); await tourNext(rm.page); await tourNext(rm.page);
       await rm.page.waitForFunction(() => /found \d+ change/.test(document.getElementById('tour-title').textContent), null, { timeout: 60000 });
       const anim = await rm.page.evaluate(() => ({ running: document.getAnimations().filter((a) => a.playState === 'running').length, behavior: getComputedStyle(document.documentElement).scrollBehavior, tdur: getComputedStyle(document.getElementById('tour-next')).transitionDuration }));
       rec('14.11', 'prefers-reduced-motion: no running animations during the tour, no smooth scrolling', anim.running === 0 && anim.behavior !== 'smooth', anim);
@@ -1306,7 +1304,7 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
       for (const cfg of [{ vw: 375, vh: 812 }, { vw: 1366, vh: 900 }]) {
         const { ctx, page, log } = await newPage(browser, { viewport: { width: cfg.vw, height: cfg.vh } });
         await page.goto(URL); await ready(page);
-        await page.click('#btn-load-sample'); await page.waitForSelector('#tour:not([hidden])'); await page.waitForTimeout(500);
+        await startWalk(page); await page.waitForSelector('#tour:not([hidden])'); await page.waitForTimeout(500);
         const st = (id) => page.evaluate((i) => { const c = document.getElementById(i), f = c.parentElement, r = f.getBoundingClientRect(); const cs = getComputedStyle(f); return { zoomed: f.classList.contains('is-zoomed'), natural: c.getBoundingClientRect().width === c.width, closeFocus: document.activeElement.className === 'zoom-close', expanded: c.getAttribute('aria-expanded'), label: c.getAttribute('aria-label'), role: c.getAttribute('role'), pos: cs.position, x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height), vw: innerWidth, vh: innerHeight, focus: document.activeElement.id, tourOpen: !document.getElementById('tour').hidden }; }, id);
         const before = await st('tour-before');
         await page.click('#tour-before'); await page.waitForTimeout(250);
@@ -1342,7 +1340,7 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
         const tag = `${cfg.vw}-${cfg.scheme}`;
         const { ctx, page } = await newPage(browser, { viewport: { width: cfg.vw, height: cfg.vh }, colorScheme: cfg.scheme });
         await page.goto(URL); await ready(page);
-        await page.click('#btn-load-sample'); await page.waitForSelector('#tour:not([hidden])');
+        await startWalk(page); await page.waitForSelector('#tour:not([hidden])');
         const steps = [];
         for (let i = 1; i <= 5; i++) {
           await page.waitForFunction(() => document.getElementById('tour-next').getAttribute('aria-disabled') !== 'true', null, { timeout: 60000 });
@@ -1361,7 +1359,7 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
         await page.goto(URL); await ready(page);
         const pass1 = [], pass2 = [];
         for (let i = 0; i < manifest.length; i++) { const t0x = Date.now(); try { await loadSample(page, i); const r = await resultSummary(page); const notice = await page.evaluate(() => document.getElementById('notice').dataset.state); pass1.push({ id: manifest[i].page, ok: expectOk(manifest[i], r) && r.state.startsWith('result'), status: r.status.slice(0, 24), regions: r.regions, notice, ms: Date.now() - t0x }); } catch (e) { pass1.push({ id: manifest[i].page, ok: false, error: String(e.message).slice(0, 160) }); } }
-        rec('15.3a', 'clean profile: Try the demo, then "Try an example" from My pages opens a result with the manifest status for all 8 examples (the first opens the already-saved demo page)', pass1.length === 8 && pass1.every((x) => x.ok), pass1);
+        rec('15.3a', 'clean profile: every one of the 8 examples opens through the Getting started #example-select + "Open example" and gives the manifest status', pass1.length === 8 && pass1.every((x) => x.ok), pass1);
         await page.waitForTimeout(500);
         const pagesN = await idbInfo(page);
         for (let i = 0; i < manifest.length; i++) { try { await loadSample(page, i); const r = await resultSummary(page); const notice = await page.evaluate(() => document.getElementById('notice').dataset.state); pass2.push({ id: manifest[i].page, ok: expectOk(manifest[i], r) && r.state.startsWith('result'), notice }); } catch (e) { pass2.push({ id: manifest[i].page, ok: false, error: String(e.message).slice(0, 160) }); } }
@@ -1401,12 +1399,13 @@ async function shot15(page, name) { fs.mkdirSync(SHOTS, { recursive: true }); aw
       {
         const { ctx, page, log } = await newPage(browser);
         await page.goto(URL); await ready(page);
-        await page.click('#btn-new-page'); await page.waitForSelector('#ps-page', { state: 'visible' });
-        const sel = await page.evaluate(() => { const s = document.getElementById('ps-page'); return { label: document.querySelector('label[for="ps-page"]').textContent.trim(), options: [...s.options].map((o) => o.value), groups: [...s.querySelectorAll('optgroup')].map((g) => g.label), nameVisibleBefore: !document.getElementById('page-name-field').hidden }; });
+        await page.evaluate(() => { location.hash = '#/library'; }); await page.waitForSelector('#ps-page', { state: 'visible' });
+        const sel = await page.evaluate(() => { const s = document.getElementById('ps-page'); return { label: document.querySelector('label[for="ps-page"]').textContent.trim(), options: [...s.options].map((o) => o.value), groups: [...s.querySelectorAll('optgroup')].map((g) => g.label), nameVisibleBefore: !document.getElementById('page-name-field').hidden, firstText: s.options[0].textContent, btnHiddenBefore: document.getElementById('btn-new-page').hidden }; });
         const wanted = 'Time & Labor – Timesheet';
-        await page.selectOption('#ps-page', wanted);
-        const filled = await page.evaluate(() => ({ name: document.getElementById('page-name').value, module: document.getElementById('page-module').value, nameVisible: !document.getElementById('page-name-field').hidden }));
-        rec('15.5a', 'the "Which PeopleSoft page is this?" select lists "Time & Labor – Timesheet" (and more than 10 other pages), and picking it fills the name', sel.label === 'Which PeopleSoft page is this?' && sel.options.includes(wanted) && sel.options.length > 10 && sel.options.includes('__other') && filled.name === wanted && filled.nameVisible, { sel: { label: sel.label, count: sel.options.length, groups: sel.groups, hasWanted: sel.options.includes(wanted) }, filled });
+        await page.selectOption('#ps-page', wanted); await page.click('#btn-new-page');
+        const filled = await page.evaluate(() => ({ btnText: document.getElementById('btn-new-page').textContent.trim(), focus: document.activeElement.id, name: document.getElementById('page-name').value, module: document.getElementById('page-module').value, nameVisible: !document.getElementById('page-name-field').hidden }));
+        rec('15.5a', 'the "Which PeopleSoft page are you testing?" select (My pages, no click needed) lists "Time & Labor – Timesheet" (and more than 10 other pages), and picking it fills the name', sel.label === 'Which PeopleSoft page are you testing?' && sel.options.includes(wanted) && sel.options.length > 10 && sel.options.includes('__other') && filled.name === wanted && filled.nameVisible, { sel: { label: sel.label, count: sel.options.length, groups: sel.groups, hasWanted: sel.options.includes(wanted) }, filled });
+        rec('15.5d', 'UX-9: #ps-page is visible on My pages with no click, its first option is "All modules", the action button is hidden until a page is chosen and then reads "Add before & after screenshots"; the button pre-fills the name and focuses the Before drop zone', sel.options[0] === '' && sel.firstText === 'All modules' && sel.btnHiddenBefore && filled.btnText === 'Add before & after screenshots' && filled.focus === 'baseline-file', { sel: { first: sel.firstText, btnHiddenBefore: sel.btnHiddenBefore }, filled });
         rec('15.5c', 'picking "Time & Labor – Timesheet" also sets the Module field to "Time and labor" (the sample for this page is a Time & Labor page); it must not be left on HCM', filled.module === 'Time & Labor', filled);
         rec('15.5b', 'no console errors in the select pass', log.console.length + log.page.length + (await cspOf(page)).length === 0, log.console.slice(0, 4));
         await ctx.close();
