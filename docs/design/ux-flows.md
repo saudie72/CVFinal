@@ -5,6 +5,8 @@ Fictional data only ("Demo ERP (fictional)"). Browser-only, no network calls aft
 
 Sources: `knowledge/ux-designer-apple-hig/docs/01-feedback.md`, `02-progress-loading.md`, `03-accessibility-interaction.md` (Apple HIG: Feedback, Progress indicators, Loading, Accessibility) and `examples/ex1`..`ex3`; skills `apple-hig-ux`, `accessibility-wcag`, `ignore-zones-masking`, `peoplesoft-page-anatomy`, `upgrade-cycle-capture-standards`, `uat-evidence-traceability`; `docs/build-plan.md`, `docs/04-ignore-zones.md`, `docs/05-visual-outputs.md`, `docs/10-mock-erp-demo-plan.md`, `docs/business-case.md`; ERP specs `docs/erp/capture-standards.md` (section 5, the tip), `docs/erp/evidence-standard.md` (fields, decisions, sign-off), `docs/erp/user-stories.md`, `docs/erp/demo-story.md` (UI labels).
 
+> **UX-2 update:** section 12 ("UX-2 result clarity") supersedes this document wherever it conflicts, in particular the Result screen order (section 3), the region card and its template (sections 6 row 6, 7, 8), the stat labels, the status line wording, and the alignment line (D3). Everything else stands.
+
 ## 0. Decisions that deviate from, or settle, the inputs
 
 | # | Decision | Why |
@@ -711,3 +713,414 @@ Intro line: "Links open the official documentation in a new tab. The app itself 
 4. Decisions: Regression keeps **Sign off** `aria-disabled` with the exact hint; Expected/Noise only enables it after Save run; Promote stays disabled until signed off.
 5. Keyboard-only run of the whole flow, including the manual zone form and the overlay slider keys.
 6. Storage blocked (Chrome incognito with site data blocked), quota (simulate), duplicate name, Reset (confirm, blocked by a second tab, done), Network panel quiet after load, no CSP violations in the console.
+
+## 12. UX-2 result clarity
+
+Why this section exists: the project owner used the app and said it works but "doesn't tell a user what exactly is going on or needed". Verbatim points: "what the hell is region 1", "there is not tie in to the screenshot", "what is expected, regression or noise", "What in the world does Region 1 of 4: 105 by 154 pixels at 702, 338 mean to a user?", and "where do all these agents and team come in to any of this like the business analyst?".
+
+**What I looked at.** The region-card screenshot (`/tmp/claude-0/-home-user/823eeff0-8200-5655-b4dd-f330ac5a9614/images/1.png`), `js/app.js` (`renderStats`, `renderRegionList`, `setDecision`), `js/views.js` (`drawBoxes`), `js/copy.js`, `js/hints.js`, `js/region-hints.json`, and sections 1 to 11 above. **I could not run the app and take my own result-screen screenshot**: this session has no shell tool, so I could not start the server or Playwright. My critique of the full screen comes from the card screenshot plus the code and the skeleton, not from seeing the page. Quinn or Atlas should check section 12.13 against the running app (unverified visually).
+
+Source basis: Apple HIG Feedback and Accessibility (`knowledge/ux-designer-apple-hig/docs/01-feedback.md`, `03-accessibility-interaction.md`); `docs/erp/evidence-standard.md` (meanings of Expected / Regression / Noise, sign-off rules); `docs/erp/change-catalogue.md` and `js/hints.js` (cause rules, owner Dex). **`docs/erp/plain-language-results.md` (Morgan) did not exist when I wrote this.** The definitions below are my plain-words draft, consistent with `evidence-standard.md` line 37. Atlas: route Morgan's file to me (or Juno) to reconcile wording; where they differ, Morgan's definitions win and these strings in `js/copy.js` change, nothing else.
+
+### 12.1 First-time-analyst critique (what is wrong today)
+
+1. **Jargon in the title.** "Region 1 of 4: 105 by 154 pixels at 702, 338" is output, not language. A tester doesn't think in pixel boxes. Nothing says where on the page it is.
+2. **No tie to the screenshot.** The card number matches a badge on the canvas, but the canvas and the card are far apart on the page, and neither responds to the other. Hover/focus on a card redraws the canvas; the reverse does nothing, and a mouse user who can't see the canvas gets no signal at all.
+3. **Decision is unexplained.** Three bare radios. "Noise" and "Expected" mean different things in this team's standard than in everyday speech. A first-timer can't tell which one is safe to pick.
+4. **No story at the top of the result.** A red FAIL badge and four numbers (SSIM 0.962, "Aligned: shift (0, 3)") with no sentence saying "this is what happened, this is what you do next".
+5. **Hidden pipeline.** No visible next step beyond the button label changing. The sign-off rules exist and are right, but the user finds them out by hitting a disabled button.
+6. **The "Likely:" line is dev-speak** ("Tall narrow block: likely a grid layout change (column width or shift)") and is in small italic grey at the bottom of the card, so it reads as a footnote.
+7. **No first-run explanation.** The empty Library says what to click, not what the tool is for.
+8. **The team is invisible.** Atlas and 16 other roles shaped the tool, but nothing in the product connects them to what the user sees.
+
+### 12.2 Decisions
+
+| # | Decision | Why |
+|---|---|---|
+| D8 | **User-facing word is "change", not "region".** "Region" stays in code, storage (`regions[]`), evidence JSON and the validator. Status line becomes "FAIL — 4 changes found (0.8% of page changed)"; one: "FAIL — 1 change found (...)"; under 0.1%: "(under 0.1% of page changed)". PASS stays "PASS — no unexpected changes". | The owner's complaint. One word everywhere. This **deviates from** the status copy in `knowledge/ux-designer-apple-hig/docs/01-feedback.md`/ex1 and the `apple-hig-ux` skill ("3 changed regions"); the owner's feedback is the newer source. **Quinn:** any test that greps "changed region" must be updated. The announcer sentence changes the same way. |
+| D9 | **Position and shape are computed, in words.** Raw pixels move to a collapsed "Details". | Owner's "what does 105 by 154 at 702, 338 mean". |
+| D10 | **Two-way link between card and box**, with a keyboard route that doesn't depend on the canvas. | Owner's "no tie in to the screenshot". WCAG 2.1.1: the canvas click is a convenience; the card list and **Show on screenshot** are the keyboard path (same principle as the ignore-zone form, section 4). |
+| D11 | **Alignment line reads in words** ("None needed", "Shifted 3 px down"), the raw "(0, 3)" goes to the help text. Supersedes D3's "Aligned: shift (dx, dy)". | Owner's feedback; Morgan's older stories used the technical form. **Quinn:** verification item 3 changes. The **sign of dy/dx (which image moved which way) is unverified**: Iris must confirm what `alignment` means before Juno writes "down"/"right" (see Handoffs). |
+| D12 | **When unsure, the tip says choose Regression** (it can be changed later and blocks sign-off, so it fails safe). | Matches "never silently PASS" (US-04) and the sign-off rule. Morgan to confirm. |
+| D13 | **The progress strip and summary are not live regions.** They are static text updated silently; the one-time result sentence still goes through `#announcer`, and decisions already announce "n of M decided". | Keeps the rule of three live regions and "never the same sentence twice" (section 7, D4). |
+
+### 12.3 Result screen, new order
+
+1. `h1` "Result".
+2. **`#result-guide`** (new): `#result-summary` sentence, then `#result-steps` progress strip (12.4).
+3. `#result-status` (badge, still receives focus on arrival), then stats (12.5).
+4. View area: tabs and canvases, then a one-line `#boxes-hint` under the Boxes canvas.
+5. **Changes to review** (`#regions`, was "Changed regions"): the cards (12.6), then the action bar and the rest unchanged (section 3, 3a).
+
+**Layout hint for Sable.** At 1100 px and wider, put steps 4 and 5 in a two-column grid `.result-layout`: the view area on the left in a sticky column (`position: sticky`, `top` below the header, `max-height: calc(100vh - header)`, `.canvas-wrap` scrolls inside), the card list on the right scrolling with the page. The box stays visible while the user reads its card, and the click-to-jump scroll mostly isn't needed. Below 1100 px, one column (view first, cards below). DOM order stays view then cards, so it reads the same with a keyboard. Heatmap/Overlay/Side-by-side tabs live in the same left column.
+
+### 12.4 "What's happening" guide
+
+`#result-guide` (a `<section class="guide panel" aria-labelledby="h-guide">`, heading `h2#h-guide` visually "What's happening").
+
+**Summary sentence** (`#result-summary`, plain `<p>`, not live):
+- FAIL, N changes: "N changes found between the before and after screenshots of {page}. Review each change below and decide what it is." (N = 1: "1 change found between ... Review it below and decide what it is.")
+- PASS: "No unexpected changes found between the before and after screenshots of {page}. Save the run to keep a record." {page} is the page name, e.g. "Time & Labor – Timesheet".
+- After a run is saved: replace the second sentence with "Saved as run 4." After sign-off: "Signed off by SA on 22 Nov 2026."
+
+**Progress strip** `<ol id="result-steps" class="strip" aria-label="Review progress">`: four `<li class="strip-step" data-step="review|decide|save|signoff" data-status="done|current|todo|blocked">`. Each has the number, the label, an `.icon` (aria-hidden; check = done, filled dot = current, lock = blocked, empty ring = todo) and a `.strip-status` line **in text** (never colour only). The first step that isn't `done` gets `aria-current="step"`.
+
+| Step | Label | todo / current text | done text | blocked |
+|---|---|---|---|---|
+| 1 | Review changes | "0 of 4 looked at" ("looked at" = a card was selected, focused or decided) | "All 4 looked at" | n/a |
+| 2 | Decide | "0 of 4 decided" / "2 of 4 decided" | "All 4 decided" | n/a |
+| 3 | Save run | "Not saved yet" | "Saved as run 4" | "Decide every change first (2 left)" (todo, not blocked; used while step 2 isn't done) |
+| 4 | Sign off | "Not signed off" | "Signed off by SA" | "Not available: a change is marked Regression" (`blocked`); "Save the run first" while unsaved |
+
+PASS: steps 1 and 2 are `done` with "Nothing to review" and "Nothing to decide"; step 3 is current. Signed-off runs with Promote still available show a fifth line under the strip, not a fifth step: "Next: Promote to baseline (optional)". The strip reflects `#result[data-review|data-saved|data-signoff]`, so Juno updates it from the same function that runs `updateActions()`.
+
+### 12.5 Plain stat labels
+
+The stats stay a `<dl>`. Each `dd` has a one-line **always-visible** caption (`<p class="stat-note">`, referenced by `aria-describedby`), so nobody has to hover. Under the list, a `<details id="stats-help">` "What do these numbers mean?" holds the longer text. No hover-only tooltips (touch and keyboard users would miss them).
+
+| `dt` (label) | `dd` value | Caption (always visible) |
+|---|---|---|
+| "Page changed" (`#stat-changed`) | "0.8%" | "How much of the screenshot looks different. This page fails above 0.1%." (the limit is the page's `thresholdPct`) |
+| "Similarity (1.0 = identical)" (`#stat-ssim`) | "0.962 out of 1.0" | "How alike the two screenshots look. For information only; PASS or FAIL comes from the percent changed." |
+| "Alignment" (`#stat-alignment`) | "None needed" or "Shifted 3 px down" | "None needed: the screenshots lined up. Shifted: the after screenshot was moved 3 px (down) to line it up before comparing, so a small scroll difference doesn't count as a change." |
+| "Ignored areas" (`#stat-ignored`) | "None" or "2 zones (1.4% of page)" | "Areas you chose to leave out of the comparison." |
+| "Comparison took" (`#stat-ms`) | "1.2 s" | none |
+| "Your review time" (`#stat-review`) | "—" then "4 min 12 s" | none |
+
+`#stats-help` content (draft, Morgan's definitions win): **Page changed** is the share of the screenshot's pixels that differ after small differences below the sensitivity are ignored. **Similarity** is the structural similarity score (SSIM), from 0 to 1. **Alignment** moves the after screenshot a few pixels, or rescales it slightly, so scrolling or a different zoom isn't flagged. **PASS** means no changes above this page's limit. **FAIL** means at least one change above the limit that someone must review. **Ignore zone** is an area you told the tool to skip, such as a timestamp. Last line: "Wording from the business analyst role. More on [How it works](how-it-works.html#reading)." (a `.credit` line; see 12.9).
+
+### 12.6 The change card
+
+#### Header words
+
+Header text: **"Change N of M · {position} · {shape}"**, for example "Change 1 of 4 · centre of the page · tall block". Screen readers read the `h3`, so the separator is a literal " · " in the visible text and the accessible name uses commas (see aria below).
+
+**Position** (from the box centre in a 3 x 3 grid of the whole image; use the result's `width`/`height`):
+
+```js
+const col = Math.min(2, Math.floor(3 * (r.x + r.width / 2) / m.width));   // 0 left, 1 centre, 2 right
+const row = Math.min(2, Math.floor(3 * (r.y + r.height / 2) / m.height)); // 0 top, 1 middle, 2 bottom
+```
+
+| | left | centre | right |
+|---|---|---|---|
+| top | top left | top centre | top right |
+| middle | middle left | **centre of the page** | middle right |
+| bottom | bottom left | bottom centre | bottom right |
+
+The three rows are thirds of the **whole image**, so on a tall full-page capture "top" means the top third of the capture. The example region (105 x 154 at 702, 338 on 1366 x 900) has centre (754, 415), so col 1, row 1: "centre of the page".
+
+**Shape** (box W x H in baseline pixels; first match wins; the first two use the same thresholds as `js/hints.js` so shape and likely cause never disagree):
+
+| Test | Words |
+|---|---|
+| W >= 300 and H >= 100 | large area |
+| H >= 100 | tall block (I dropped "narrow": 105 px wide isn't narrow) |
+| W >= 3 x H | wide strip |
+| max(W, H) < 60 | small spot |
+| otherwise | medium area |
+
+These cut-offs are my proposal (only the first two come from Dex's rules); Dex to confirm via Atlas.
+
+#### Card contents, top to bottom
+
+1. **Header row:** number badge (`.region-badge`, same number and colour as the box badge on the canvas), `h3.region-title` with the header text, and **Show on screenshot** (`.region-show`).
+2. **Crops row** (`.region-crops`): two `<figure>`s side by side, each with a canvas and a visible `<figcaption>` "Before" / "After". Right of them, a small **locator** (`.region-locator`, `aria-hidden="true"`), a 72 x 48 canvas of the page outline with the box filled, so the user sees the position at a glance. The text header carries the same meaning, so the locator is decorative.
+3. **Likely cause** (`p.region-cause`): label "Likely cause" in bold, then the plain sentence from 12.11. Never italic grey; normal body text.
+4. **Decision** (`fieldset.decision`): legend "What is this change?" then three `label.choice` rows, each with the name and a one-line description (12.7). **No radio is pre-selected.**
+5. **Not sure?** (`details.region-help`): summary "Not sure?", short tip (12.7).
+6. **Note** (optional text field, as today) and **Add ignore zone** (as today; its meaning is explained by a hint: "Leave this area out of future comparisons").
+7. **Details** (`details.region-details`, collapsed): summary "Details (pixels)". Content `<dl>`: "From the left edge (x): 702 px", "From the top edge (y): 338 px", "Width: 105 px", "Height: 154 px", "Size: 1.2% of the page". All in baseline pixels (the original screenshot's pixels, not what's drawn on screen).
+
+**Crops, how.** Source for each crop is the already-loaded `m.baseline` and `m.candidate` (canvas or ImageBitmap). `drawImage(src, sx, sy, sw, sh, 0, 0, dw, dh)` with the crop box = region expanded by a margin of `max(16, round(0.25 * max(W, H)))` px each side, clamped to the image. Draw a dashed 2 px outline (red, with a dark under-stroke so it shows on any background) around the exact region inside both crops, so the eye finds what changed. Scale to fit at most 280 x 180 CSS px (set the canvas `width`/`height` attributes to the scaled pixel size, times `devicePixelRatio`, capped at 2; CSS `max-width: 100%; height: auto`). Draw lazily with an `IntersectionObserver` (plain `drawImage` if it is unavailable) so a run with 20 or more changes doesn't paint 40 canvases at once. Ignore zones are not drawn in crops. **This is Canvas 2D only; no `cv.Mat` is created**, so the Mat rule is unaffected. Release nothing on the main thread beyond the canvases being replaced on the next render.
+
+**ARIA.** Each crop canvas: `role="img"`, `aria-label` "Before: change 1 of 4, centre of the page, tall block" / "After: ...". The `li` keeps `tabindex="0"` and gets `aria-label` "Change 1 of 4, centre of the page, tall block, decision: not reviewed" (updated by `setDecision`, as today). Heading level: `h3` under the `h2` "Changes to review". Details and Not sure are native `<details>`.
+
+**Card states** (`li.region[data-decision]` as today, plus `data-selected="true"` and `data-linked="true"`): not reviewed, Expected, Regression, Noise (decision shown by text in the radio and a small text tag in the header "Decided: Regression", not only by colour), selected (strong outline + the matching box drawn thick on the canvas), linked (the pointer is over the box on the canvas: light highlight on the card only).
+
+### 12.7 Decision copy
+
+Legend: **"What is this change?"** Each option is `label.choice` containing `input[type=radio]`, `span.choice-name` and `span.choice-desc` (`aria-describedby` is not needed; the description is inside the label so it is read with the name).
+
+| Name | One-line description |
+|---|---|
+| Expected | "The update was meant to change this. It's fine." |
+| Regression | "Something broke, or changed when it shouldn't have. This is a defect, and it blocks sign-off." |
+| Noise | "A harmless difference, like a date, a time or a font being drawn slightly differently. Not a real change." |
+
+**Not sure?** (`details.region-help` body): "Compare the Before and After pictures, then check the change request: was this supposed to change? If yes, choose Expected. If it looks like a date or time that changes every time, choose Noise and consider adding an ignore zone. If you can't tell, choose Regression. You can change it later, and it keeps the run from being signed off until someone confirms."
+
+Sign-off rules are unchanged (section 3a). New hint above the list (`#regions-lede`): "Decide every change. You can't sign off while any change is marked Regression." The old `title` attributes on radios are removed (they duplicate the description and are hover-only).
+
+Announcements (`#announcer`): decision: "Change 2 marked Regression. 1 of 4 decided." (replaces "Region 2 marked ...").
+
+### 12.8 Two-way link between cards and the screenshot
+
+State: `S.selected` (index or -1), `S.hover` (index or -1, from canvas pointer or card hover/focus). `redrawBoxes(m, hover >= 0 ? hover : selected)`: hover/focus gives a temporary highlight, otherwise the selected box stays highlighted. The numbered badges on the canvas already use `i + 1`, so box numbers equal card numbers; keep it that way and never renumber after sorting (cards are in region order).
+
+**Card to screenshot**
+- Select a card by click, by **Enter** on the focused `li`, by focusing into it (Tab), or by pressing **Show on screenshot**.
+- Selecting sets `data-selected`, clears the old one, thickens the matching box.
+- **Show on screenshot** also: switches to the Boxes tab if another tab is active (announce "Showing change 2 on the Boxes view."), scrolls so the box is visible (`reveal(i)`, below), and leaves focus on the button. A small `#btn-back-to-card` ("Back to change 2") appears under the canvas so a keyboard user who scrolled can return.
+- Focus or hover alone only highlights; it doesn't scroll (so tabbing through cards doesn't make the page jump).
+
+**Screenshot to card**
+- `click` on `#canvas-boxes`: convert with `imgX = (clientX - rect.left) * (canvas.width / rect.width)` (same maths as section 4), hit-test the boxes expanded by 6 CSS px (smaller of two overlapping boxes wins), select the card, scroll it into view (`li.scrollIntoView({block: 'center', behavior: 'auto'})`) and **move focus to the card** (`li.focus({preventScroll: true})` after scrolling) so a screen-reader user lands on it.
+- `pointermove` over a box: set `S.hover`, cursor `pointer` (class `is-over-box` on the canvas wrap; Sable styles the cursor), mark the card `data-linked`. Leaving clears it.
+- Click on empty canvas: no change.
+- `#boxes-hint` under the canvas: "Click a numbered box to jump to its card. Using a keyboard? Tab through the cards; each one highlights its box."
+
+**`reveal(i)`**: if `.canvas-wrap` scrolls (sticky layout or tall capture), set its `scrollTop`/`scrollLeft` so the box centre sits in the middle; then `wrap.scrollIntoView({block: 'nearest'})` for the page. Respect `prefers-reduced-motion`: always `behavior: 'auto'` (no smooth scrolling anywhere).
+
+Selecting a card marks it "looked at" for the progress strip.
+
+### 12.9 First-run intro and "Who built this"
+
+**Intro card** (`#intro-card`, `role="region"`, `aria-labelledby="intro-title"`) shown at the top of the Library when there are no pages and `settings.introDismissed` isn't true. Exactly three sentences (copy in 12.11). Buttons: **Got it** (dismiss; `settingsDb.set('introDismissed', true)`; if storage is blocked, dismiss for this session only, no error) and a link "How it works". Dismiss moves focus to the **Load sample** button. The card isn't shown again unless the user presses **Reset app data** (which clears settings), which is correct: the library is empty again. It never covers the Load sample button; it sits above it. Under Load sample, a hint: "The sample is a fictional Timesheet page with a few deliberate changes."
+
+**Where the team shows up.** The AI agent team is not part of the running app, so the product only says so in three quiet places:
+1. `how-it-works.html#who` (section below).
+2. A footer line on every page: "Built and reviewed by a team of AI agents. [Who built this](how-it-works.html#who)." (`.credit`).
+3. Small `.credit` lines where a role's work is visible: under the capture tip ("The capture standard is from the PeopleSoft administrator role."), at the end of the "What do these numbers mean?" panel ("Wording from the business analyst role."), under "Likely cause" help (see 12.11, "Cause rules are from the PeopleSoft developer role."), and under the evidence form heading ("Fields follow the test lead's evidence standard."). Each links to `#who`. They're short, secondary text and never a reason a task is blocked.
+
+**`how-it-works.html`, new section `who`** (h2 "Who built this"; add `<li><a href="#who">Who built this</a></li>` to the TOC, placed last, after `limits`). Content (draft; Morgan's text for this section wins):
+
+- Intro: "This app was built and reviewed by a team of AI agents (Claude subagents), each acting in a role you'd find on an ERP test project. They did the design, the code and the checking. **They are not part of the running app.** The page you are using is a set of static files that runs in your browser: there is no AI behind it, no server, and no network call after the page loads."
+- Table "What each role did, and where you see it":
+
+| Role | What they did | Where you see it in the app |
+|---|---|---|
+| Orchestrator (Atlas) | Planned the work, handed tasks between roles, and logged every handoff and review | Nowhere in the app; see the log below |
+| Business analyst (Morgan) | Wrote the user stories and the plain-language definitions | The wording of results, PASS/FAIL and the three decisions |
+| Functional analyst (Riley) | Described the ERP pages and what a real change looks like | The sample pages and "Likely cause" wording |
+| PeopleSoft developer (Dex) | Catalogued the kinds of change PUM updates and PeopleTools upgrades cause | The "Likely cause" line on each change |
+| PeopleSoft administrator (Hal) | Wrote the capture standards | The capture tip and the Capture standard section |
+| Security administrator (Vera) | Set the security limits | The role-based test note and "not a security control" lines |
+| Test lead (Tess) | Defined the decisions, sign-off rules and evidence | Expected / Regression / Noise, the Save run form, sign-off |
+| Computer-vision engineer (Iris), WebAssembly engineer (Volt), data engineer (Ledger) | Built the comparison, ran it fast in the browser, stored your library | The comparison itself, the speed, and Reset app data |
+| UX and UI designers (Wren, Sable), front-end engineer (Juno), demo builder (Mason) | Designed and built the screens and the fictional Demo ERP | Everything you click |
+| QA tester (Quinn), release writer (Piper) | Tested it and wrote the docs | The checks in the README and this page |
+
+- Closing: "Every handoff and review between the roles is logged. Read the log: [docs/handoff-log.md](docs/handoff-log.md)." **Link target is unverified**: I did not find the GitHub repository URL anywhere in the repo (`grep` for github.com in `*.md`, `*.html`, `*.js` found only third-party tools). Because the site publishes `.` on Netlify, the relative path `docs/handoff-log.md` works without a third-party host and passes `tools/privacy_audit.py`. If Atlas supplies the repo URL, add a second link "View on GitHub" with `target="_blank" rel="noopener noreferrer"` and check the privacy audit allows it. Same link goes in the `project` section of `resources.html`.
+- Names are team names, not people; all data in the app is fictional.
+
+### 12.10 Keyboard and screen-reader rules (new interactions)
+
+- **Every canvas action has a non-canvas twin.** Click-a-box to select a card has Tab to the card plus Enter; the box highlight follows card focus. **Show on screenshot** is a real button.
+- Card `li`: `tabindex="0"`, **Enter** selects it (ignore Enter when the target is an input, button or summary; those keep their own behaviour). **Space** isn't bound (it scrolls and activates controls). No single-key shortcuts (WCAG 2.1.4).
+- Tab order inside a card: card, Show on screenshot, the three radios (one tab stop, arrows move), Not sure?, Note, Add ignore zone, Details. No tab stops on crops or the locator.
+- Crops: `role="img"` with the labels in 12.6, so the alt text comes from the card header. The locator is `aria-hidden="true"`.
+- **Live regions:** unchanged at three. `#announcer` gets: the result sentence (once), "Change 2 of 4 selected: top right, wide strip." on card select by click or Enter (not on plain Tab focus, so tabbing is quiet), "Showing change 2 on the Boxes view.", and the decision line. `#result-summary` and `#result-steps` are **not** `aria-live` (D13); they are plain text readers find in reading order.
+- Progress strip: `<ol>` with `aria-label`; `aria-current="step"` on the current step; every status is text.
+- Focus after card select by canvas click: the card. After **Show on screenshot**: stays on the button. After **Got it** on the intro: **Load sample**.
+- Focus ring: `:focus-visible` 2 px, as section 7, also on `li.region` (it is a focus target) and `details > summary`.
+- Targets at least 44 x 44 px for **Show on screenshot**, **Got it**, radio labels and summary rows.
+- Reduced motion: no smooth scroll, no fade on highlight changes.
+- **Contrast:** the numbered badge on the card must match the badge on the canvas (`#b3001b` on white text); Sable runs `tools/contrast_check.py` for the new pairs: `.region-cause`, `.choice-desc`, `.stat-note`, `.credit`, `.strip-status` in light, dark and the highlight outline against the card.
+- **CSP:** no inline scripts, no `style=` attributes, no `onclick`. Crops and locator are canvases sized by attributes; selection and progress are `data-*` attributes and classes, never inline widths; any dynamic value goes through `el.style.setProperty` only.
+
+### 12.11 Copy for `js/copy.js` (Juno: add under these keys)
+
+```js
+// UX-2 result clarity (docs/design/ux-flows.md section 12). Fictional data only.
+result: {
+  statusFail: (n, pct) => `FAIL — ${n === 1 ? '1 change found' : `${n} changes found`} (${pct} of page changed)`,
+  // pct is fmtPct(): "0.8%" or "under 0.1%"
+  statusPass: 'PASS — no unexpected changes',
+  announceFail: (n, pct) => `Comparison finished. FAIL, ${n === 1 ? '1 change' : `${n} changes`} found, ${pct} percent of the page changed.`,
+  announcePass: 'Comparison finished. PASS, no unexpected changes.',
+  guideTitle: "What's happening",
+  summaryFail: (n, page) => n === 1
+    ? `1 change found between the before and after screenshots of ${page}. Review it below and decide what it is.`
+    : `${n} changes found between the before and after screenshots of ${page}. Review each change below and decide what it is.`,
+  summaryPass: page => `No unexpected changes found between the before and after screenshots of ${page}. Save the run to keep a record.`,
+  summarySaved: (page, runId) => `Saved as run ${runId}.`,
+  summarySigned: (who, when) => `Signed off by ${who} on ${when}.`,
+  nextPromote: 'Next: Promote to baseline (optional).',
+  regionsTitle: 'Changes to review',
+  regionsLede: "Decide every change. You can't sign off while any change is marked Regression.",
+  progress: (k, n) => `${k} of ${n} decided`,
+  boxesHint: 'Click a numbered box to jump to its card. Using a keyboard? Tab through the cards; each one highlights its box.',
+  backToCard: n => `Back to change ${n}`,
+},
+steps: {
+  label: 'Review progress',
+  names: { review: 'Review changes', decide: 'Decide', save: 'Save run', signoff: 'Sign off' },
+  reviewTodo: (k, n) => `${k} of ${n} looked at`,
+  reviewDone: n => `All ${n} looked at`,
+  reviewNone: 'Nothing to review',
+  decideTodo: (k, n) => `${k} of ${n} decided`,
+  decideDone: n => `All ${n} decided`,
+  decideNone: 'Nothing to decide',
+  saveTodo: 'Not saved yet',
+  saveWait: n => `Decide every change first (${n} left)`,
+  saveDone: id => `Saved as run ${id}`,
+  signTodo: 'Not signed off',
+  signNeedSave: 'Save the run first',
+  signBlocked: 'Not available: a change is marked Regression',
+  signDone: who => `Signed off by ${who}`,
+},
+stats: {
+  changed: { label: 'Page changed', value: pct => pct, note: limit => `How much of the screenshot looks different. This page fails above ${limit}.` },
+  ssim: { label: 'Similarity (1.0 = identical)', value: v => `${(+v).toFixed(3)} out of 1.0`, note: 'How alike the two screenshots look. For information only; PASS or FAIL comes from the percent changed.' },
+  alignment: {
+    label: 'Alignment',
+    none: 'None needed',
+    // dx, dy from the worker; WORDS FOR DIRECTION ARE UNVERIFIED until Iris confirms the sign convention.
+    shifted: (dx, dy) => 'Shifted ' + [dx ? `${Math.abs(dx)} px ${dx > 0 ? 'right' : 'left'}` : '', dy ? `${Math.abs(dy)} px ${dy > 0 ? 'down' : 'up'}` : ''].filter(Boolean).join(' and '),
+    noteNone: 'The screenshots lined up, so nothing was moved before comparing.',
+    noteShifted: (dx, dy) => `The after screenshot was moved (${dx}, ${dy}) pixels to line it up before comparing, so a small scroll difference doesn't count as a change.`,
+  },
+  ignored: { label: 'Ignored areas', none: 'None', note: 'Areas you chose to leave out of the comparison.' },
+  took: { label: 'Comparison took' },
+  review: { label: 'Your review time' },
+  helpSummary: 'What do these numbers mean?',
+  help: [
+    ['Page changed', "The share of the screenshot's pixels that look different, after tiny differences are ignored."],
+    ['Similarity', 'A score from 0 to 1 for how alike the screenshots look to a person (SSIM). 1.0 means identical.'],
+    ['Alignment', "The tool moves the after screenshot a few pixels, or rescales it slightly, so scrolling or a small zoom difference isn't flagged."],
+    ['PASS', "No change above this page's limit."],
+    ['FAIL', "At least one change above the limit. Someone needs to review it."],
+    ['Ignore zone', 'An area you told the tool to skip, such as a timestamp. It is not a security control.'],
+  ],
+  helpCredit: 'Wording from the business analyst role.',
+},
+card: {
+  title: (i, n, pos, shape) => `Change ${i} of ${n} · ${pos} · ${shape}`,
+  aria: (i, n, pos, shape, decision) => `Change ${i} of ${n}, ${pos}, ${shape}, decision: ${decision || 'not reviewed'}`,
+  cropAria: (which, i, n, pos, shape) => `${which}: change ${i} of ${n}, ${pos}, ${shape}`,
+  before: 'Before', after: 'After',
+  show: 'Show on screenshot',
+  showAnnounce: i => `Showing change ${i} on the Boxes view.`,
+  selectAnnounce: (i, n, pos, shape) => `Change ${i} of ${n} selected: ${pos}, ${shape}.`,
+  causeLabel: 'Likely cause',
+  causeCredit: 'Cause rules are from the PeopleSoft developer role.',
+  decideLegend: 'What is this change?',
+  notSureSummary: 'Not sure?',
+  notSure: "Compare the Before and After pictures, then check the change request: was this supposed to change? If yes, choose Expected. If it looks like a date or time that changes every time, choose Noise and consider adding an ignore zone. If you can't tell, choose Regression. You can change it later, and it keeps the run from being signed off until someone confirms.",
+  noteLabel: 'Note (optional)',
+  zoneBtn: 'Add ignore zone',
+  zoneHint: 'Leave this area out of future comparisons.',
+  detailsSummary: 'Details (pixels)',
+  detail: { x: 'From the left edge (x)', y: 'From the top edge (y)', w: 'Width', h: 'Height', size: 'Size' },
+  detailValue: px => `${px} px`,
+  detailSize: pct => `${pct} of the page`,
+  detailNote: "Pixels of the original screenshot, not of what is drawn on screen.",
+  decided: d => `Decided: ${d}`,
+  marked: (i, d, k, n) => `Change ${i} marked ${d}. ${k} of ${n} decided.`,
+},
+position: {
+  'top-left': 'top left', 'top-centre': 'top centre', 'top-right': 'top right',
+  'middle-left': 'middle left', 'middle-centre': 'centre of the page', 'middle-right': 'middle right',
+  'bottom-left': 'bottom left', 'bottom-centre': 'bottom centre', 'bottom-right': 'bottom right',
+},
+shape: { large: 'large area', tall: 'tall block', wide: 'wide strip', small: 'small spot', medium: 'medium area' },
+decision: {
+  Expected: 'The update was meant to change this. It\'s fine.',
+  Regression: 'Something broke, or changed when it shouldn\'t have. This is a defect, and it blocks sign-off.',
+  Noise: 'A harmless difference, like a date, a time or a font being drawn slightly differently. Not a real change.',
+},
+cause: {   // keyed by hint id from js/hints.js; ids not listed fall back to 'unclassified'
+  'control-moved': 'A button or field seems to have moved: the same shape shows up in an old and a new place. Likely a page layout change.',
+  'label-text': 'A small piece of text changed. Likely a label or message, or a value such as a date or time that changes every time. If it does, add an ignore zone.',
+  'grid-layout': 'Part of a grid (table) changed, for example a column became wider or narrower, or rows shifted. Check that no values are cut off.',
+  'reflow': 'A large area moved down or sideways, probably because something above it was added, removed or resized. Look at the top of this change for the first real difference.',
+  'whole-page': 'Almost the whole page looks different. Likely a new theme or branding, or a change from Classic to Fluid. Consider capturing a new baseline.',
+  'capture-artifact': 'Many small differences spread around the page. This usually means the two screenshots were captured differently (zoom, window size, fonts), not that the page changed. Capture both again with the same settings.',
+  'unclassified': 'A visual difference with no obvious pattern. Compare the Before and After pictures and decide.',
+},
+intro: {
+  title: 'Welcome',
+  body: "This tool compares a before and an after screenshot of an ERP page and shows what changed. You decide whether each change was expected, a defect (regression) or harmless noise, and save the result as test evidence. Everything runs in your browser, and nothing you load leaves your device.",
+  dismiss: 'Got it',
+  more: 'How it works',
+  sampleHint: 'The sample is a fictional Timesheet page with a few deliberate changes.',
+},
+who: {
+  footer: 'Built and reviewed by a team of AI agents.',
+  footerLink: 'Who built this',
+  captureCredit: 'The capture standard is from the PeopleSoft administrator role.',
+  evidenceCredit: "Fields follow the test lead's evidence standard.",
+  logLink: 'docs/handoff-log.md',
+},
+```
+
+Notes on the copy: the `intro.body` is three sentences, as asked. Position, shape and cause maps keep all user-facing words in one file; `js/hints.js` and `js/region-hints.json` still decide *which* id applies, and `region-hints.json` `label`/`hint` are no longer shown (Dex: keep the ids stable). The `how-it-works.html` strings in 12.9 live in the HTML (static page, no JS).
+
+### 12.12 New ids and classes (Sable styles, Juno builds)
+
+Ids: `result-guide`, `h-guide`, `result-summary`, `result-steps`, `stats-help`, `boxes-hint`, `btn-back-to-card`, `regions-lede`, `intro-card`, `intro-title`, `intro-dismiss`, `intro-more`, `sample-hint`; per card, `region-{n}-title` (`h3`) and the `canvas` ids are generated (`crop-before-{n}`, `crop-after-{n}`, `locator-{n}`). On `how-it-works.html`: `who`.
+
+Classes: `guide`, `strip`, `strip-step` (`[data-step]`, `[data-status="done|current|todo|blocked"]`), `strip-status`, `stat-note`, `credit`, `result-layout` (two-column from 1100 px, view column sticky), `region-head`, `region-badge` (same colour and number as the canvas badge), `region-title`, `region-show`, `region-crops`, `region-crop` (the figure), `region-locator`, `region-cause`, `region-help` (the Not sure details), `region-details`, `choice`, `choice-name`, `choice-desc`, `is-over-box` (on `.canvas-wrap` while the pointer is over a box).
+
+Data attributes: `li.region[data-selected="true"]`, `li.region[data-linked="true"]`, `li.region[data-decision]` (as today), `.strip-step[data-status]`.
+
+Class glossary update (section 8a): add the above to "Result views" and "Result area" groups.
+
+Template `tpl-region` replacement (Juno builds from this; no inline style or handlers):
+
+```html
+<template id="tpl-region">
+  <li class="region" tabindex="0" data-region="" data-decision="unreviewed">
+    <div class="region-head">
+      <span class="region-badge" aria-hidden="true"></span>
+      <h3 class="region-title"></h3>
+      <button class="btn region-show" type="button"></button>
+    </div>
+    <div class="region-crops">
+      <figure class="region-crop"><canvas class="crop-before" role="img"></canvas><figcaption>Before</figcaption></figure>
+      <figure class="region-crop"><canvas class="crop-after" role="img"></canvas><figcaption>After</figcaption></figure>
+      <canvas class="region-locator" width="72" height="48" aria-hidden="true"></canvas>
+    </div>
+    <p class="region-cause"><strong>Likely cause:</strong> <span class="region-cause-text"></span></p>
+    <fieldset class="decision">
+      <legend>What is this change?</legend>
+      <label class="choice"><input type="radio" value="Expected"><span class="choice-name">Expected</span><span class="choice-desc"></span></label>
+      <label class="choice"><input type="radio" value="Regression"><span class="choice-name">Regression</span><span class="choice-desc"></span></label>
+      <label class="choice"><input type="radio" value="Noise"><span class="choice-name">Noise</span><span class="choice-desc"></span></label>
+    </fieldset>
+    <details class="region-help"><summary>Not sure?</summary><p></p></details>
+    <label class="field">Note (optional)<input class="region-note" type="text" autocomplete="off"></label>
+    <div class="actions">
+      <button class="btn region-zone" type="button">Add ignore zone</button>
+      <span class="hint region-zone-hint"></span>
+    </div>
+    <details class="region-details"><summary>Details (pixels)</summary><dl class="region-dl"></dl><p class="hint"></p></details>
+  </li>
+</template>
+```
+(Visible text in the template is filled from `copy.js` in JS; the English in the template is the fallback and the source for review.)
+
+### 12.13 Verification additions for Quinn
+
+1. Load sample (Timesheet): the summary sentence names "Time & Labor – Timesheet" and the number of changes; the strip shows step 1 current, "0 of N decided".
+2. Each card header reads "Change n of N · {position} · {shape}" with no pixel numbers outside **Details**; the example region (105 x 154 at 702, 338 on 1366 x 900) reads "centre of the page" and "tall block".
+3. Before and After crops show the region with a margin and an outline; their `aria-label` equals the header.
+4. Click each numbered box: the card with the same number is selected, focused and scrolled into view. Press **Show on screenshot**: the Boxes tab opens, the box is highlighted and visible, **Back to change n** returns. Keyboard-only: Tab to a card, Enter, Show on screenshot, no mouse.
+5. Decide cards: the strip updates (2 of 4 decided), the announcer says "Change 2 marked Regression. 1 of 4 decided.", sign-off stays blocked with its exact text.
+6. Stats read "Page changed 0.8%", "Similarity (1.0 = identical) 0.962 out of 1.0", "Alignment None needed" (and the shifted pair reads "Shifted 3 px down" only after Iris confirms the direction).
+7. Fresh profile: intro card with three sentences; **Got it** hides it and it stays hidden after reload; Reset app data brings it back.
+8. How it works has `#who`, the table and a working `docs/handoff-log.md` link; the footer line is on all pages.
+9. No CSP violations; Network quiet; `tools/contrast_check.py` covers the new text pairs; update the existing tests that match "changed region" or "Aligned: shift".
+
+### 12.14 Before / after
+
+| What the owner said | What it was | How it is resolved |
+|---|---|---|
+| "what the hell is region 1" | A bare "Region 1 of 4: 105 by 154 pixels at 702, 338" | "Change 1 of 4 · centre of the page · tall block", a Before/After picture, a locator, a plain "Likely cause" sentence; pixels are in a collapsed Details |
+| "there is not tie in to the screenshot" | Card hover only redrew the canvas one way | Two-way link: selecting a card highlights and scrolls to its box; clicking a box selects its card; **Show on screenshot** and **Back to change n** work from the keyboard; numbers match; sticky screenshot on wide screens |
+| "what is expected, regression or noise" | Three bare radios | Each option has a one-line plain description, a "Not sure?" tip that fails safe, and a lede that says what blocks sign-off |
+| "doesn't tell a user what exactly is going on or needed" | A red FAIL and raw numbers | "What's happening" sentence plus a 4-step progress strip that says what's done and what is next; plain stat labels with a caption each and a glossary; the result announcement says "changes", not "regions" |
+| "Region 1 of 4: 105 by 154 pixels at 702, 338" | Raw box coordinates in the title | Words for position and shape in the title; coordinates under Details with plain labels |
+| "where do all these agents and team come in... like the business analyst" | The team was invisible | How it works "Who built this" with a role-to-feature table and the handoff log link; a footer line on every page; small credit lines where a role's work is visible; it says the agents are **not** part of the running app |
+| (unspoken) first-run confusion | The empty Library said what to click, not what the tool is | Three-sentence dismissible intro (`introDismissed`) |
+
+### 12.15 Handoffs (for Atlas to route)
+
+- **Juno:** build 12.3 to 12.12 (`js/app.js`, `js/views.js` for crops, locator, click hit-test and persistent highlight; `js/copy.js`; `index.html` template; `how-it-works.html` `#who` and footer line on all three pages; `resources.html` `project` link). Add `introDismissed` through `settingsDb`.
+- **Sable:** style 12.12 (card layout, crops, strip, stat notes, `.credit`, sticky two-column layout at 1100 px, `is-over-box` cursor, selected/linked states) and run `tools/contrast_check.py` on the new pairs.
+- **Morgan:** reconcile the definitions in 12.5, 12.7 and the "Who built this" table with `docs/erp/plain-language-results.md`; confirm D12 ("when unsure, choose Regression").
+- **Iris:** confirm what `alignment.dx`/`dy` mean (which image moved, which way) so "Shifted 3 px down" is true (D11).
+- **Dex:** confirm the shape cut-offs in 12.6 and keep the hint ids stable; review the plain cause sentences.
+- **Quinn:** update tests that match "changed region", "Region n marked" and "Aligned: shift" (D8, D11); add 12.13.
+- **Atlas:** supply the GitHub repo URL if the handoff log should link there (12.9).

@@ -33,6 +33,14 @@ A visual diff can show that a field or button appeared or disappeared for a test
 | US-14 | Adjust sensitivity | Could | Settings (threshold %, min area, kernel) |
 | US-15 | Collect pilot metrics | Should | Recorded `ms`, review duration, decisions, zone count |
 | US-16 | Candidate becomes new baseline after sign-off | Could | Promote to baseline |
+| US-17 | Each change described in words and location (pixels in an optional "details" line) | Must | Change card header and details line |
+| US-18 | Find each change on the screenshot; before/after crops | Must | Highlight, scroll to box, crops |
+| US-19 | Decision options explain themselves | Must | Help text, "Not sure?" rule |
+| US-20 | "What's happening / what to do next" guide | Must | Four-step guide on Result |
+| US-21 | First-run introduction in 3 sentences | Should | Dismissible panel on Library |
+| US-22 | "Who built this" on How it works | Must | Team section and table |
+
+US-17 to US-22 come from the owner's feedback after trying the live app (UX-1). Copy, rules and examples: [plain-language-results.md](plain-language-results.md).
 
 Won't (this release): automatic capture inside PeopleSoft, OCR of field values, server-side storage or sharing, proof of authorization or functional correctness.
 
@@ -121,6 +129,57 @@ As a **manager**, I want an exportable report per page so that I can attach it t
 As a **pilot sponsor**, I want the app to record what a pilot needs so that the County can replace estimates with measurements.
 - **Given** a run, **then** the compare time (`ms`), the review duration, the decision per region and the number of ignore zones are stored with it.
 - **Given** the pilot sheet (below), **then** every measured column can be filled from stored runs or a stopwatch sample.
+
+## Plain-language results (UX-1)
+
+Persona for all of these: an **analyst** or **reviewer** who knows PeopleSoft pages but not computer vision. In the app, a "region" is called a **change**. Stored field names (`regions[]`) do not change.
+
+### US-17 Describe each change in words (Must)
+As an **analyst**, I want each change described by where it is and what it looks like, so that I understand it without reading pixel coordinates.
+- **Given** a FAIL result, **when** I look at the change list, **then** each card header reads "Change {n} of {total} · {where on the page} · {shape}", for example "Change 1 of 4 · middle of the page · tall narrow block".
+- **Given** a change whose centre is in the top-right third of the page, **then** the location reads "top right of the page"; the nine location phrases and two overrides ("most of the page", "across the full width") are in plain-language-results.md section 4b.
+- **Given** I want the exact numbers, **when** I open the card's "Details" line, **then** I see "105 × 154 pixels, top-left corner at x 702, y 338. Page size 1366 × 900." The details line is collapsed by default.
+- **Given** the result screen, **then** the word "region" does not appear in any visible text (stored data and exports keep their field names).
+
+### US-18 Find each change on the screenshot (Must)
+As an **analyst**, I want to see exactly where a change is on the screenshot, so that I can judge it without matching numbers to pixels in my head.
+- **Given** a change card, **when** I click the card or press **Show on screenshot**, **then** its box is highlighted (thicker outline and number badge) and the screenshot scrolls so the box is in view.
+- **Given** I click a numbered box on the screenshot, **then** its card is selected and focused (Should, secondary to the above).
+- **Given** each card, **then** it shows small "Before" and "After" crops of that area, with text alternatives.
+- **Given** the Heatmap or Overlay view is active, **when** I select a change, **then** the card says "Switch to Boxes to see the outline" and offers a button to do so.
+- **Given** a keyboard or screen-reader user, **then** the same selection works from the keyboard and is announced once ("Change 1 selected, middle of the page, tall narrow block").
+- **Given** reduced-motion is requested, **then** the scroll jumps instead of animating.
+
+### US-19 Explain the decisions where I make them (Must)
+As an **analyst**, I want each decision option to say what it means, so that I do not guess and the sign-off rules stay meaningful.
+- **Given** a change card, **then** next to the options I always see (not only on hover): Expected = "This change was supposed to happen. It is part of the patch or upgrade."; Regression = "This change is a defect. Log it. The page can't be signed off until it is fixed."; Noise = "Not a real change, for example a time stamp or rendering. Safe to ignore."
+- **Given** the options, **then** the rule "Not sure? Choose Regression and add a note. A reviewer can change it later." is visible beneath them.
+- **Given** a new change card, **then** no option is pre-selected (a change is undecided until the analyst chooses).
+- **Given** I choose Noise, **then** I am asked "Will this change every time? Add an ignore zone so it stops showing up."
+- **Given** a note is optional, **then** I can save without one, including for Regression (evidence standard: `regions[].note` is not required).
+
+### US-20 Show what is happening and what to do next (Must)
+As an **analyst**, I want a short guide on the result screen, so that I always know the current step and the next one.
+- **Given** a FAIL result, **then** the Result screen shows four steps: "1 Review each change → 2 Decide → 3 Save the run → 4 Sign off", with the current step marked by text ("you are here"), not only colour.
+- **Given** 2 of 4 changes are decided, **then** the guide says "2 of 4 changes decided. Next: decide the other 2."
+- **Given** every change is decided and one is a Regression, **then** the guide says sign-off is blocked and tells me to log a defect, attach the report and compare again after the fix.
+- **Given** a PASS result, **then** the guide shows steps 1 and 2 as "nothing to review" and says the next step is save, then sign off.
+- **Given** the full state-by-state wording (10 states) in plain-language-results.md section 4f, **then** the guide text matches the sign-off rules in the evidence standard.
+
+### US-21 Explain the tool on first use (Should)
+As a **first-time user**, I want a three-sentence explanation before I do anything, so that I know what the tool does and what it does not.
+- **Given** a first visit, **then** a panel says what the tool does in three sentences (compare before and after; you decide each change and save evidence; everything stays in your browser), followed by the positioning line word for word.
+- **Given** I press **Got it**, **then** the panel does not return on later visits; I can reopen it from a "What does this tool do?" link.
+- **Given** storage is blocked, **then** the panel shows each visit and no error is raised.
+- **Given** I use Reset app data, **then** the panel returns on the next visit.
+
+### US-22 Say who built this (Must)
+As a **marker or manager**, I want a plain explanation of the team behind the app, so that I understand the role of the 17 AI agents, including the business analyst.
+- **Given** the How it works page, **then** it has a "Who built this" section with one intro paragraph and a table (name, role, contribution, model tier) for all 17 named members.
+- **Given** the intro paragraph, **then** it says in plain words that AI agents (named personas) designed, built, reviewed and tested the app as a team, and that they are **not part of the running app** (no AI runs while the user works).
+- **Given** the table, **then** the business analyst's row names the stories and acceptance checks, the demo script, the pilot metrics and the positioning wording.
+- **Given** the section, **then** it uses no real person's name, no logo and no external link; the positioning disclaimer appears as in the footer.
+- **Given** the page at 375 px wide, **then** the table scrolls inside its wrapper and the page does not scroll sideways.
 
 ## Could
 
