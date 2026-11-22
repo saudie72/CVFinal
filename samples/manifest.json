@@ -59,7 +59,7 @@
     },
     "ignoreZones": [],
     "story": "After the update, one column of the invoice lines moved over a little and the Amount values got cut off.",
-    "whatToExpect": "Expect: at least 1 change found (FAIL).",
+    "whatToExpect": "Expect: at least 1 change found (FAIL), around the Amount column.",
     "order": 4,
     "group": "More examples"
   },
@@ -94,7 +94,7 @@
   },
   {
     "page": "hcm-job-data-shifted",
-    "title": "Employee job record (scrolled 3 pixels)",
+    "title": "Employee job record (page scrolled slightly)",
     "module": "HCM",
     "before": "samples/hcm-job-data-shifted_before.png",
     "after": "samples/hcm-job-data-shifted_after.png",
