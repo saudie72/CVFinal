@@ -1,6 +1,6 @@
 {
  "site": "https://cvfinal-erp-inspector.netlify.app/",
- "date": "2026-11-22T17:24:02.306Z",
+ "date": "2026-11-22T17:24:14.898Z",
  "checks": [
   {
    "name": "live: HTTP 200",
@@ -56,25 +56,14 @@
    "evidence": [
     "/samples/tl-timesheet_before.png",
     "/samples/tl-timesheet_after.png",
-    "blob:/1f5625b2-c24e-4f48-9190-05cb06f31bff"
+    "blob:/79a2cfde-a69d-4d26-b5e2-c8eb305aa99b"
    ]
   },
   {
    "name": "live: no console errors or page errors from the app itself (HUD badge listed separately)",
-   "ok": false,
+   "ok": true,
    "evidence": {
-    "consoleApp": [
-     {
-      "type": "error",
-      "text": "Applying inline style violates the following Content Security Policy directive 'style-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-8yreEHY+Xg9JoKqfg+6OwIKjoM+M9u5aNudQuWvORK0='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
-      "loc": "about:srcdoc"
-     },
-     {
-      "type": "error",
-      "text": "Executing inline script violates the following Content Security Policy directive 'script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval''. Either the 'unsafe-inline' keyword, a hash ('sha256-BkKP2XO6WOEc3kXOiLr2ZoY83hamalKjPY9xBcbXVuw='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
-      "loc": "about:srcdoc"
-     }
-    ],
+    "consoleApp": [],
     "pageErrors": [],
     "cspApp": []
    }
@@ -180,7 +169,7 @@
    "method": "GET"
   },
   {
-   "url": "blob:https://cvfinal-erp-inspector.netlify.app/1f5625b2-c24e-4f48-9190-05cb06f31bff",
+   "url": "blob:https://cvfinal-erp-inspector.netlify.app/79a2cfde-a69d-4d26-b5e2-c8eb305aa99b",
    "method": "GET"
   }
  ],
@@ -201,8 +190,7 @@
  "hudRequests": [
   "/.netlify/scripts/hud?variant=public"
  ],
- "consoleHud": [],
- "consoleApp": [
+ "consoleHud": [
   {
    "type": "error",
    "text": "Applying inline style violates the following Content Security Policy directive 'style-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-8yreEHY+Xg9JoKqfg+6OwIKjoM+M9u5aNudQuWvORK0='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
@@ -214,6 +202,7 @@
    "loc": "about:srcdoc"
   }
  ],
+ "consoleApp": [],
  "cspHud": [],
  "cspApp": [],
  "failedRequests": [],

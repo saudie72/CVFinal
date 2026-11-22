@@ -119,6 +119,11 @@
           </label>
         </div>
         <div class="field">
+          <label for="ps-page">Which PeopleSoft page is this?</label>
+          <select id="ps-page" class="ps-select" name="psPage" aria-describedby="ps-page-hint"><option value="">Choose a page…</option></select>
+          <p id="ps-page-hint" class="hint">Names follow PeopleBooks for PeopleSoft 9.2 (HCM and FSCM). Pick one, or choose Other to type your own.</p>
+        </div>
+        <div class="field" id="page-name-field">
           <label for="page-name">Page name</label>
           <input id="page-name" name="name" type="text" autocomplete="off" required aria-describedby="page-name-hint page-name-error" placeholder="Employee job record">
           <p id="page-name-hint" class="hint">Use the page's name in the application, so it is easy to find later.</p>
@@ -148,6 +153,7 @@
         <li class="card" data-page-id="">
           <img class="card-thumb" alt="" width="160" height="105">
           <h3 class="card-title"></h3>
+          <p class="card-sub hint" hidden></p>
           <p class="card-meta"></p>
           <div class="actions">
             <button class="btn btn-primary page-open" type="button">Compare</button>
@@ -248,6 +254,7 @@
     <!-- ============ RESULT ============ -->
     <section id="screen-result" class="screen" data-screen="result" aria-labelledby="h-result" hidden>
       <h1 id="h-result">Result</h1>
+      <p id="result-page-name" class="hint" hidden></p>
 
       <section id="result-guide" class="guide panel" aria-labelledby="h-guide">
         <h2 id="h-guide">What's happening</h2>

@@ -131,7 +131,23 @@ def main():
             ("tour focus ring accent on panel gap (non-text)", "--accent", "panel", 3.0),
             ("tour bubble border on panel (non-text)", "--border-strong", "panel", 3.0),
             ("Not-sure info icon accent on fail tint (non-text)", "--accent", "fail-bg", 3.0),
+            # UX-POLISH (css/app.css section 13c): outcome-tinted result header, hero gradient, select arrow
+            ("text on pass tint (PASS result header gradient)", "--text", "pass-bg", 4.5),
+            ("secondary text on pass tint (PASS result header)", "--text-2", "pass-bg", 4.5),
+            ("text on fail tint (FAIL result header gradient)", "--text", "fail-bg", 4.5),
+            ("secondary text on fail tint (FAIL result header)", "--text-2", "fail-bg", 4.5),
+            ("accent link on fail tint (FAIL result header)", "--accent", "fail-bg", 4.5),
+            ("accent link on pass tint (PASS result header)", "--accent", "pass-bg", 4.5),
+            ("FAIL status bar on panel (non-text)", "--fail", "panel", 3.0),
+            ("select arrow = --text-2 on field (non-text)", "--text-2", "field", 3.0),
+            ("nav active ring accent on accent-soft (non-text)", "--accent", "accent-soft", 3.0),
+            ("hero gradient: accent link on accent-soft", "--accent", "accent-soft", 4.5),
+            ("sample-area pill: secondary text on accent-soft", "--text-2", "accent-soft", 4.5),
+            ("sample-hero expectation tray: secondary text on panel", "--text-2", "panel", 4.5),
         ]
+        # brand mark: check glyph (--on-accent) on both ends of the logo gradient
+        for end in ("--accent-bg", "--accent"):
+            results.append((name, f"brand mark glyph on {end} (non-text)", ratio(tok("--on-accent"), tok(end)), 3.0))
         # fg on accent surface
         for label, fg, bg in (("primary button / selected tab text on accent", "--on-accent", "--accent-bg"),):
             r = ratio(tok(fg), tok(bg))

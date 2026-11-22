@@ -49,9 +49,13 @@ const clean = (s) => (s || '').replace(/\s+/g, ' ').trim();
   rec('live: after ready, only the demo PNGs were requested (same origin)', post.filter((u) => !allowed(u)).length === 0, post);
   out.csp = await page.evaluate(() => window.__csp);
   // classify: the Netlify-injected HUD badge (known hosting issue) vs anything from the app itself
+  // Netlify injects /.netlify/scripts/hud, which builds an about:srcdoc iframe; its inline style/script are blocked by OUR CSP and log 2 console errors
+  // with location "about:srcdoc". Those (and only those, and only when the HUD request happened) are the known hosting issue.
+  const hudWasLoaded = out.requests.some((r) => /\/\.netlify\/scripts\/hud/.test(r.url));
   const hud = (t) => /\.netlify\/scripts\/hud|netlify\/scripts\/hud/i.test(t);
-  const consoleHud = out.console.filter((c) => hud(c.text) || hud(c.loc));
-  const consoleApp = out.console.filter((c) => !(hud(c.text) || hud(c.loc)));
+  const isHudConsole = (c) => hud(c.text) || hud(c.loc) || (hudWasLoaded && c.loc === 'about:srcdoc' && /Content Security Policy/.test(c.text));
+  const consoleHud = out.console.filter(isHudConsole);
+  const consoleApp = out.console.filter((c) => !isHudConsole(c));
   const cspHud = out.csp.filter((c) => hud(c.blocked) || hud(c.source));
   const cspApp = out.csp.filter((c) => !(hud(c.blocked) || hud(c.source)));
   const hudReq = out.requests.filter((r) => /\/\.netlify\//.test(r.url)).map((r) => r.url.replace(ORIGIN, ''));
