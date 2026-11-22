@@ -17,15 +17,15 @@ This is the CAI 2840 Computer Vision final project. It is a **100% in-browser** 
 4. Everything lives on the `main` branch.
 
 ## The team
-There are 17 project subagents in `.claude/agents/`, with skills in `.claude/skills/`. The full roster and skills matrix is in `docs/expert-roster.md`.
+There are 17 project subagents in `.claude/agents/`, with skills in `.claude/skills/`. The full roster and skills matrix is in `docs/expert-roster.md`; models and personalities are in `docs/agent-brains.md` (opus: orchestrator, opencv, wasm · haiku: release-docs, PSA · sonnet: everyone else).
 
 | Group | Agents |
 |---|---|
 | Lead | `orchestrator` (Atlas), `meta-agent` (Forge) |
-| Required experts | `opencv-expert`, `wasm-expert`, `indexeddb-expert` |
+| Required experts | `opencv-expert` (Iris), `wasm-expert` (Volt), `indexeddb-expert` (Ledger) |
 | Design | `ui-designer-apple-liquid-glass` (Sable), `ux-designer-apple-hig` (Wren) |
-| Build & ship | `frontend-engineer`, `mock-erp-builder`, `qa-tester`, `release-docs-engineer` |
-| ERP domain | `erp-business-analyst`, `erp-functional-analyst`, `peoplesoft-developer`, `peoplesoft-admin-psa`, `erp-security-admin`, `erp-test-lead` |
+| Build & ship | `frontend-engineer` (Juno), `mock-erp-builder` (Mason), `qa-tester` (Quinn), `release-docs-engineer` (Piper) |
+| ERP domain | `erp-business-analyst` (Morgan), `erp-functional-analyst` (Riley), `peoplesoft-developer` (Dex), `peoplesoft-admin-psa` (Hal), `erp-security-admin` (Vera), `erp-test-lead` (Tess) |
 
 ## How the team works
 - **The orchestrator runs the team.** For any multi-step goal, start with `@agent-orchestrator`. It plans the work, gives each task one owner, and **runs independent experts in parallel** by launching every unblocked task in the same turn, in waves: ERP and design specs → computer vision, storage and fixtures → app integration → peer reviews and QA → release.
